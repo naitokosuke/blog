@@ -8,14 +8,19 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "@nuxt/image",
     "@nuxt/scripts",
+    "@nuxtjs/color-mode",
   ],
   devtools: { enabled: true },
+  css: ["~/assets/css/main.css"],
   content: {
     experimental: {
       nativeSqlite: true,
     },
   },
   compatibilityDate: "2024-04-03",
+  colorMode: {
+    classSuffix: "",
+  },
   eslint: {
     config: {
       stylistic: {

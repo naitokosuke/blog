@@ -1,0 +1,89 @@
+@font-face {
+  font-family: "Tsunagi Gothic";
+  src: url("../fonts/TsunagiGothic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Colors - Light Mode (high contrast monochrome) */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f0f0f0;
+  --color-text: #000000;
+  --color-text-secondary: #333333;
+  --color-border: #000000;
+  --color-accent: #000000;
+  --color-accent-hover: #333333;
+
+  /* Typography */
+  --font-sans: "Tsunagi Gothic", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Spacing */
+  --max-width: 768px;
+  --header-height: 64px;
+}
+
+.dark {
+  --color-bg: #000000;
+  --color-bg-secondary: #111111;
+  --color-text: #ffffff;
+  --color-text-secondary: #cccccc;
+  --color-border: #ffffff;
+  --color-accent: #ffffff;
+  --color-accent-hover: #cccccc;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background-color: var(--color-bg-secondary);
+  padding: 0.125em 0.375em;
+  border-radius: 4px;
+}
+
+pre {
+  font-family: var(--font-mono);
+  background-color: var(--color-bg-secondary);
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
