@@ -20,6 +20,6 @@
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 0 1rem;
 }
 </style>

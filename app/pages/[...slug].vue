@@ -16,8 +16,10 @@ if (page.value == null) {
 </script>
 
 <template>
-  <ContentRenderer
+  <article
     v-if="page"
-    :value="page"
-  />
+    class="prose"
+  >
+    <ContentRenderer :value="page" />
+  </article>
 </template>
