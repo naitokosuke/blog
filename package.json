@@ -6,7 +6,10 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview"
+    "preview": "nuxt preview",
+    "lint": "oxlint && eslint .",
+    "oxlint": "oxlint",
+    "fmt": "oxlint --fix && eslint . --fix"
   },
   "dependencies": {
     "@nuxt/content": "^3.10.0",
@@ -20,5 +23,9 @@
     "better-sqlite3": "^12.5.0",
     "eslint": "^9.0.0",
     "nuxt": "^4.2.2"
+  },
+  "devDependencies": {
+    "eslint-plugin-oxlint": "^1.36.0",
+    "oxlint": "^1.36.0"
   }
 }
