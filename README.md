@@ -1,75 +1,45 @@
-# Nuxt Content Starter
+# Nuxt Content Blog (SSG)
 
-Look at the [Nuxt Content documentation](https://content.nuxt.com) to learn more.
+Nuxt Content を使った **個人ブログ**です。  
+Nuxt の **SSG(静的生成)のみ**を使用し、静的ホスティング(Cloudflare Pages / Netlify / Vercel 等)にそのまま配置できる構成になっています。
 
-## Setup
+- 記事は Markdown で管理
+- Git ベースの運用
+- 将来的に Nuxt Studio を追加できる前提(本リポジトリでは未導入)
 
-Make sure to install dependencies:
+---
+
+## 技術スタック
+
+- **Nuxt**(SSG / Static Generation)
+- **@nuxt/content**
+- **TypeScript**
+
+### init 時点で導入済みの Nuxt 公式モジュール
+
+> ※ このプロジェクトでは、以下モジュールは **init 時にすでに install 済み**です  
+> 追加 install は行っていません。
+
+- `@nuxt/content`  
+  Markdown ベースのコンテンツ管理
+- `@nuxt/eslint`  
+  ESLint 統合
+- `@nuxt/fonts`  
+  Web フォント管理
+- `@nuxt/hints`  
+  パフォーマンス / ベストプラクティス警告
+- `@nuxt/icon`  
+  アイコンコンポーネント
+- `@nuxt/image`  
+  画像最適化(`<NuxtImg>`)
+- `@nuxt/scripts`  
+  外部スクリプト管理(将来拡張用)
+
+---
+
+## 開発環境
+
+### 依存関係のインストール
 
 ```bash
-# npm
-npm install
-
-# pnpm
 pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
