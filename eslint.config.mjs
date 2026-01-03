@@ -16,6 +16,14 @@ export default withNuxt(
       parser: tsParser,
     },
   },
+  {
+    files: ["**/*.vue"],
+    languageOptions: {
+      parserOptions: {
+        parser: tsParser,
+      },
+    },
+  },
   // oxlint rules disabling must come after nuxt config to not override parser settings
   oxlint.configs["flat/recommended"].at(-1),
 );

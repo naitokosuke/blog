@@ -20,7 +20,10 @@ const tags = computed(() => {
   <div>
     <h1>Tags</h1>
     <ul v-if="tags.length">
-      <li v-for="[tag, count] in tags" :key="tag">
+      <li
+        v-for="[tag, count] in tags"
+        :key="tag"
+      >
         {{ tag }} ({{ count }})
       </li>
     </ul>
