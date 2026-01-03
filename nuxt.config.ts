@@ -26,7 +26,6 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: true,
       failOnError: false,
-      ignore: ["/404.html"],
     },
   },
   eslint: {
