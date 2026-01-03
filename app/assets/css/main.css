@@ -21,7 +21,7 @@
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   /* Spacing */
-  --max-width: 768px;
+  --max-width: 1200px;
   --header-height: 64px;
 }
 
@@ -238,3 +238,24 @@ img {
   font-style: italic;
 }
 
+/* Responsive */
+@media (max-width: 768px) {
+  .prose h1 {
+    font-size: 1.5rem;
+  }
+
+  .prose h2 {
+    font-size: 1.25rem;
+  }
+
+  .prose h3 {
+    font-size: 1.125rem;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4 {
+    margin-top: 1.5rem;
+  }
+}
