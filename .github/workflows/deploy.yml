@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Rebuild native modules
+        run: pnpm rebuild better-sqlite3
+
       - name: Build
         run: pnpm build
 
