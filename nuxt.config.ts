@@ -10,6 +10,11 @@ export default defineNuxtConfig({
     "@nuxt/scripts",
   ],
   devtools: { enabled: true },
+  content: {
+    experimental: {
+      nativeSqlite: true,
+    },
+  },
   compatibilityDate: "2024-04-03",
   eslint: {
     config: {
