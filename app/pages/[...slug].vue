@@ -5,7 +5,7 @@ const { data: page } = await useAsyncData(() => {
   return queryCollection("posts").path(route.path).first();
 });
 
-if (page.value != null) {
+if (page.value == null) {
   throw createError({ statusCode: 404, statusMessage: "Page not found", fatal: true });
 }
 </script>
