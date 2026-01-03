@@ -16,6 +16,11 @@ export default defineNuxtConfig({
   colorMode: {
     classSuffix: "",
   },
+  content: {
+    experimental: {
+      sqliteConnector: "native",
+    },
+  },
   compatibilityDate: "2024-09-19",
   nitro: {
     prerender: {
