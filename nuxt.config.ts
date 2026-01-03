@@ -10,6 +10,12 @@ export default defineNuxtConfig({
     "@nuxt/scripts",
   ],
   devtools: { enabled: true },
+  css: ["~/assets/css/main.css"],
+  fonts: {
+    families: [
+      { name: "Noto Sans JP", provider: "google", weights: [400, 500, 700] },
+    ],
+  },
   content: {
     experimental: {
       nativeSqlite: true,
