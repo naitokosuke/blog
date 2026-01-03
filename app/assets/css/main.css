@@ -44,6 +44,17 @@
   padding: 0;
 }
 
+/* List base styles */
+ul {
+  padding-left: 1.5rem;
+  list-style-type: none;
+}
+
+ol {
+  padding-left: 1.5rem;
+  list-style-type: decimal;
+}
+
 /* Base */
 html {
   font-family: var(--font-sans);
