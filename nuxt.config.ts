@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
+    "~/modules/content-assets",
     "@nuxt/content",
     "@nuxt/eslint",
     "@nuxt/fonts",
@@ -15,18 +16,12 @@ export default defineNuxtConfig({
   colorMode: {
     classSuffix: "",
   },
-  content: {
-    database: {
-      type: "d1",
-      bindingName: "DB",
-    },
-    experimental: {
-      sqliteConnector: "native",
-    },
-  },
   compatibilityDate: "2024-09-19",
   nitro: {
-    preset: "cloudflare_module",
+    prerender: {
+      crawlLinks: true,
+      failOnError: false,
+    },
   },
   eslint: {
     config: {
@@ -36,5 +31,8 @@ export default defineNuxtConfig({
         semi: true,
       },
     },
+  },
+  image: {
+    provider: "none",
   },
 });

@@ -1,5 +1,4 @@
 name = "blog"
-main = ".output/server/index.mjs"
 compatibility_date = "2024-09-19"
 
 [assets]
@@ -8,8 +7,3 @@ directory = ".output/public"
 [[routes]]
 pattern = "blog.naito.dev"
 custom_domain = true
-
-[[d1_databases]]
-binding = "DB"
-database_name = "blog-content"
-database_id = "ebfd80fa-49a3-43ca-9a27-0d37a66ef98b"
