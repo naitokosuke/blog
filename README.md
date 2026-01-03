@@ -5,7 +5,7 @@ Nuxt の **SSG(静的生成)のみ**を使用し、静的ホスティング(Clou
 
 - 記事は Markdown で管理
 - Git ベースの運用
-- 将来的に Nuxt Studio を追加できる前提(本リポジトリでは未導入)
+- 将来的に Nuxt Studio を追加
 
 ---
 
@@ -13,7 +13,6 @@ Nuxt の **SSG(静的生成)のみ**を使用し、静的ホスティング(Clou
 
 - **Nuxt**(SSG / Static Generation)
 - **@nuxt/content**
-- **TypeScript**
 
 ### init 時点で導入済みの Nuxt 公式モジュール
 
