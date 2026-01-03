@@ -12,15 +12,15 @@ export default defineNuxtConfig({
   ],
   devtools: { enabled: true },
   css: ["~/assets/css/main.css"],
+  colorMode: {
+    classSuffix: "",
+  },
   content: {
     experimental: {
       nativeSqlite: true,
     },
   },
   compatibilityDate: "2024-04-03",
-  colorMode: {
-    classSuffix: "",
-  },
   eslint: {
     config: {
       stylistic: {
