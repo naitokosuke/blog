@@ -20,6 +20,9 @@ export default defineNuxtConfig({
       type: "d1",
       bindingName: "DB",
     },
+    experimental: {
+      sqliteConnector: "native",
+    },
   },
   compatibilityDate: "2024-09-19",
   nitro: {
