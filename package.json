@@ -22,7 +22,8 @@
     "@unhead/vue": "^2.0.3",
     "better-sqlite3": "^12.5.0",
     "eslint": "^9.0.0",
-    "nuxt": "^4.2.2"
+    "nuxt": "^4.2.2",
+    "valibot": "^1.2.0"
   },
   "devDependencies": {
     "eslint-plugin-oxlint": "^1.36.0",
