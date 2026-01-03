@@ -16,8 +16,9 @@ export default defineNuxtConfig({
     classSuffix: "",
   },
   content: {
-    experimental: {
-      nativeSqlite: true,
+    database: {
+      type: "d1",
+      bindingName: "DB",
     },
   },
   compatibilityDate: "2024-09-19",
