@@ -15,7 +15,10 @@ const { data: posts } = await useAsyncData("home-posts", () =>
 
     <h2>Recent Posts</h2>
     <ul v-if="posts?.length">
-      <li v-for="post in posts" :key="post.path">
+      <li
+        v-for="post in posts"
+        :key="post.path"
+      >
         <NuxtLink :to="post.path">
           {{ post.title }}
         </NuxtLink>

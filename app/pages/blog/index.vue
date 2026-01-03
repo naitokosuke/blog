@@ -11,7 +11,10 @@ const { data: posts } = await useAsyncData("posts", () =>
   <div>
     <h1>Blog</h1>
     <ul v-if="posts?.length">
-      <li v-for="post in posts" :key="post.path">
+      <li
+        v-for="post in posts"
+        :key="post.path"
+      >
         <NuxtLink :to="post.path">
           {{ post.title }}
         </NuxtLink>

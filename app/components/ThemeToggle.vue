@@ -15,8 +15,16 @@ const isDark = computed({
     :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
     @click="isDark = !isDark"
   >
-    <Icon v-if="isDark" name="lucide:sun" size="20" />
-    <Icon v-else name="lucide:moon" size="20" />
+    <Icon
+      v-if="isDark"
+      name="lucide:sun"
+      size="20"
+    />
+    <Icon
+      v-else
+      name="lucide:moon"
+      size="20"
+    />
   </button>
 </template>
 

@@ -10,7 +10,10 @@ const navItems = [
 <template>
   <header class="header">
     <div class="header-inner">
-      <NuxtLink to="/" class="logo">
+      <NuxtLink
+        to="/"
+        class="logo"
+      >
         Blog
       </NuxtLink>
       <nav class="nav">

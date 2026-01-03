@@ -1,22 +1,21 @@
 import { defineNuxtModule, useNuxt } from "@nuxt/kit";
-import { cpSync, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".ico"];
 
-function copyImagesRecursively(srcDir: string, destDir: string, baseDir: string) {
+function copyImagesRecursively(srcDir: string, destDir: string, baseDir: string): void {
   if (!existsSync(srcDir)) return;
 
   const entries = readdirSync(srcDir, { withFileTypes: true });
 
   for (const entry of entries) {
     const srcPath = join(srcDir, entry.name);
-    const relativePath = relative(baseDir, srcPath);
-    const destPath = join(destDir, relativePath);
 
     if (entry.isDirectory()) {
       copyImagesRecursively(srcPath, destDir, baseDir);
-    } else if (entry.isFile()) {
+    }
+    else if (entry.isFile()) {
       const ext = entry.name.toLowerCase().slice(entry.name.lastIndexOf("."));
       if (imageExtensions.includes(ext)) {
         const destDirPath = join(destDir, relative(baseDir, srcDir));
@@ -36,12 +35,18 @@ export default defineNuxtModule({
   },
   setup() {
     const nuxt = useNuxt();
+    const contentDir = join(nuxt.options.rootDir, "content");
+    const publicDir = join(nuxt.options.rootDir, "public");
 
-    nuxt.hook("nitro:build:public-assets", (nitro) => {
-      const contentDir = join(nuxt.options.rootDir, "content");
-      const publicDir = nitro.options.output.publicDir;
-
+    // Copy images to public dir at build start (for IPX to process during prerender)
+    nuxt.hook("build:before", () => {
       copyImagesRecursively(contentDir, publicDir, contentDir);
+    });
+
+    // Also copy to output public dir after build
+    nuxt.hook("nitro:build:public-assets", (nitro) => {
+      const outputPublicDir = nitro.options.output.publicDir as string;
+      copyImagesRecursively(contentDir, outputPublicDir, contentDir);
     });
   },
 });
