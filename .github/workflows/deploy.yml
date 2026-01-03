@@ -24,7 +24,8 @@ jobs:
         run: pnpm build
 
       - name: Export SQLite to SQL
-        run: sqlite3 .data/content/contents.sqlite ".dump" > .data/content/contents.sql
+        run: |
+          sqlite3 .data/content/contents.sqlite ".dump" | grep -v "^BEGIN TRANSACTION" | grep -v "^COMMIT" > .data/content/contents.sql
 
       - name: Sync D1 database
         uses: cloudflare/wrangler-action@v3
