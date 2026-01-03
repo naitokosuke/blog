@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "eslint-plugin-oxlint": "^1.36.0",
-    "oxlint": "^1.36.0"
+    "oxlint": "^1.36.0",
+    "wrangler": "^4.54.0"
   }
 }
