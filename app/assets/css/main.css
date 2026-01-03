@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Tsunagi Gothic";
+  src: url("../fonts/TsunagiGothic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Colors - Light Mode (high contrast monochrome) */
   --color-bg: #ffffff;
@@ -9,7 +17,7 @@
   --color-accent-hover: #333333;
 
   /* Typography */
-  --font-sans: "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Tsunagi Gothic", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   /* Spacing */
