@@ -196,6 +196,7 @@ img {
     margin-block: 2rem;
     border-radius: 8px;
     border: 1px solid var(--color-border);
+    width: 85%;
   }
 
   & figure {
