@@ -42,10 +42,10 @@ const isDark = computed({
   font-family: "Noto Serif JP", serif;
   font-size: 18px;
   font-weight: 500;
-}
 
-.theme-toggle:hover {
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text);
+  &:hover {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+  }
 }
 </style>
