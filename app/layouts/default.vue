@@ -1,6 +1,8 @@
 <template>
   <div class="layout">
-    <FogOverlay />
+    <ClientOnly>
+      <FogOverlay />
+    </ClientOnly>
     <Header />
     <main class="main">
       <slot />
