@@ -267,6 +267,8 @@ onBeforeUnmount(() => {
   <canvas
     ref="canvasRef"
     class="fog-canvas"
+    width="1"
+    height="1"
   />
 </template>
 

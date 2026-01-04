@@ -2,6 +2,9 @@
   <div class="layout">
     <ClientOnly>
       <FogOverlay />
+      <template #fallback>
+        <div />
+      </template>
     </ClientOnly>
     <Header />
     <main class="main">
