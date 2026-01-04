@@ -22,7 +22,10 @@ const isLight = computed(() => colorMode.value === "light");
             :aria-label="fogEnabled ? 'Clear fog' : 'Show fog'"
             @click="toggleFog"
           >
-            <Icon :name="fogEnabled ? 'lucide:wind' : 'lucide:cloud-fog'" size="20" />
+            <Icon
+              :name="fogEnabled ? 'lucide:wind' : 'lucide:cloud-fog'"
+              size="20"
+            />
           </button>
           <button
             v-else
@@ -30,7 +33,10 @@ const isLight = computed(() => colorMode.value === "light");
             :aria-label="textureEnabled ? 'Hide texture' : 'Show texture'"
             @click="toggleTexture"
           >
-            <Icon :name="textureEnabled ? 'lucide:eye-off' : 'lucide:eye'" size="20" />
+            <Icon
+              :name="textureEnabled ? 'lucide:eye-off' : 'lucide:eye'"
+              size="20"
+            />
           </button>
         </ClientOnly>
         <NuxtLink
@@ -39,7 +45,10 @@ const isLight = computed(() => colorMode.value === "light");
           class="github-link"
           aria-label="GitHub"
         >
-          <Icon name="mdi:github" size="24" />
+          <Icon
+            name="mdi:github"
+            size="24"
+          />
         </NuxtLink>
         <ThemeToggle />
       </div>

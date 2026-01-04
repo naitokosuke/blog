@@ -13,21 +13,6 @@ export default defineNuxtConfig({
     "@nuxtjs/seo",
   ],
   devtools: { enabled: true },
-  css: ["~/assets/css/main.css"],
-  colorMode: {
-    classSuffix: "",
-  },
-  content: {
-    experimental: {
-      sqliteConnector: "native",
-    },
-  },
-  compatibilityDate: "2024-09-19",
-
-  site: {
-    url: "https://blog.naito.dev",
-    name: "naitokosuke blog",
-  },
 
   app: {
     head: {
@@ -41,6 +26,21 @@ export default defineNuxtConfig({
       ],
     },
   },
+  css: ["~/assets/css/main.css"],
+
+  site: {
+    url: "https://blog.naito.dev",
+    name: "naitokosuke blog",
+  },
+  colorMode: {
+    classSuffix: "",
+  },
+  content: {
+    experimental: {
+      sqliteConnector: "native",
+    },
+  },
+  compatibilityDate: "2024-09-19",
 
   nitro: {
     prerender: {
