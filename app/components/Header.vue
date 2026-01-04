@@ -7,12 +7,11 @@ const { fogEnabled, toggleFog } = useFog();
 <template>
   <header>
     <nav>
-      <NuxtLink
-        to="/"
-        class="logo"
-      >
-        blog.naito.dev
-      </NuxtLink>
+      <h1>
+        <NuxtLink to="/">
+          blog.naito.dev
+        </NuxtLink>
+      </h1>
       <div class="actions">
         <ClientOnly>
           <button
@@ -55,13 +54,17 @@ header {
     padding: 0 1rem;
   }
 
-  .logo {
+  h1 {
+    margin: 0;
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--color-text);
 
-    &:hover {
-      color: var(--color-accent);
+    a {
+      color: var(--color-text);
+
+      &:hover {
+        color: var(--color-accent);
+      }
     }
   }
 
