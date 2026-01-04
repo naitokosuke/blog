@@ -8,9 +8,9 @@ const { data: posts } = await useAsyncData("posts", () =>
 
 useSeoMeta({
   title: "naitokosuke blog",
-  description: "naitokosuke の技術ブログ",
+  description: "naitokosuke のログ",
   ogTitle: "naitokosuke blog",
-  ogDescription: "naitokosuke の技術ブログ",
+  ogDescription: "naitokosuke のブログ",
   ogType: "website",
   twitterCard: "summary_large_image",
 });
