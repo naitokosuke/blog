@@ -15,7 +15,7 @@ const isDark = computed({
       :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
       @click="isDark = !isDark"
     >
-      {{ isDark ? "明" : "暗" }}
+      {{ isDark ? "表" : "裏" }}
     </button>
     <template #fallback>
       <button aria-label="Toggle theme">
