@@ -3,7 +3,6 @@ const navItems = [
   { label: "Home", to: "/" },
   { label: "Blog", to: "/blog" },
   { label: "Tags", to: "/tags" },
-  { label: "About", to: "/about" },
 ];
 </script>
 
