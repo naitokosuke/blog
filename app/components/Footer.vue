@@ -1,7 +1,7 @@
 <template>
-  <footer class="footer">
-    <div class="footer-inner">
-      <p class="copyright">
+  <footer>
+    <div>
+      <p>
         &copy; {{ new Date().getFullYear() }} naitokosuke
       </p>
     </div>
@@ -9,19 +9,19 @@
 </template>
 
 <style scoped>
-.footer {
+footer {
   background-color: transparent;
-}
 
-.footer-inner {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 1rem;
-  text-align: center;
-}
+  div {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 1rem;
+    text-align: center;
+  }
 
-.copyright {
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
+  p {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+  }
 }
 </style>

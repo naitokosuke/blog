@@ -313,7 +313,6 @@ onBeforeUnmount(() => {
 <template>
   <canvas
     ref="canvasRef"
-    class="fog-canvas"
     :style="{ opacity: fogOpacity }"
     width="1"
     height="1"
@@ -321,7 +320,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.fog-canvas {
+canvas {
   position: fixed;
   inset: 0;
   z-index: 100;
