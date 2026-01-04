@@ -101,50 +101,43 @@ const fragmentShaderSource = `
     vec3 darkness = vec3(0.051, 0.039, 0.035); // #0d0a09
 
     // === 錆のテクスチャ ===
-    // 複数の錆レイヤー
-    float rust1 = rustFbm(p * 2.0 + vec2(t * 0.1, 0.0));
-    float rust2 = rustFbm(p * 3.5 + vec2(100.0, t * 0.05));
-    float rust3 = rustFbm(p * 1.2 + vec2(50.0, 30.0));
+    float rust1 = rustFbm(p * 1.5 + vec2(t * 0.1, 0.0));
+    float rust2 = rustFbm(p * 2.5 + vec2(100.0, t * 0.05));
+    float rust3 = rustFbm(p * 0.8 + vec2(50.0, 30.0));
 
-    // 錆の出現位置（端に多く、中央に少なく）
-    float edgeMask = 1.0 - smoothstep(0.0, 0.5, abs(uv.x - 0.5));
-    edgeMask *= 1.0 - smoothstep(0.0, 0.4, abs(uv.y - 0.5));
-    edgeMask = 1.0 - edgeMask * 0.7;
+    // 錆のノイズを合成
+    float rustNoise = (rust1 + rust2 * 0.7 + rust3 * 0.5) / 2.2;
+    rustNoise = rustNoise * 0.5 + 0.5;
 
-    float rustAmount = (rust1 * 0.5 + rust2 * 0.3 + rust3 * 0.2);
-    rustAmount = rustAmount * 0.5 + 0.5; // 0-1に正規化
-    rustAmount = smoothstep(0.3, 0.7, rustAmount);
-    rustAmount *= edgeMask;
-
-    // 錆の色（茶〜オレンジのバリエーション）
-    vec3 rustColor1 = vec3(0.165, 0.102, 0.078); // 暗い錆
-    vec3 rustColor2 = vec3(0.200, 0.120, 0.070); // 明るい錆
-    vec3 rustColor = mix(rustColor1, rustColor2, rust2 * 0.5 + 0.5);
+    // 錆の色（明るめに調整）
+    vec3 rustColor1 = vec3(0.25, 0.12, 0.08); // 錆茶
+    vec3 rustColor2 = vec3(0.35, 0.18, 0.10); // 明るい錆オレンジ
+    vec3 rustColor = mix(rustColor1, rustColor2, rustNoise);
 
     // === 血のテクスチャ ===
-    float blood1 = bloodFbm(p * 1.5 + vec2(200.0, t * 0.02));
-    float blood2 = bloodFbm(p * 2.8 + vec2(150.0, 80.0));
+    float blood1 = bloodFbm(p * 1.2 + vec2(200.0, t * 0.02));
+    float blood2 = bloodFbm(p * 2.0 + vec2(150.0, 80.0));
 
-    // 血の出現位置（下部に多く、斑点状）
-    float bloodMask = smoothstep(0.0, 0.6, uv.y);
-    bloodMask = 1.0 - bloodMask * 0.8;
-    bloodMask *= smoothstep(0.4, 0.6, blood2 * 0.5 + 0.5);
+    float bloodNoise = (blood1 + blood2 * 0.6) / 1.6;
+    bloodNoise = bloodNoise * 0.5 + 0.5;
 
-    float bloodAmount = blood1 * 0.5 + 0.5;
-    bloodAmount = smoothstep(0.45, 0.65, bloodAmount);
-    bloodAmount *= bloodMask;
-
-    // 血の色（暗い赤）
-    vec3 bloodColor = vec3(0.102, 0.039, 0.039); // #1a0a0a より少し明るく
+    // 血の色（より赤く）
+    vec3 bloodColor1 = vec3(0.18, 0.04, 0.04); // 暗い血
+    vec3 bloodColor2 = vec3(0.30, 0.08, 0.06); // 明るい血
+    vec3 bloodColor = mix(bloodColor1, bloodColor2, bloodNoise);
 
     // === 合成 ===
+    // 全体にノイズで錆と血を散らす
+    float rustAmount = smoothstep(0.35, 0.65, rustNoise);
+    float bloodAmount = smoothstep(0.45, 0.70, bloodNoise);
+
     vec3 finalColor = darkness;
 
-    // 錆を混ぜる（控えめに）
-    finalColor = mix(finalColor, rustColor, rustAmount * 0.25);
+    // 錆を強めに混ぜる
+    finalColor = mix(finalColor, rustColor, rustAmount * 0.6);
 
-    // 血を混ぜる（さらに控えめに）
-    finalColor = mix(finalColor, bloodColor, bloodAmount * 0.15);
+    // 血を混ぜる
+    finalColor = mix(finalColor, bloodColor, bloodAmount * 0.4);
 
     // ダークモードでのみ表示
     float alpha = u_isDark;
