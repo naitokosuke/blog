@@ -7,17 +7,17 @@ const { data: posts } = await useAsyncData("posts", () =>
 );
 
 useSeoMeta({
-  title: "naitokosuke blog",
-  description: "naitokosuke のログ",
-  ogTitle: "naitokosuke blog",
-  ogDescription: "naitokosuke のブログ",
+  title: "blog.naito.dev",
+  description: "ナイトウコウスケのブログ",
+  ogTitle: "blog.naito.dev",
+  ogDescription: "ナイトウコウスケのブログ",
   ogType: "website",
   twitterCard: "summary_large_image",
 });
 
 useSchemaOrg([
   defineWebSite({
-    name: "naitokosuke blog",
+    name: "blog.naito.dev",
   }),
   defineWebPage(),
 ]);
@@ -25,8 +25,8 @@ useSchemaOrg([
 defineOgImage({
   component: "OgImageDefault",
   props: {
-    title: "naitokosuke blog",
-    description: "naitokosuke のブログ",
+    title: "blog.naito.dev",
+    description: "ナイトウコウスケのブログ",
   },
 });
 </script>
