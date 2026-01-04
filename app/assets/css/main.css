@@ -7,14 +7,23 @@
 }
 
 :root {
+  /*
+   * Theme: 血と霧と錆と闇
+   *
+   * 闇: 湿度のある暗褐色、純黒ではない
+   * 霧: WebGLで別途実装
+   * 錆: くすんだ茶〜オレンジ、朽ちた金属
+   * 血: 控えめな暗い赤、ごく一部のみ
+   */
+
   /* Colors - Light Mode */
-  --color-bg: #fff;
-  --color-bg-secondary: #f0f0f0;
-  --color-text: #000;
-  --color-text-secondary: #333;
-  --color-border: #000;
-  --color-accent: #000;
-  --color-accent-hover: #333;
+  --color-bg: #f5f0eb;
+  --color-bg-secondary: #e8e0d8;
+  --color-text: #1a1614;
+  --color-text-secondary: #5c524a;
+  --color-border: #3d3530;
+  --color-accent: #1a1614;
+  --color-accent-hover: #6b4d3a;
 
   /* Typography */
   --font-sans: "Tsunagi Gothic", ui-sans-serif, system-ui, sans-serif;
@@ -26,13 +35,20 @@
 }
 
 .dark {
-  --color-bg: #000;
-  --color-bg-secondary: #111;
-  --color-text: #fff;
-  --color-text-secondary: #ccc;
-  --color-border: #fff;
-  --color-accent: #fff;
-  --color-accent-hover: #ccc;
+  /* 闇: 湿度のある暗褐色 */
+  --color-bg: #0d0a09;
+  --color-bg-secondary: #1a1412;
+
+  /* テキスト: 温かみのあるオフホワイト */
+  --color-text: #d4c8b8;
+  --color-text-secondary: #7a6f63;
+
+  /* 錆: くすんだ茶色 */
+  --color-border: #3d302a;
+
+  /* 血: 控えめな暗い赤 */
+  --color-accent: #d4c8b8;
+  --color-accent-hover: #8b4d4d;
 }
 
 /* Reset */
