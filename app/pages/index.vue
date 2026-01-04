@@ -1,19 +1,15 @@
 <script setup lang="ts">
-const { data: posts } = await useAsyncData("home-posts", () =>
+const { data: posts } = await useAsyncData("posts", () =>
   queryCollection("posts")
-    .where("path", "LIKE", "/posts/%")
+    .where("path", "NOT LIKE", "/")
     .order("date", "DESC")
-    .limit(5)
     .all(),
 );
 </script>
 
 <template>
   <div>
-    <h1>Blog</h1>
-    <p>Welcome to my blog.</p>
-
-    <h2>Recent Posts</h2>
+    <h1>Posts</h1>
     <ul v-if="posts?.length">
       <li
         v-for="post in posts"
@@ -28,9 +24,5 @@ const { data: posts } = await useAsyncData("home-posts", () =>
     <p v-else>
       No posts yet.
     </p>
-
-    <NuxtLink to="/blog">
-      View all posts
-    </NuxtLink>
   </div>
 </template>

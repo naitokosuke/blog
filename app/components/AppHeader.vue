@@ -1,11 +1,3 @@
-<script setup lang="ts">
-const navItems = [
-  { label: "Home", to: "/" },
-  { label: "Blog", to: "/blog" },
-  { label: "Tags", to: "/tags" },
-];
-</script>
-
 <template>
   <header class="header">
     <div class="header-inner">
@@ -13,18 +5,8 @@ const navItems = [
         to="/"
         class="logo"
       >
-        Blog
+        blog.naito.dev
       </NuxtLink>
-      <nav class="nav">
-        <NuxtLink
-          v-for="item in navItems"
-          :key="item.to"
-          :to="item.to"
-          class="nav-link"
-        >
-          {{ item.label }}
-        </NuxtLink>
-      </nav>
       <ThemeToggle />
     </div>
   </header>
@@ -60,30 +42,4 @@ const navItems = [
   color: var(--color-accent);
 }
 
-.nav {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.nav-link {
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.nav-link:hover,
-.nav-link.router-link-active {
-  color: var(--color-accent);
-}
-
-@media (max-width: 640px) {
-  .nav {
-    gap: 1rem;
-  }
-
-  .nav-link {
-    font-size: 0.75rem;
-  }
-}
 </style>
