@@ -182,6 +182,8 @@ img {
   & a {
     text-decoration: underline;
     text-underline-offset: 2px;
+    overflow-wrap: break-word;
+    word-break: break-all;
 
     &:hover {
       text-decoration-thickness: 2px;
