@@ -26,9 +26,9 @@
 header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 50;
   height: var(--header-height);
-  background-color: transparent;
+  background-color: var(--color-bg);
 
   nav {
     display: flex;
