@@ -63,8 +63,11 @@ export default defineNuxtConfig({
   },
   ogImage: {
     fonts: [
-      "Noto+Sans+JP:400",
-      "Noto+Sans+JP:700",
+      {
+        name: "Tsunagi Gothic",
+        path: "/fonts/TsunagiGothic.ttf",
+        weight: 400,
+      },
     ],
   },
 });
