@@ -5,6 +5,22 @@ const { data: posts } = await useAsyncData("posts", () =>
     .order("date", "DESC")
     .all(),
 );
+
+useSeoMeta({
+  title: "naitokosuke blog",
+  description: "naitokosuke の技術ブログ",
+  ogTitle: "naitokosuke blog",
+  ogDescription: "naitokosuke の技術ブログ",
+  ogType: "website",
+  twitterCard: "summary_large_image",
+});
+
+useSchemaOrg([
+  defineWebSite({
+    name: "naitokosuke blog",
+  }),
+  defineWebPage(),
+]);
 </script>
 
 <template>

@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/scripts",
     "@nuxtjs/color-mode",
+    "@nuxtjs/seo",
   ],
   devtools: { enabled: true },
   css: ["~/assets/css/main.css"],
@@ -22,6 +23,25 @@ export default defineNuxtConfig({
     },
   },
   compatibilityDate: "2024-09-19",
+
+  site: {
+    url: "https://naitokosuke.com",
+    name: "naitokosuke blog",
+  },
+
+  app: {
+    head: {
+      htmlAttrs: { lang: "ja" },
+      meta: [
+        { name: "author", content: "naitokosuke" },
+        { name: "theme-color", content: "#1a1a1a" },
+      ],
+      link: [
+        { rel: "icon", href: "/favicon.ico" },
+      ],
+    },
+  },
+
   nitro: {
     prerender: {
       crawlLinks: true,
