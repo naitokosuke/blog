@@ -153,6 +153,7 @@ let animationId: number | null = null;
 let startTime = 0;
 
 const prefersReducedMotion = ref(false);
+const isDarkMode = ref(false);
 
 function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
@@ -273,6 +274,25 @@ function cleanup() {
   }
 }
 
+function startRender() {
+  if (animationId !== null) return;
+  initWebGL();
+  render();
+}
+
+function stopRender() {
+  cleanup();
+  // キャンバスをクリア
+  if (gl) {
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+  }
+}
+
+function checkDarkMode() {
+  return document.documentElement.classList.contains("dark");
+}
+
 onMounted(() => {
   prefersReducedMotion.value = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -281,10 +301,36 @@ onMounted(() => {
     prefersReducedMotion.value = e.matches;
   });
 
-  initWebGL();
-  render();
-
   window.addEventListener("resize", resizeCanvas);
+
+  // 初期状態をチェック
+  isDarkMode.value = checkDarkMode();
+  if (isDarkMode.value) {
+    startRender();
+  }
+
+  // html要素のclass変更を監視
+  const observer = new MutationObserver(() => {
+    const newIsDark = checkDarkMode();
+    if (newIsDark !== isDarkMode.value) {
+      isDarkMode.value = newIsDark;
+      if (newIsDark) {
+        startRender();
+      }
+      else {
+        stopRender();
+      }
+    }
+  });
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+
+  onBeforeUnmount(() => {
+    observer.disconnect();
+  });
 });
 
 onBeforeUnmount(() => {

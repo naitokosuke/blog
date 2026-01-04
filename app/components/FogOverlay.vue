@@ -119,6 +119,7 @@ let animationId: number | null = null;
 let startTime = 0;
 
 const prefersReducedMotion = ref(false);
+const isLightMode = ref(false);
 
 function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
@@ -243,6 +244,25 @@ function cleanup() {
   }
 }
 
+function startRender() {
+  if (animationId !== null) return;
+  initWebGL();
+  render();
+}
+
+function stopRender() {
+  cleanup();
+  // キャンバスをクリア
+  if (gl) {
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+  }
+}
+
+function checkLightMode() {
+  return document.documentElement.classList.contains("light");
+}
+
 onMounted(() => {
   prefersReducedMotion.value = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -251,10 +271,36 @@ onMounted(() => {
     prefersReducedMotion.value = e.matches;
   });
 
-  initWebGL();
-  render();
-
   window.addEventListener("resize", resizeCanvas);
+
+  // 初期状態をチェック
+  isLightMode.value = checkLightMode();
+  if (isLightMode.value) {
+    startRender();
+  }
+
+  // html要素のclass変更を監視
+  const observer = new MutationObserver(() => {
+    const newIsLight = checkLightMode();
+    if (newIsLight !== isLightMode.value) {
+      isLightMode.value = newIsLight;
+      if (newIsLight) {
+        startRender();
+      }
+      else {
+        stopRender();
+      }
+    }
+  });
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+
+  onBeforeUnmount(() => {
+    observer.disconnect();
+  });
 });
 
 onBeforeUnmount(() => {
