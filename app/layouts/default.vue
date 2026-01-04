@@ -7,7 +7,7 @@
       </template>
     </ClientOnly>
     <Header />
-    <main class="main">
+    <main>
       <slot />
     </main>
     <Footer />
@@ -21,13 +21,13 @@
   min-height: 100vh;
   position: relative;
   z-index: 1;
-}
 
-.main {
-  flex: 1;
-  width: 100%;
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 1rem;
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
 }
 </style>
