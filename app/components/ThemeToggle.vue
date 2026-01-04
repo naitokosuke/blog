@@ -12,14 +12,13 @@ const isDark = computed({
 <template>
   <ClientOnly>
     <button
-      class="theme-toggle"
       :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
       @click="isDark = !isDark"
     >
       {{ isDark ? "明" : "暗" }}
     </button>
     <template #fallback>
-      <button class="theme-toggle" aria-label="Toggle theme">
+      <button aria-label="Toggle theme">
         暗
       </button>
     </template>
@@ -27,7 +26,7 @@ const isDark = computed({
 </template>
 
 <style scoped>
-.theme-toggle {
+button {
   display: flex;
   align-items: center;
   justify-content: center;
