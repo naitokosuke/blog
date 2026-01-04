@@ -29,7 +29,8 @@ export function useOverlay() {
 
       if (progress < 1) {
         fogAnimationId = requestAnimationFrame(animate);
-      } else {
+      }
+      else {
         fogEnabled.value = !fogEnabled.value;
         fogAnimationId = null;
       }
@@ -57,7 +58,8 @@ export function useOverlay() {
 
       if (progress < 1) {
         textureAnimationId = requestAnimationFrame(animate);
-      } else {
+      }
+      else {
         textureEnabled.value = !textureEnabled.value;
         textureAnimationId = null;
       }
