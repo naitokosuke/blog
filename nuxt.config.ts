@@ -63,11 +63,7 @@ export default defineNuxtConfig({
   },
   ogImage: {
     fonts: [
-      {
-        name: "Tsunagi Gothic",
-        path: "/fonts/TsunagiGothic.ttf",
-        weight: 400,
-      },
+      "Zen Old Mincho",
     ],
   },
 });

@@ -65,7 +65,7 @@ defineProps<{
             fontWeight: '700',
             lineHeight: '1.3',
             color: '#f0ece8',
-            fontFamily: 'Tsunagi Gothic, sans-serif',
+            fontFamily: 'Zen Old Mincho, serif',
           }"
         >
           {{ title }}
@@ -76,7 +76,7 @@ defineProps<{
             fontSize: '24px',
             color: '#c0b8b0',
             lineHeight: '1.5',
-            fontFamily: 'Tsunagi Gothic, sans-serif',
+            fontFamily: 'Zen Old Mincho, serif',
           }"
         >
           {{ description }}
@@ -102,7 +102,7 @@ defineProps<{
           :style="{
             fontSize: '22px',
             color: '#908880',
-            fontFamily: 'Tsunagi Gothic, sans-serif',
+            fontFamily: 'Zen Old Mincho, serif',
           }"
         >
           {{ siteName || 'naitokosuke blog' }}
