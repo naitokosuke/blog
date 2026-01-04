@@ -148,6 +148,9 @@ const fragmentShaderSource = `
     // Adjust fog intensity
     fog = smoothstep(0.1, 0.7, fog) * 0.7;
 
+    // Reduce fog intensity in dark mode
+    fog = fog * mix(1.0, 0.8, u_isDark);
+
     // Fog color based on mode
     // Light mode: black fog / Dark mode: white fog
     vec3 fogColor = mix(vec3(0.0), vec3(1.0), u_isDark);
