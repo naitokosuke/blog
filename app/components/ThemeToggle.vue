@@ -16,14 +16,11 @@ const isDark = computed({
       :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
       @click="isDark = !isDark"
     >
-      <Icon
-        :name="isDark ? 'lucide:sun' : 'lucide:moon'"
-        size="20"
-      />
+      {{ isDark ? "明" : "暗" }}
     </button>
     <template #fallback>
       <button class="theme-toggle" aria-label="Toggle theme">
-        <Icon name="lucide:moon" size="20" />
+        暗
       </button>
     </template>
   </ClientOnly>
@@ -42,6 +39,9 @@ const isDark = computed({
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
+  font-family: "Noto Serif JP", serif;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .theme-toggle:hover {
