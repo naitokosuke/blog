@@ -29,6 +29,14 @@ useSchemaOrg([
     },
   }),
 ]);
+
+defineOgImage({
+  component: "OgImageDefault",
+  props: {
+    title: page.value.title,
+    description: page.value.description,
+  },
+});
 </script>
 
 <template>
