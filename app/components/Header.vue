@@ -20,7 +20,7 @@ const { fogEnabled, toggleFog } = useFog();
             :aria-label="fogEnabled ? 'Clear fog' : 'Show fog'"
             @click="toggleFog"
           >
-            <Icon name="lucide:wind" size="20" />
+            <Icon :name="fogEnabled ? 'lucide:wind' : 'lucide:cloud-fog'" size="20" />
           </button>
         </ClientOnly>
         <NuxtLink
