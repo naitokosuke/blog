@@ -8,22 +8,106 @@ defineProps<{
 
 <template>
   <div
-    class="flex h-full w-full flex-col justify-between bg-[#1a1a1a] p-16 text-white"
-    style="font-family: 'Tsunagi Gothic', sans-serif;"
+    :style="{
+      display: 'flex',
+      width: '100%',
+      height: '100%',
+      position: 'relative',
+    }"
   >
-    <div class="flex flex-col gap-6">
-    <h1 class="text-6xl font-bold leading-tight">
-        {{ title }}
-      </h1>
-      <p
-        v-if="description"
-        class="text-3xl text-gray-300"
+    <!-- Background image -->
+    <img
+      src="/og-background.png"
+      :style="{
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+      }"
+    >
+
+    <!-- Dark overlay for text readability -->
+    <div
+      :style="{
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      }"
+    />
+
+    <!-- Content -->
+    <div
+      :style="{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        width: '100%',
+        height: '100%',
+        padding: '60px',
+        position: 'relative',
+      }"
+    >
+      <div
+        :style="{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+        }"
       >
-        {{ description }}
-      </p>
-    </div>
-    <div class="flex items-center justify-between">
-      <span class="text-2xl text-gray-400">{{ siteName || "naitokosuke blog" }}</span>
+        <div
+          :style="{
+            fontSize: '52px',
+            fontWeight: '700',
+            lineHeight: '1.3',
+            color: '#f0ece8',
+            fontFamily: 'Tsunagi Gothic, sans-serif',
+          }"
+        >
+          {{ title }}
+        </div>
+        <div
+          v-if="description"
+          :style="{
+            fontSize: '24px',
+            color: '#c0b8b0',
+            lineHeight: '1.5',
+            fontFamily: 'Tsunagi Gothic, sans-serif',
+          }"
+        >
+          {{ description }}
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div
+        :style="{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+        }"
+      >
+        <div
+          :style="{
+            width: '100px',
+            height: '6px',
+            backgroundColor: '#8b2020',
+          }"
+        />
+        <div
+          :style="{
+            fontSize: '22px',
+            color: '#908880',
+            fontFamily: 'Tsunagi Gothic, sans-serif',
+          }"
+        >
+          {{ siteName || 'naitokosuke blog' }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
