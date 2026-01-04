@@ -1,4 +1,48 @@
+<script lang="ts">
+let opacityAnimationId: number | null = null;
+
+export function useFog() {
+  const fogEnabled = useState("fogEnabled", () => true);
+  const fogOpacity = useState("fogOpacity", () => 1);
+
+  function toggleFog() {
+    if (opacityAnimationId !== null) {
+      cancelAnimationFrame(opacityAnimationId);
+    }
+
+    const targetOpacity = fogEnabled.value ? 0 : 1;
+    const startOpacity = fogOpacity.value;
+    const duration = 800;
+    const startTime = performance.now();
+
+    function animateOpacity() {
+      const elapsed = performance.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      fogOpacity.value = startOpacity + (targetOpacity - startOpacity) * eased;
+
+      if (progress < 1) {
+        opacityAnimationId = requestAnimationFrame(animateOpacity);
+      } else {
+        fogEnabled.value = !fogEnabled.value;
+        opacityAnimationId = null;
+      }
+    }
+
+    animateOpacity();
+  }
+
+  return {
+    fogEnabled,
+    fogOpacity,
+    toggleFog,
+  };
+}
+</script>
+
 <script setup lang="ts">
+const { fogOpacity } = useFog();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const colorMode = useColorMode();
 
@@ -267,6 +311,7 @@ onBeforeUnmount(() => {
   <canvas
     ref="canvasRef"
     class="fog-canvas"
+    :style="{ opacity: fogOpacity }"
     width="1"
     height="1"
   />

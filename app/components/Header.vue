@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { useFog } from "./FogOverlay.vue";
+
+const { fogEnabled, toggleFog } = useFog();
+</script>
+
 <template>
   <header>
     <nav>
@@ -8,6 +14,15 @@
         blog.naito.dev
       </NuxtLink>
       <div class="actions">
+        <ClientOnly>
+          <button
+            class="fog-toggle"
+            :aria-label="fogEnabled ? 'Clear fog' : 'Show fog'"
+            @click="toggleFog"
+          >
+            <Icon name="lucide:wind" size="20" />
+          </button>
+        </ClientOnly>
         <NuxtLink
           to="https://github.com/naitokosuke/blog"
           target="_blank"
@@ -63,6 +78,25 @@ header {
 
     &:hover {
       color: var(--color-accent);
+    }
+  }
+
+  .fog-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+
+    &:hover {
+      background-color: var(--color-bg-secondary);
+      color: var(--color-text);
     }
   }
 }
