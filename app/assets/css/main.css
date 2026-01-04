@@ -96,6 +96,12 @@ a {
   }
 }
 
+/* Focus states - Accessibility */
+:focus-visible {
+  outline: 2px solid var(--color-accent-hover);
+  outline-offset: 2px;
+}
+
 code {
   font-family: var(--font-mono);
   font-size: 0.875em;
