@@ -36,6 +36,7 @@ useSchemaOrg([
     v-if="page"
     class="prose"
   >
+    <h1>{{ page.title }}</h1>
     <ContentRenderer :value="page" />
   </article>
 </template>

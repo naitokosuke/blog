@@ -1,6 +1,6 @@
 # SILENT HILL Inspired Fog Theme
 
-SILENT HILL に着想を得た「霧のあるダークテーマの技術ブログ」のデザインシステム。
+SILENT HILL に着想を得た「霧のあるダークテーマのブログ」のデザインシステム。
 
 > **血と霧と錆と闇**
 
