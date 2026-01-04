@@ -61,4 +61,10 @@ export default defineNuxtConfig({
     quality: 80,
     format: ["avif", "webp"],
   },
+  ogImage: {
+    fonts: [
+      "Noto+Sans+JP:400",
+      "Noto+Sans+JP:700",
+    ],
+  },
 });

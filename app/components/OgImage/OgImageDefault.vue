@@ -9,6 +9,7 @@ defineProps<{
 <template>
   <div
     class="flex h-full w-full flex-col justify-between bg-[#1a1a1a] p-16 text-white"
+    style="font-family: 'Noto Sans JP', sans-serif;"
   >
     <div class="flex flex-col gap-6">
     <h1 class="text-6xl font-bold leading-tight">
