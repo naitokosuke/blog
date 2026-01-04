@@ -28,8 +28,7 @@ header {
   top: 0;
   z-index: 100;
   height: var(--header-height);
-  background-color: var(--color-bg);
-  border-bottom: 1px solid var(--color-border);
+  background-color: transparent;
 
   nav {
     display: flex;

@@ -1,5 +1,6 @@
 <template>
   <div class="layout">
+    <FogOverlay />
     <Header />
     <main class="main">
       <slot />
@@ -13,6 +14,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  position: relative;
+  z-index: 1;
 }
 
 .main {

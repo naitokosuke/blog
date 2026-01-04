@@ -10,8 +10,7 @@
 
 <style scoped>
 .footer {
-  border-top: 1px solid var(--color-border);
-  background-color: var(--color-bg);
+  background-color: transparent;
 }
 
 .footer-inner {
