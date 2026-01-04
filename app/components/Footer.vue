@@ -2,7 +2,7 @@
   <footer class="footer">
     <div class="footer-inner">
       <p class="copyright">
-        &copy; {{ new Date().getFullYear() }} Blog. All rights reserved.
+        &copy; {{ new Date().getFullYear() }} naitokosuke
       </p>
     </div>
   </footer>
@@ -17,7 +17,7 @@
 .footer-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1rem;
   text-align: center;
 }
 
