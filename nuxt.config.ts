@@ -65,7 +65,7 @@ export default defineNuxtConfig({
     fonts: [
       {
         name: "Tsunagi Gothic",
-        path: "/fonts/TsunagiGothic.ttf",
+        path: "https://blog.naito.dev/fonts/TsunagiGothic.ttf",
         weight: 400,
       },
     ],
