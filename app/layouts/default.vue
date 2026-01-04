@@ -8,10 +8,12 @@
       </template>
     </ClientOnly>
     <Header />
-    <main>
-      <slot />
-    </main>
-    <Footer />
+    <div class="content">
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
   </div>
 </template>
 
@@ -19,16 +21,25 @@
 .layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   position: relative;
   z-index: 1;
+  overflow: hidden;
+}
 
-  main {
-    flex: 1;
-    width: 100%;
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 0 1rem;
-  }
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 </style>

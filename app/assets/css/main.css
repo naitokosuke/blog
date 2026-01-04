@@ -32,6 +32,9 @@
   /* Spacing */
   --max-width: 1200px;
   --header-height: 64px;
+
+  /* Header */
+  --color-header-bg: var(--color-bg);
 }
 
 .dark {
@@ -49,6 +52,9 @@
   /* 血: 控えめな暗い赤 */
   --color-accent: #d4c8b8;
   --color-accent-hover: #8b4d4d;
+
+  /* Header - dark mode is transparent */
+  --color-header-bg: transparent;
 }
 
 /* Reset */

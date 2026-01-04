@@ -53,7 +53,7 @@ header {
   top: 0;
   z-index: 50;
   height: var(--header-height);
-  background-color: var(--color-bg);
+  background-color: var(--color-header-bg);
 
   nav {
     display: flex;
