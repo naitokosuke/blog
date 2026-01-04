@@ -117,8 +117,10 @@ let gl: WebGLRenderingContext | null = null;
 let program: WebGLProgram | null = null;
 let animationId: number | null = null;
 let startTime = 0;
+let isInitialized = false;
 
 const prefersReducedMotion = ref(false);
+const isActive = computed(() => colorMode.value === "light");
 
 function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
@@ -236,12 +238,32 @@ function render() {
   animationId = requestAnimationFrame(render);
 }
 
-function cleanup() {
+function stopRender() {
   if (animationId !== null) {
     cancelAnimationFrame(animationId);
     animationId = null;
   }
 }
+
+function startRender() {
+  if (animationId !== null) return; // 既に実行中
+  if (!isInitialized) {
+    initWebGL();
+    isInitialized = true;
+  }
+  startTime = performance.now();
+  render();
+}
+
+// カラーモード変更を監視してレンダリングを制御
+watch(isActive, (active) => {
+  if (active) {
+    startRender();
+  }
+  else {
+    stopRender();
+  }
+});
 
 onMounted(() => {
   prefersReducedMotion.value = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -251,14 +273,16 @@ onMounted(() => {
     prefersReducedMotion.value = e.matches;
   });
 
-  initWebGL();
-  render();
+  // ライトモードの場合のみ初期化・レンダリング開始
+  if (isActive.value) {
+    startRender();
+  }
 
   window.addEventListener("resize", resizeCanvas);
 });
 
 onBeforeUnmount(() => {
-  cleanup();
+  stopRender();
   window.removeEventListener("resize", resizeCanvas);
 });
 </script>
