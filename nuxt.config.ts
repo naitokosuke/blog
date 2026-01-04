@@ -25,7 +25,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-09-19",
 
   site: {
-    url: "https://naitokosuke.com",
+    url: "https://blog.naito.dev",
     name: "naitokosuke blog",
   },
 
