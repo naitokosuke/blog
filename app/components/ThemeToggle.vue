@@ -10,22 +10,23 @@ const isDark = computed({
 </script>
 
 <template>
-  <button
-    class="theme-toggle"
-    :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-    @click="isDark = !isDark"
-  >
-    <Icon
-      v-if="isDark"
-      name="lucide:sun"
-      size="20"
-    />
-    <Icon
-      v-else
-      name="lucide:moon"
-      size="20"
-    />
-  </button>
+  <ClientOnly>
+    <button
+      class="theme-toggle"
+      :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+      @click="isDark = !isDark"
+    >
+      <Icon
+        :name="isDark ? 'lucide:sun' : 'lucide:moon'"
+        size="20"
+      />
+    </button>
+    <template #fallback>
+      <button class="theme-toggle" aria-label="Toggle theme">
+        <Icon name="lucide:moon" size="20" />
+      </button>
+    </template>
+  </ClientOnly>
 </template>
 
 <style scoped>
