@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { textureOpacity } = useOverlay();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const colorMode = useColorMode();
 
@@ -295,6 +296,7 @@ onBeforeUnmount(() => {
 <template>
   <canvas
     ref="canvasRef"
+    :style="{ opacity: textureOpacity }"
     width="1"
     height="1"
   />

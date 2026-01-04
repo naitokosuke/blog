@@ -1,48 +1,5 @@
-<script lang="ts">
-let opacityAnimationId: number | null = null;
-
-export function useFog() {
-  const fogEnabled = useState("fogEnabled", () => true);
-  const fogOpacity = useState("fogOpacity", () => 1);
-
-  function toggleFog() {
-    if (opacityAnimationId !== null) {
-      cancelAnimationFrame(opacityAnimationId);
-    }
-
-    const targetOpacity = fogEnabled.value ? 0 : 1;
-    const startOpacity = fogOpacity.value;
-    const duration = 800;
-    const startTime = performance.now();
-
-    function animateOpacity() {
-      const elapsed = performance.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-
-      fogOpacity.value = startOpacity + (targetOpacity - startOpacity) * eased;
-
-      if (progress < 1) {
-        opacityAnimationId = requestAnimationFrame(animateOpacity);
-      } else {
-        fogEnabled.value = !fogEnabled.value;
-        opacityAnimationId = null;
-      }
-    }
-
-    animateOpacity();
-  }
-
-  return {
-    fogEnabled,
-    fogOpacity,
-    toggleFog,
-  };
-}
-</script>
-
 <script setup lang="ts">
-const { fogOpacity } = useFog();
+const { fogOpacity } = useOverlay();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const colorMode = useColorMode();
 
@@ -59,7 +16,7 @@ const fragmentShaderSource = `
 
   uniform float u_time;
   uniform vec2 u_resolution;
-  uniform float u_isDark;
+  uniform float u_isLight;
 
   // Simplex noise functions
   vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -148,15 +105,11 @@ const fragmentShaderSource = `
     // Adjust fog intensity
     fog = smoothstep(0.1, 0.7, fog) * 0.7;
 
-    // Reduce fog intensity in dark mode
-    fog = fog * mix(1.0, 0.8, u_isDark);
+    // Black fog for light mode
+    vec3 fogColor = vec3(0.0);
 
-    // Fog color based on mode
-    // Light mode: black fog / Dark mode: white fog
-    vec3 fogColor = mix(vec3(0.0), vec3(1.0), u_isDark);
-
-    // Output fog with alpha (transparent where no fog)
-    gl_FragColor = vec4(fogColor, fog);
+    // Only show in light mode
+    gl_FragColor = vec4(fogColor, fog * u_isLight);
   }
 `;
 
@@ -271,12 +224,12 @@ function render() {
   // Update uniforms
   const timeLoc = gl.getUniformLocation(program, "u_time");
   const resolutionLoc = gl.getUniformLocation(program, "u_resolution");
-  const isDarkLoc = gl.getUniformLocation(program, "u_isDark");
+  const isLightLoc = gl.getUniformLocation(program, "u_isLight");
 
   const time = prefersReducedMotion.value ? 0 : (performance.now() - startTime) / 1000;
   gl.uniform1f(timeLoc, time);
   gl.uniform2f(resolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
-  gl.uniform1f(isDarkLoc, colorMode.value === "dark" ? 1.0 : 0.0);
+  gl.uniform1f(isLightLoc, colorMode.value === "light" ? 1.0 : 0.0);
 
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 

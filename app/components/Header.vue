@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useFog } from "./FogOverlay.vue";
+const colorMode = useColorMode();
+const { fogEnabled, toggleFog, textureEnabled, toggleTexture } = useOverlay();
 
-const { fogEnabled, toggleFog } = useFog();
+const isLight = computed(() => colorMode.value === "light");
 </script>
 
 <template>
@@ -16,11 +17,20 @@ const { fogEnabled, toggleFog } = useFog();
       <div class="actions">
         <ClientOnly>
           <button
-            class="fog-toggle"
+            v-if="isLight"
+            class="overlay-toggle"
             :aria-label="fogEnabled ? 'Clear fog' : 'Show fog'"
             @click="toggleFog"
           >
             <Icon :name="fogEnabled ? 'lucide:wind' : 'lucide:cloud-fog'" size="20" />
+          </button>
+          <button
+            v-else
+            class="overlay-toggle"
+            :aria-label="textureEnabled ? 'Hide texture' : 'Show texture'"
+            @click="toggleTexture"
+          >
+            <Icon :name="textureEnabled ? 'lucide:eye-off' : 'lucide:eye'" size="20" />
           </button>
         </ClientOnly>
         <NuxtLink
@@ -81,7 +91,7 @@ header {
     }
   }
 
-  .fog-toggle {
+  .overlay-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
