@@ -1,0 +1,317 @@
+<script setup lang="ts">
+const canvasRef = ref<HTMLCanvasElement | null>(null);
+const colorMode = useColorMode();
+
+const vertexShaderSource = `
+  attribute vec2 a_position;
+  void main() {
+    gl_Position = vec4(a_position, 0.0, 1.0);
+  }
+`;
+
+// 血と錆と闇のシェーダー
+const fragmentShaderSource = `
+  precision highp float;
+
+  uniform float u_time;
+  uniform vec2 u_resolution;
+  uniform float u_isDark;
+
+  // Simplex noise
+  vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
+
+  float snoise(vec2 v) {
+    const vec4 C = vec4(
+      0.211324865405187,
+      0.366025403784439,
+      -0.577350269189626,
+      0.024390243902439
+    );
+
+    vec2 i = floor(v + dot(v, C.yy));
+    vec2 x0 = v - i + dot(i, C.xx);
+    vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+
+    i = mod289(i);
+    vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+
+    vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+    m = m * m;
+    m = m * m;
+
+    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+    vec3 h = abs(x) - 0.5;
+    vec3 ox = floor(x + 0.5);
+    vec3 a0 = x - ox;
+
+    m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+
+    vec3 g;
+    g.x = a0.x * x0.x + h.x * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+
+    return 130.0 * dot(m, g);
+  }
+
+  // FBM with rotation to reduce axial bias
+  mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);
+
+  float fbm(vec2 p) {
+    float f = 0.0;
+    f += 0.5000 * snoise(p); p = m2 * p * 2.02;
+    f += 0.2500 * snoise(p); p = m2 * p * 2.03;
+    f += 0.1250 * snoise(p); p = m2 * p * 2.01;
+    f += 0.0625 * snoise(p); p = m2 * p * 2.04;
+    f += 0.0312 * snoise(p);
+    return f / 0.9687;
+  }
+
+  // 錆のFBM（より粗い質感）
+  float rustFbm(vec2 p) {
+    float f = 0.0;
+    f += 0.5000 * snoise(p); p = m2 * p * 1.8;
+    f += 0.3000 * snoise(p); p = m2 * p * 2.2;
+    f += 0.1500 * snoise(p); p = m2 * p * 2.5;
+    f += 0.0500 * snoise(p);
+    return f;
+  }
+
+  // 血のFBM（滲むような質感）
+  float bloodFbm(vec2 p) {
+    float f = 0.0;
+    f += 0.6000 * snoise(p); p = m2 * p * 1.5;
+    f += 0.2500 * snoise(p); p = m2 * p * 2.0;
+    f += 0.1000 * snoise(p);
+    return f;
+  }
+
+  void main() {
+    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+    float aspect = u_resolution.x / u_resolution.y;
+    vec2 p = vec2(uv.x * aspect, uv.y);
+
+    // 非常にゆっくりとした時間変化
+    float t = u_time * 0.005;
+
+    // === 闇のベース色 ===
+    vec3 darkness = vec3(0.051, 0.039, 0.035); // #0d0a09
+
+    // === 錆のテクスチャ ===
+    // 複数の錆レイヤー
+    float rust1 = rustFbm(p * 2.0 + vec2(t * 0.1, 0.0));
+    float rust2 = rustFbm(p * 3.5 + vec2(100.0, t * 0.05));
+    float rust3 = rustFbm(p * 1.2 + vec2(50.0, 30.0));
+
+    // 錆の出現位置（端に多く、中央に少なく）
+    float edgeMask = 1.0 - smoothstep(0.0, 0.5, abs(uv.x - 0.5));
+    edgeMask *= 1.0 - smoothstep(0.0, 0.4, abs(uv.y - 0.5));
+    edgeMask = 1.0 - edgeMask * 0.7;
+
+    float rustAmount = (rust1 * 0.5 + rust2 * 0.3 + rust3 * 0.2);
+    rustAmount = rustAmount * 0.5 + 0.5; // 0-1に正規化
+    rustAmount = smoothstep(0.3, 0.7, rustAmount);
+    rustAmount *= edgeMask;
+
+    // 錆の色（茶〜オレンジのバリエーション）
+    vec3 rustColor1 = vec3(0.165, 0.102, 0.078); // 暗い錆
+    vec3 rustColor2 = vec3(0.200, 0.120, 0.070); // 明るい錆
+    vec3 rustColor = mix(rustColor1, rustColor2, rust2 * 0.5 + 0.5);
+
+    // === 血のテクスチャ ===
+    float blood1 = bloodFbm(p * 1.5 + vec2(200.0, t * 0.02));
+    float blood2 = bloodFbm(p * 2.8 + vec2(150.0, 80.0));
+
+    // 血の出現位置（下部に多く、斑点状）
+    float bloodMask = smoothstep(0.0, 0.6, uv.y);
+    bloodMask = 1.0 - bloodMask * 0.8;
+    bloodMask *= smoothstep(0.4, 0.6, blood2 * 0.5 + 0.5);
+
+    float bloodAmount = blood1 * 0.5 + 0.5;
+    bloodAmount = smoothstep(0.45, 0.65, bloodAmount);
+    bloodAmount *= bloodMask;
+
+    // 血の色（暗い赤）
+    vec3 bloodColor = vec3(0.102, 0.039, 0.039); // #1a0a0a より少し明るく
+
+    // === 合成 ===
+    vec3 finalColor = darkness;
+
+    // 錆を混ぜる（控えめに）
+    finalColor = mix(finalColor, rustColor, rustAmount * 0.25);
+
+    // 血を混ぜる（さらに控えめに）
+    finalColor = mix(finalColor, bloodColor, bloodAmount * 0.15);
+
+    // ダークモードでのみ表示
+    float alpha = u_isDark;
+
+    gl_FragColor = vec4(finalColor, alpha);
+  }
+`;
+
+let gl: WebGLRenderingContext | null = null;
+let program: WebGLProgram | null = null;
+let animationId: number | null = null;
+let startTime = 0;
+
+const prefersReducedMotion = ref(false);
+
+function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
+  const shader = gl.createShader(type);
+  if (!shader) return null;
+
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error("Shader compile error:", gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+    return null;
+  }
+
+  return shader;
+}
+
+function createProgram(gl: WebGLRenderingContext, vs: WebGLShader, fs: WebGLShader): WebGLProgram | null {
+  const prog = gl.createProgram();
+  if (!prog) return null;
+
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    console.error("Program link error:", gl.getProgramInfoLog(prog));
+    gl.deleteProgram(prog);
+    return null;
+  }
+
+  return prog;
+}
+
+function initWebGL() {
+  const canvas = canvasRef.value;
+  if (!canvas) return;
+
+  gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: false });
+  if (!gl) {
+    console.warn("WebGL not supported");
+    return;
+  }
+
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+  const vs = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+  const fs = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+  if (!vs || !fs) return;
+
+  program = createProgram(gl, vs, fs);
+  if (!program) return;
+
+  const positions = new Float32Array([
+    -1, -1,
+    1, -1,
+    -1, 1,
+    -1, 1,
+    1, -1,
+    1, 1,
+  ]);
+
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+  const positionLoc = gl.getAttribLocation(program, "a_position");
+  gl.enableVertexAttribArray(positionLoc);
+  gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+
+  startTime = performance.now();
+  resizeCanvas();
+}
+
+function resizeCanvas() {
+  const canvas = canvasRef.value;
+  if (!canvas || !gl) return;
+
+  const dpr = Math.min(window.devicePixelRatio, 2);
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
+
+function render() {
+  if (!gl || !program) return;
+
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  gl.useProgram(program);
+
+  const timeLoc = gl.getUniformLocation(program, "u_time");
+  const resolutionLoc = gl.getUniformLocation(program, "u_resolution");
+  const isDarkLoc = gl.getUniformLocation(program, "u_isDark");
+
+  const time = prefersReducedMotion.value ? 0 : (performance.now() - startTime) / 1000;
+  gl.uniform1f(timeLoc, time);
+  gl.uniform2f(resolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
+  gl.uniform1f(isDarkLoc, colorMode.value === "dark" ? 1.0 : 0.0);
+
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+  animationId = requestAnimationFrame(render);
+}
+
+function cleanup() {
+  if (animationId !== null) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+}
+
+onMounted(() => {
+  prefersReducedMotion.value = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  motionQuery.addEventListener("change", (e) => {
+    prefersReducedMotion.value = e.matches;
+  });
+
+  initWebGL();
+  render();
+
+  window.addEventListener("resize", resizeCanvas);
+});
+
+onBeforeUnmount(() => {
+  cleanup();
+  window.removeEventListener("resize", resizeCanvas);
+});
+</script>
+
+<template>
+  <canvas
+    ref="canvasRef"
+    width="1"
+    height="1"
+  />
+</template>
+
+<style scoped>
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+</style>

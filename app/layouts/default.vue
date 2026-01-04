@@ -1,6 +1,7 @@
 <template>
   <div class="layout">
     <ClientOnly>
+      <BackgroundTexture />
       <FogOverlay />
       <template #fallback>
         <div />
