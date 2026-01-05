@@ -12,6 +12,14 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "@nuxtjs/seo",
   ],
+
+  components: {
+    dirs: [
+      { path: "~/components/content/prose/heading", prefix: "Prose", pathPrefix: false },
+      { path: "~/components/OgImage", prefix: "OgImage", pathPrefix: false },
+      { path: "~/components", pathPrefix: true },
+    ],
+  },
   devtools: { enabled: true },
 
   app: {
