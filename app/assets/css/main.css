@@ -206,6 +206,23 @@ img {
     }
   }
 
+  /* Heading anchor links */
+  :is(h1, h2, h3, h4) a {
+    text-decoration: none;
+  }
+
+  :is(h1, h2, h3, h4) .heading-anchor-icon {
+    margin-left: 0.3em;
+    font-size: 0.7em;
+    opacity: 0;
+    transition: opacity 0.2s;
+    vertical-align: middle;
+  }
+
+  :is(h1, h2, h3, h4):hover .heading-anchor-icon {
+    opacity: 0.6;
+  }
+
   img {
     display: block;
     margin-inline: auto;
