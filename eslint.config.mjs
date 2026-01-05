@@ -11,7 +11,7 @@ export default withNuxt(
     },
   },
   {
-    files: ["app/**/*.ts"],
+    files: ["app/**/*.ts", "modules/**/*.ts"],
     languageOptions: {
       parser: tsParser,
     },
