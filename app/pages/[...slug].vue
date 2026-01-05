@@ -31,7 +31,7 @@ useSchemaOrg([
 ]);
 
 defineOgImage({
-  component: "OgImageDefault",
+  component: "OgImage/Default",
   props: {
     title: page.value.title,
     description: page.value.description,

@@ -23,7 +23,7 @@ useSchemaOrg([
 ]);
 
 defineOgImage({
-  component: "OgImageDefault",
+  component: "OgImage/Default",
   props: {
     title: "blog.naito.dev",
     description: "ナイトウコウスケのブログ",
