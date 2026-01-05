@@ -1,42 +1,42 @@
 import { defineNuxtModule } from "@nuxt/kit";
-import { cpSync, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 export default defineNuxtModule({
   meta: {
     name: "content-assets",
   },
-  setup(_options, nuxt) {
+  setup(_, nuxt) {
     const contentDir = join(nuxt.options.rootDir, "content");
-    const publicDir = join(nuxt.options.rootDir, "public");
 
-    const syncContentAssets = () => {
-      if (!existsSync(contentDir)) return;
-
-      const findImageDirs = (dir: string): string[] => {
-        const results: string[] = [];
-        for (const entry of readdirSync(dir)) {
-          const fullPath = join(dir, entry);
-          if (!statSync(fullPath).isDirectory()) continue;
-          if (entry === "images") {
-            results.push(fullPath);
-          }
-          else {
-            results.push(...findImageDirs(fullPath));
-          }
+    const findImageDirs = (dir: string): string[] => {
+      const results: string[] = [];
+      if (!existsSync(dir)) return results;
+      for (const entry of readdirSync(dir)) {
+        const fullPath = join(dir, entry);
+        if (!statSync(fullPath).isDirectory()) continue;
+        if (entry === "images") {
+          results.push(fullPath);
         }
-        return results;
-      };
-
-      for (const imageDir of findImageDirs(contentDir)) {
-        const relativePath = relative(contentDir, imageDir);
-        const targetDir = join(publicDir, relativePath);
-        mkdirSync(targetDir, { recursive: true });
-        cpSync(imageDir, targetDir, { recursive: true });
+        else {
+          results.push(...findImageDirs(fullPath));
+        }
       }
+      return results;
     };
 
-    // Build 時のみ実行
-    nuxt.hook("build:before", syncContentAssets);
+    // Nitro の publicAssets に content 内の images ディレクトリを追加
+    // これによりローカル public/ にコピーせずに画像を配信できる
+    nuxt.hook("nitro:config", (nitroConfig) => {
+      nitroConfig.publicAssets ||= [];
+      for (const imageDir of findImageDirs(contentDir)) {
+        const baseURL = "/" + relative(contentDir, imageDir).replace(/\\/g, "/");
+        nitroConfig.publicAssets.push({
+          dir: imageDir,
+          baseURL,
+          maxAge: 60 * 60 * 24 * 365, // 1 year
+        });
+      }
+    });
   },
 });
