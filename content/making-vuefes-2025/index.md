@@ -1,5 +1,5 @@
 ---
-title: "【感謝】Vue Fes Japan 2025 登壇しました【初】"
+title: "Vue Fes Japan 2025 に登壇した"
 description: "Vue Fes Japan 2025 にて『最高の DX - Nuxt Typed Router と Pinia Colada で実現する次世代 Vue/Nuxt 開発』という題で発表させていただきました。"
 date: "2025-10-25"
 tags: ["vuefes", "slidev"]
