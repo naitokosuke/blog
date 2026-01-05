@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
-    "~/modules/content-assets.ts",
+    "./modules/content-assets.ts",
     "@nuxt/content",
     "@nuxt/eslint",
     "@nuxt/fonts",
