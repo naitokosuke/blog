@@ -6,10 +6,19 @@ defineProps<{
 </script>
 
 <template>
-  <component :is="is" :id="id">
-    <a v-if="id" :href="`#${id}`">
+  <component
+    :is="is"
+    :id="id"
+  >
+    <a
+      v-if="id"
+      :href="`#${id}`"
+    >
       <slot />
-      <Icon name="ph:link-simple" class="heading-anchor-icon" />
+      <Icon
+        name="ph:link-simple"
+        class="heading-anchor-icon"
+      />
     </a>
     <slot v-else />
   </component>
