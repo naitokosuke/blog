@@ -17,7 +17,6 @@ tags: ["nuxt", "cloudflare"]
 - Cloudflare Workers
 - Valibot
 
-
 ## Nuxt エコシステムを選んだ
 
 Nuxt を使いたかったからという理由以外特にない。
@@ -66,22 +65,27 @@ https://x.com/yusukebe/status/1917869496267915641
 ホームページ [naito.dev](https://naito.dev) の方は Vercel でやっているので、この辺をもう少し考えたい。
 でも Vercel のことも気になるのでこのままになりそう、特にブログとの連携もないので。
 
-## SEO: Nuxt SEO
+## SEO とかよくわからん、Nuxt SEO ありがとう
 
-Nuxt SEO モジュール群を使っている。
+- sitemap.xml の自動生成
+- robots.txt の管理
+- OG 画像の動的生成
 
-- **sitemap**: sitemap.xml の自動生成
-- **robots**: robots.txt の管理
-- **og-image**: OG 画像の動的生成
-- **schema.org**: 構造化データの出力
+この辺をやってくれているらしい。ありがたい。
 
-OG 画像は satori を使って動的に生成している。記事ごとにタイトルを含んだ画像が自動で作られる。
+OG 画像の背景は生成 AI に作成してもらった。\
+「血と錆と闇と霧」。
 
-## スタイリング: Pure CSS
+## スタイリングは Pure CSS
 
-CSS フレームワークは使わず、Pure CSS で書いている。CSS Variables でテーマを管理し、ダークモードにも対応している。
+CSS フレームワークは使わず、Pure CSS で書いている。\
+規模的なものとやっぱりただの CSS が好き。\
 
-テーマは SILENT HILL にインスパイアされた「霧の中で技術文書を読む体験」をコンセプトにしている。
+Vue の scoped CSS が最近好きすぎる。\
+これと CSS のネスト記法のおかげで、スタイリングのためだけのクラスとかを増やさずに済んでいる気がする。\
+A11y, HTML semantics の観点ではどうなのか怪しい(ぼくが知識が足りてなくて評価できていないだけ)。
+
+ダークモードは Nuxt Color Mode を使用しているので、これもいい感じにやってくれている。
 
 ## 開発体験
 
