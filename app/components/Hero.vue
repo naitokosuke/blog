@@ -40,44 +40,42 @@ watch(() => props.imagePath, (newPath) => {
 </script>
 
 <template>
-  <div class="hero">
+  <figure>
     <img
       ref="imageRef"
       :src="currentImage"
       :alt="title"
-      class="hero-image"
     >
-    <h1 class="hero-title">
-      {{ title }}
-    </h1>
-  </div>
+    <figcaption>{{ title }}</figcaption>
+  </figure>
 </template>
 
 <style scoped>
-.hero {
+figure {
   position: relative;
   width: 100%;
   height: 300px;
   margin-bottom: 2rem;
   overflow: hidden;
   border-radius: 8px;
-}
 
-.hero-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-.hero-title {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0;
-  padding: 2rem;
-  font-size: 2rem;
-  color: white;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  figcaption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 2rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text);
+    background: linear-gradient(transparent, var(--color-bg));
+  }
 }
 </style>

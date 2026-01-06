@@ -45,14 +45,13 @@ defineOgImage({
 </script>
 
 <template>
-  <article
-    v-if="page"
-    class="prose"
-  >
+  <div v-if="page">
     <Hero
       :title="page.title"
       :image-path="heroImagePath"
     />
-    <ContentRenderer :value="page" />
-  </article>
+    <article class="prose">
+      <ContentRenderer :value="page" />
+    </article>
+  </div>
 </template>
