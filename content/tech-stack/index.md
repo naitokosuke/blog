@@ -44,34 +44,27 @@ https://nuxt.studio/
 東葛.dev の合同誌企画のためにもちょっと触りたい。
 このブログにも今後導入予定。
 
-### frontmatter
+### 今後はタグも活用していきたい
 
-```yaml
----
-title: "記事タイトル"
-description: "記事の説明"
-date: "2026-01-06"
-tags: ["tag1", "tag2"]
----
-```
+Nuxt Content では frontmatter がサポートされている。\
+ここで記事のメタ情報を管理。
+まだタグ機能については何もできていないけど、今後は活用していきたい。
 
-frontmatter のスキーマは Valibot で定義している。型安全に記事のメタデータを扱える。
+## ホスティングには Cloudflare Workers を使用
 
-## ホスティング: Cloudflare Workers
+ドメインを Cloudflare で管理しているという理由だけでホスティングサービスには Cloudflare を選択。\
+何かしらのシナジーはあるはずだけど、よくわかってない。
 
-Cloudflare Workers (Static Assets) でホスティングしている。
+Cloudflare の [yusukebe](https://x.com/yusukebe) さんが
 
-`nuxt generate` で静的サイトを生成し、GitHub Actions 経由で Wrangler を使ってデプロイしている。
+> これからは理由がない限りCloudflare PagesではなくCloudflare Workersを使ってください。
 
-```bash
-# 静的サイト生成
-nr generate
+https://x.com/yusukebe/status/1917869496267915641
 
-# デプロイ
-npx wrangler pages deploy .output/public
-```
+と言っているので「はい、わかりました」。
 
-Cloudflare を選んだ理由は、無料枠が十分で、エッジでの配信が速いから。日本からのアクセスも問題ない。
+ホームページ [naito.dev](https://naito.dev) の方は Vercel でやっているので、この辺をもう少し考えたい。
+でも Vercel のことも気になるのでこのままになりそう、特にブログとの連携もないので。
 
 ## SEO: Nuxt SEO
 
