@@ -7,8 +7,6 @@ tags: ["nuxt", "cloudflare"]
 
 このブログの技術スタックについて書く。
 
-## 概要
-
 - Nuxt
   - Nuxt Content
   - Nuxt SEO
@@ -20,31 +18,31 @@ tags: ["nuxt", "cloudflare"]
 - Valibot
 
 
-## フレームワーク: Nuxt 4
+## Nuxt エコシステムを選んだ
 
-Nuxt を選んだ理由は、個人ブログに必要な機能が揃っているから。
+Nuxt を使いたかったからという理由以外特にない。
+個人ブログでは Astro が人気だけど、ぼくの個人ブログについては特に Astro じゃないとダメそうなこともない気がしたので Nuxt を選んだ。
 
-- SSG (Static Site Generation) のサポート
-- Nuxt Content による Markdown 管理
-- Nuxt SEO による SEO 対応
-- Nuxt Image による画像最適化
+### Nuxt Content
 
-Vue.js のエコシステムを使いたかったというのもある。業務でも Vue/Nuxt を使っているので、ブログでも同じ技術スタックを使うことで学びを深められる。
+https://content.nuxt.com/
 
-## コンテンツ管理: Nuxt Content v3
+> The git-based CMS for Nuxt.
 
-記事は Markdown で書いている。Nuxt Content v3 は SQLite でインデックスを作成し、高速にクエリできる。
+Zenn の記事も Markdown で書いていたので Markdown を今回も採用。
+MDC とかも使ってみたい。
 
-```
-content/
-├── making-vuefes-2025/
-│   ├── index.md
-│   └── images/
-└── tech-stack/
-    └── index.md
-```
+とりあえず Markdown を書けば表示されるのが嬉しい。
 
-記事ごとにディレクトリを切り、画像は `images/` ディレクトリに配置する。この構造により、記事と関連画像をまとめて管理できる。
+元々この Nuxt モジュールが気になっていた。
+Nuxt Studio についても気になっている。
+
+https://nuxt.studio/
+
+> Self-hosted CMS for your Nuxt Content website.
+
+東葛.dev の合同誌企画のためにもちょっと触りたい。
+このブログにも今後導入予定。
 
 ### frontmatter
 
