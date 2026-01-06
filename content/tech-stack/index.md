@@ -1,8 +1,8 @@
 ---
 title: "blog.naito.dev を支える技術スタック"
-description: "このブログを支える技術スタックについて。Nuxt 4、Nuxt Content v3、Cloudflare Workers などを採用している。"
+description: "このブログを支える技術スタックについて。Nuxt Content を中心に、Nuxt エコシステムを活用。Cloudflare Workers にデプロイ。
 date: "2026-01-06"
-tags: ["nuxt", "cloudflare"]
+tags: ["nuxt", "nuxt content", "cloudflare"]
 ---
 
 このブログの技術スタックについて書く。
@@ -138,3 +138,10 @@ Nuxt Scripts で何を実現できるかよくわかってないけど。
 いいね機能とか閲覧数表示とかしたい。
 
 あとは SNS シェア機能も簡単に作りたい。
+
+必要ないかもしれないけど LLM フレンドリーにはしたい。\
+Nuxt には Nuxt LLMs というモジュールもあるので多分これもいつか導入することになる。
+
+多分 Nuxt Content のドキュメントには Markdown を表示するリンクや、Markdown 自体をコピーしてくれる機能がある。\
+多分この辺が Nuxt LLMs の機能。\
+これが便利で Claude Code ｸﾝ に「お願い〜」って言いやすかった。
