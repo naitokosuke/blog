@@ -1,8 +1,8 @@
 ---
-title: "blog.naito.dev の技術スタック"
+title: "blog.naito.dev を支える技術スタック"
 description: "このブログを支える技術スタックについて。Nuxt 4、Nuxt Content v3、Cloudflare Workers などを採用している。"
 date: "2026-01-06"
-tags: ["nuxt", "cloudflare", "blog"]
+tags: ["nuxt", "cloudflare"]
 ---
 
 このブログの技術スタックについて書く。
