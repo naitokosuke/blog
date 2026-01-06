@@ -9,14 +9,15 @@ export default defineNuxtModule({
   setup(_, nuxt) {
     const contentDir = join(nuxt.options.rootDir, "content");
 
-    const findImageDirs = (dir: string): string[] => {
-      const results: string[] = [];
+    const findImageDirs = (dir: string): { fullPath: string; baseURL: string }[] => {
+      const results: { fullPath: string; baseURL: string }[] = [];
       if (!existsSync(dir)) return results;
       for (const entry of readdirSync(dir)) {
         const fullPath = join(dir, entry);
         if (!statSync(fullPath).isDirectory()) continue;
         if (entry === "images") {
-          results.push(fullPath);
+          const baseURL = "/" + relative(contentDir, fullPath).replace(/\\/g, "/");
+          results.push({ fullPath, baseURL });
         }
         else {
           results.push(...findImageDirs(fullPath));
@@ -25,14 +26,15 @@ export default defineNuxtModule({
       return results;
     };
 
+    const imageDirs = findImageDirs(contentDir);
+
     // Nitro の publicAssets に content 内の images ディレクトリを追加
     // これによりローカル public/ にコピーせずに画像を配信できる
     nuxt.hook("nitro:config", (nitroConfig) => {
       nitroConfig.publicAssets ||= [];
-      for (const imageDir of findImageDirs(contentDir)) {
-        const baseURL = "/" + relative(contentDir, imageDir).replace(/\\/g, "/");
+      for (const { fullPath, baseURL } of imageDirs) {
         nitroConfig.publicAssets.push({
-          dir: imageDir,
+          dir: fullPath,
           baseURL,
           maxAge: 60 * 60 * 24 * 365, // 1 year
         });
