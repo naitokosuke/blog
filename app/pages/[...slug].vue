@@ -9,6 +9,11 @@ if (page.value == null) {
   throw createError({ statusCode: 404, statusMessage: "Page not found", fatal: true });
 }
 
+const heroImagePath = computed(() => {
+  if (!page.value) return undefined;
+  return `${page.value.path}/images/hero.png`;
+});
+
 useSeoMeta({
   title: page.value.title,
   description: page.value.description,
@@ -40,11 +45,13 @@ defineOgImage({
 </script>
 
 <template>
-  <article
-    v-if="page"
-    class="prose"
-  >
-    <h1>{{ page.title }}</h1>
-    <ContentRenderer :value="page" />
-  </article>
+  <div v-if="page">
+    <Hero
+      :title="page.title"
+      :image-path="heroImagePath"
+    />
+    <article class="prose">
+      <ContentRenderer :value="page" />
+    </article>
+  </div>
 </template>
