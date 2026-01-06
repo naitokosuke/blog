@@ -92,6 +92,14 @@ CSS フレームワークは使わず、Pure CSS で書いている。CSS Variab
 - Nuxt Hints
 - Nuxt ESLint
 
+### 記事と画像を同じディレクトリで管理したかった
+
+`@nuxt/kit` を使ってカスタムモジュールを作った。
+
+`content/` 内の `images/` フォルダを自動で静的アセットとして配信する。`content/blog/post-1/images/hero.png` を置くと `/blog/post-1/images/hero.png` でアクセスできる。
+
+画像を `public/` にコピーせずに記事と同じ場所で管理できるので便利。
+
 ### Linter / Formatter
 
 - ESLint (with Nuxt ESLint)
