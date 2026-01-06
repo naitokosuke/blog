@@ -51,22 +51,9 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-09-19",
 
   nitro: {
-    preset: "cloudflare_module",
-    cloudflare: {
-      deployConfig: true,
-      wrangler: {
-        compatibility_date: "2024-09-19",
-        routes: [
-          { pattern: "blog.naito.dev", custom_domain: true },
-        ],
-        d1_databases: [
-          {
-            binding: "DB",
-            database_name: "blog-content",
-            database_id: "ebfd80fa-49a3-43ca-9a27-0d37a66ef98b",
-          },
-        ],
-      },
+    prerender: {
+      crawlLinks: true,
+      failOnError: false,
     },
   },
   eslint: {
