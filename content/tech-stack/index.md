@@ -15,7 +15,6 @@ tags: ["nuxt", "cloudflare"]
   - Nuxt Icon
   - Nuxt Color Mode
 - Cloudflare Workers
-- Valibot
 
 ## Nuxt エコシステムを選んだ
 
