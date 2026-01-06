@@ -9,13 +9,16 @@ tags: ["nuxt", "cloudflare"]
 
 ## 概要
 
-| 技術 | 用途 |
-|------|------|
-| Nuxt 4 | フレームワーク |
-| Nuxt Content v3 | Markdown コンテンツ管理 |
-| Cloudflare Workers | ホスティング (Static) |
-| @nuxtjs/seo | SEO・OG 画像生成 |
-| Valibot | スキーマバリデーション |
+- Nuxt
+  - Nuxt Content
+  - Nuxt SEO
+  - Nuxt Image
+  - Nuxt Fonts
+  - Nuxt Icon
+  - Nuxt Color Mode
+- Cloudflare Workers
+- Valibot
+
 
 ## フレームワーク: Nuxt 4
 
@@ -23,8 +26,8 @@ Nuxt を選んだ理由は、個人ブログに必要な機能が揃っている
 
 - SSG (Static Site Generation) のサポート
 - Nuxt Content による Markdown 管理
-- @nuxtjs/seo による SEO 対応
-- @nuxt/image による画像最適化
+- Nuxt SEO による SEO 対応
+- Nuxt Image による画像最適化
 
 Vue.js のエコシステムを使いたかったというのもある。業務でも Vue/Nuxt を使っているので、ブログでも同じ技術スタックを使うことで学びを深められる。
 
@@ -72,9 +75,9 @@ npx wrangler pages deploy .output/public
 
 Cloudflare を選んだ理由は、無料枠が十分で、エッジでの配信が速いから。日本からのアクセスも問題ない。
 
-## SEO: @nuxtjs/seo
+## SEO: Nuxt SEO
 
-@nuxtjs/seo モジュール群を使っている。
+Nuxt SEO モジュール群を使っている。
 
 - **sitemap**: sitemap.xml の自動生成
 - **robots**: robots.txt の管理
@@ -91,9 +94,16 @@ CSS フレームワークは使わず、Pure CSS で書いている。CSS Variab
 
 ## 開発体験
 
+### Nuxt モジュール
+
+開発体験向上のために以下のモジュールを使用している。
+
+- Nuxt Hints
+- Nuxt ESLint
+
 ### Linter / Formatter
 
-- ESLint (with @nuxt/eslint)
+- ESLint (with Nuxt ESLint)
 - Oxlint
 
 Oxlint は Rust 製で高速。ESLint と併用している。
@@ -101,6 +111,10 @@ Oxlint は Rust 製で高速。ESLint と併用している。
 ### パッケージマネージャー
 
 pnpm を使っている。@antfu/ni を入れているので、`ni` や `nr` コマンドで操作できる。
+
+## 今後の展開
+
+サードパーティスクリプトの管理に Nuxt Scripts を導入したい。Google Analytics などを使う際に、パフォーマンスとプライバシーを考慮したスクリプト読み込みができる。
 
 ## まとめ
 
