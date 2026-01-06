@@ -120,15 +120,24 @@ https://oxc.rs/docs/guide/usage/linter/js-plugins.html#api-support
 > Not supported yet:
 > * Language server (IDE) support + suggestions (so no in-editor diagnostics or quick-fixes yet).
 
-それぞれの分担みたいなのがよくわかってない。
+それぞれの分担みたいなのがよくわかってない。\
+規模が小さいプロジェクトなので Oxlint のパワーを享受できているのかもよくわかってない。
 
-### パッケージマネージャー
+### パッケージマネージャー(<- これ書く必要ある？)
 
 pnpm を使っている。@antfu/ni を入れているので、`ni` や `nr` コマンドで操作できる。
 
+って Claude Code ｸﾝ が書いてくれた。\
+ここまでの内容も全て一度 Claude Code ｸﾝ が書いてくれたものを書き直している。
+
 ## 今後の展開
 
-サードパーティスクリプトの管理に Nuxt Scripts を導入したい。Google Analytics などを使う際に、パフォーマンスとプライバシーを考慮したスクリプト読み込みができる。
+サードパーティスクリプトの管理に Nuxt Scripts を導入したい。\
+Nuxt Scripts で何を実現できるかよくわかってないけど。
+
+いいね機能とか閲覧数表示とかしたい。
+
+あとは SNS シェア機能も簡単に作りたい。
 
 ## まとめ
 
