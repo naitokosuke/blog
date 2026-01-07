@@ -92,6 +92,11 @@ a {
   &:hover {
     color: var(--color-accent-hover);
   }
+
+  &:focus-visible {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
 }
 
 /* Focus states - Accessibility */
