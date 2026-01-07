@@ -16,4 +16,4 @@ pattern = "blog.naito.dev"
 custom_domain = true
 
 [vars]
-STUDIO_GITHUB_CLIENT_ID = "Ov23liPcajld1CHyJMQY"
+NUXT_STUDIO_AUTH_GITHUB_CLIENT_ID = "Ov23liPcajld1CHyJMQY"

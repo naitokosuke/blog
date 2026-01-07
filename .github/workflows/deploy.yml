@@ -30,6 +30,6 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
           secrets: |
-            STUDIO_GITHUB_CLIENT_SECRET
+            NUXT_STUDIO_AUTH_GITHUB_CLIENT_SECRET
         env:
-          STUDIO_GITHUB_CLIENT_SECRET: ${{ secrets.STUDIO_GITHUB_CLIENT_SECRET }}
+          NUXT_STUDIO_AUTH_GITHUB_CLIENT_SECRET: ${{ secrets.STUDIO_GITHUB_CLIENT_SECRET }}
