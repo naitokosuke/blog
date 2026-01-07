@@ -106,6 +106,7 @@ code {
   background-color: var(--color-bg-secondary);
   padding: 0.125em 0.375em;
   border-radius: 4px;
+  border: 1px solid var(--color-border);
 }
 
 pre {
