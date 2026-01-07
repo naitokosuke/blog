@@ -51,10 +51,6 @@ export default defineNuxtConfig({
     },
   },
 
-  runtimeConfig: {
-    studioGithubClientId: process.env.STUDIO_GITHUB_CLIENT_ID,
-    studioGithubClientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
-  },
   compatibilityDate: "2024-09-19",
 
   nitro: {
