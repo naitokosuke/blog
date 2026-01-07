@@ -10,21 +10,21 @@
 | Nuxt Content v3 | Markdown コンテンツ管理 |
 | Cloudflare Workers | ホスティング (Static) |
 | Valibot | スキーマバリデーション |
+| oxlint + ESLint | Lint |
 
 ## Directory Structure
 
 ```
 blog/
 ├── app/
+│   ├── assets/css/      # スタイル (main.css)
 │   ├── components/      # Vue コンポーネント
-│   │   ├── content/     # Nuxt Content 用
-│   │   │   └── prose/   # Markdown レンダリング
-│   │   │       └── heading/
-│   │   └── OgImage/     # OG 画像生成
+│   │   └── content/prose/  # Markdown レンダリング
+│   │       ├── heading/    # h2, h3, h4 コンポーネント
+│   │       └── ProseImg.vue
 │   ├── composables/     # Vue composables
-│   ├── layouts/         # レイアウト
-│   ├── pages/           # ページ
-│   └── assets/          # CSS, フォント
+│   ├── layouts/         # レイアウト (default.vue)
+│   └── pages/           # ページ (index, [...slug])
 ├── content/             # Markdown 記事
 ├── modules/             # カスタム Nuxt モジュール
 ├── public/              # 静的ファイル
@@ -35,7 +35,7 @@ blog/
 
 ### @nuxt/content
 
-Markdown ファイルを SQLite でインデックス化し、高速にクエリ可能。
+Markdown ファイルを SQLite (native connector) でインデックス化し、高速にクエリ可能。
 
 ```ts
 // content.config.ts
@@ -44,8 +44,10 @@ const posts = defineCollection({
   source: "**",
   schema: v.object({
     title: v.string(),
+    description: v.optional(v.string()),
     date: v.optional(v.pipe(v.string(), v.isoDate())),
-    // ...
+    tags: v.optional(v.array(v.string()), []),
+    draft: v.optional(v.boolean(), false),
   }),
 });
 ```
@@ -55,8 +57,20 @@ const posts = defineCollection({
 SEO 関連モジュール群:
 - sitemap
 - robots
-- og-image
+- og-image (Zen Old Mincho フォント使用)
 - schema.org
+
+### @nuxtjs/color-mode
+
+ダークモード対応。`classSuffix: ""` 設定で `.dark` クラスを使用。
+
+### @nuxt/image
+
+画像最適化。AVIF/WebP 形式、品質 80%。
+
+### @nuxt/fonts
+
+Web フォント管理。
 
 ### content-assets
 
@@ -68,9 +82,16 @@ SEO 関連モジュール群:
 
 Nuxt のコンポーネント自動解決を活用し、フォルダ構造でプレフィックスを表現:
 
-```
-OgImage/Default.vue  → OgImageDefault
-prose/heading/h2.vue → ProseH2 (nuxt.config.ts で設定)
+```ts
+// nuxt.config.ts
+components: {
+  dirs: [
+    { path: "~/components/content/prose/heading", prefix: "Prose", pathPrefix: false },
+    { path: "~/components/content/prose", prefix: "Prose", pathPrefix: false },
+    { path: "~/components/OgImage", prefix: "OgImage", pathPrefix: false },
+    { path: "~/components", pathPrefix: true },
+  ],
+}
 ```
 
 ### Static Generation
@@ -79,4 +100,6 @@ prose/heading/h2.vue → ProseH2 (nuxt.config.ts で設定)
 
 ### Markdown Rendering
 
-Nuxt Content のデフォルト Prose コンポーネントをカスタマイズし、見出しにアンカーリンクを追加。
+Nuxt Content のデフォルト Prose コンポーネントをカスタマイズ:
+- 見出し (h2-h4) にアンカーリンクを追加
+- 画像を NuxtImg でラップして最適化
