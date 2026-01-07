@@ -300,3 +300,10 @@ img {
     }
   }
 }
+
+/* Mobile base styles */
+@media (width <= 768px) {
+  body {
+    font-size: 1.125rem;
+  }
+}
