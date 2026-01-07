@@ -33,4 +33,10 @@ main {
   padding: 0 1rem;
   overflow-y: auto;
 }
+
+@media (width <= 768px) {
+  main {
+    padding: 0 1.25rem;
+  }
+}
 </style>
