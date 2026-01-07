@@ -58,35 +58,22 @@ const fragmentShaderSource = `
     return 130.0 * dot(m, g);
   }
 
-  // FBM with rotation to reduce axial bias
+  // FBM with rotation to reduce axial bias - optimized to 2 octaves
   mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);
 
-  float fbm(vec2 p) {
-    float f = 0.0;
-    f += 0.5000 * snoise(p); p = m2 * p * 2.02;
-    f += 0.2500 * snoise(p); p = m2 * p * 2.03;
-    f += 0.1250 * snoise(p); p = m2 * p * 2.01;
-    f += 0.0625 * snoise(p); p = m2 * p * 2.04;
-    f += 0.0312 * snoise(p);
-    return f / 0.9687;
-  }
-
-  // 錆のFBM（より粗い質感）
+  // 錆のFBM（より粗い質感）- optimized
   float rustFbm(vec2 p) {
     float f = 0.0;
-    f += 0.5000 * snoise(p); p = m2 * p * 1.8;
-    f += 0.3000 * snoise(p); p = m2 * p * 2.2;
-    f += 0.1500 * snoise(p); p = m2 * p * 2.5;
-    f += 0.0500 * snoise(p);
+    f += 0.5 * snoise(p); p = m2 * p * 1.8;
+    f += 0.3 * snoise(p);
     return f;
   }
 
-  // 血のFBM（滲むような質感）
+  // 血のFBM（滲むような質感）- optimized
   float bloodFbm(vec2 p) {
     float f = 0.0;
-    f += 0.6000 * snoise(p); p = m2 * p * 1.5;
-    f += 0.2500 * snoise(p); p = m2 * p * 2.0;
-    f += 0.1000 * snoise(p);
+    f += 0.6 * snoise(p); p = m2 * p * 1.5;
+    f += 0.25 * snoise(p);
     return f;
   }
 
@@ -101,13 +88,12 @@ const fragmentShaderSource = `
     // === 闇のベース色 ===
     vec3 darkness = vec3(0.051, 0.039, 0.035); // #0d0a09
 
-    // === 錆のテクスチャ ===
+    // === 錆のテクスチャ === (optimized: 3 layers -> 2 layers)
     float rust1 = rustFbm(p * 1.5 + vec2(t * 0.1, 0.0));
-    float rust2 = rustFbm(p * 2.5 + vec2(100.0, t * 0.05));
-    float rust3 = rustFbm(p * 0.8 + vec2(50.0, 30.0));
+    float rust2 = rustFbm(p * 0.8 + vec2(50.0, 30.0));
 
     // 錆のノイズを合成
-    float rustNoise = (rust1 + rust2 * 0.7 + rust3 * 0.5) / 2.2;
+    float rustNoise = (rust1 + rust2 * 0.5) / 1.5;
     rustNoise = rustNoise * 0.5 + 0.5;
 
     // 錆の色（より明るく）
@@ -115,12 +101,10 @@ const fragmentShaderSource = `
     vec3 rustColor2 = vec3(0.45, 0.22, 0.12); // 明るい錆オレンジ
     vec3 rustColor = mix(rustColor1, rustColor2, rustNoise);
 
-    // === 血のテクスチャ ===
+    // === 血のテクスチャ === (optimized: 2 layers -> 1 layer)
     float blood1 = bloodFbm(p * 1.2 + vec2(200.0, t * 0.02));
-    float blood2 = bloodFbm(p * 2.0 + vec2(150.0, 80.0));
 
-    float bloodNoise = (blood1 + blood2 * 0.6) / 1.6;
-    bloodNoise = bloodNoise * 0.5 + 0.5;
+    float bloodNoise = blood1 * 0.5 + 0.5;
 
     // 血の色（より明るく）
     vec3 bloodColor1 = vec3(0.22, 0.05, 0.05); // 暗い血
@@ -151,6 +135,9 @@ let gl: WebGLRenderingContext | null = null;
 let program: WebGLProgram | null = null;
 let animationId: number | null = null;
 let startTime = 0;
+let lastFrameTime = 0;
+const TARGET_FPS = 30;
+const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
 const prefersReducedMotion = ref(false);
 const isDarkMode = ref(false);
@@ -233,7 +220,7 @@ function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!canvas || !gl) return;
 
-  const dpr = Math.min(window.devicePixelRatio, 2);
+  const dpr = Math.min(window.devicePixelRatio, 1.5);
   const width = window.innerWidth;
   const height = window.innerHeight;
 
@@ -248,6 +235,16 @@ function resizeCanvas() {
 function render() {
   if (!gl || !program) return;
 
+  const now = performance.now();
+  const elapsed = now - lastFrameTime;
+
+  // Frame rate limiting to 30fps
+  if (elapsed < FRAME_INTERVAL) {
+    animationId = requestAnimationFrame(render);
+    return;
+  }
+  lastFrameTime = now - (elapsed % FRAME_INTERVAL);
+
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -257,7 +254,7 @@ function render() {
   const resolutionLoc = gl.getUniformLocation(program, "u_resolution");
   const isDarkLoc = gl.getUniformLocation(program, "u_isDark");
 
-  const time = prefersReducedMotion.value ? 0 : (performance.now() - startTime) / 1000;
+  const time = prefersReducedMotion.value ? 0 : (now - startTime) / 1000;
   gl.uniform1f(timeLoc, time);
   gl.uniform2f(resolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
   gl.uniform1f(isDarkLoc, colorMode.value === "dark" ? 1.0 : 0.0);
