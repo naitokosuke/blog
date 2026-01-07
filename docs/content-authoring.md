@@ -66,13 +66,21 @@ Markdown 内で相対パスで参照:
 ### ビルド時の処理
 
 `content-assets` モジュールが `content/*/images/` を `public/` にコピー。
-`@nuxt/image` が最適化（WebP, AVIF 変換）。
+`@nuxt/image` が最適化（AVIF, WebP 変換、品質 80%）。
 
 ## Markdown Features
 
 Nuxt Content v3 (MDC) の機能が使用可能:
 
-- 見出しに自動でアンカーリンク
+- 見出しに自動でアンカーリンク（ProseH2, ProseH3, ProseH4）
 - コードブロックのシンタックスハイライト
 - テーブル
-- etc.
+- 画像の自動最適化（ProseImg）
+
+## OG Image
+
+記事ごとに OG 画像が自動生成される。
+
+- フォント: Zen Old Mincho
+- 背景: `/public/og-background.png`
+- タイトルと説明文を表示
