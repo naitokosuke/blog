@@ -151,6 +151,9 @@ let gl: WebGLRenderingContext | null = null;
 let program: WebGLProgram | null = null;
 let animationId: number | null = null;
 let startTime = 0;
+let lastFrameTime = 0;
+const TARGET_FPS = 30;
+const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
 const prefersReducedMotion = ref(false);
 const isDarkMode = ref(false);
@@ -233,7 +236,7 @@ function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!canvas || !gl) return;
 
-  const dpr = Math.min(window.devicePixelRatio, 2);
+  const dpr = Math.min(window.devicePixelRatio, 1.5);
   const width = window.innerWidth;
   const height = window.innerHeight;
 
@@ -248,6 +251,16 @@ function resizeCanvas() {
 function render() {
   if (!gl || !program) return;
 
+  const now = performance.now();
+  const elapsed = now - lastFrameTime;
+
+  // Frame rate limiting to 30fps
+  if (elapsed < FRAME_INTERVAL) {
+    animationId = requestAnimationFrame(render);
+    return;
+  }
+  lastFrameTime = now - (elapsed % FRAME_INTERVAL);
+
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -257,7 +270,7 @@ function render() {
   const resolutionLoc = gl.getUniformLocation(program, "u_resolution");
   const isDarkLoc = gl.getUniformLocation(program, "u_isDark");
 
-  const time = prefersReducedMotion.value ? 0 : (performance.now() - startTime) / 1000;
+  const time = prefersReducedMotion.value ? 0 : (now - startTime) / 1000;
   gl.uniform1f(timeLoc, time);
   gl.uniform2f(resolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
   gl.uniform1f(isDarkLoc, colorMode.value === "dark" ? 1.0 : 0.0);
