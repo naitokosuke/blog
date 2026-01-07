@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     "@nuxt/scripts",
     "@nuxtjs/color-mode",
     "@nuxtjs/seo",
+    "nuxt-studio",
   ],
 
   components: {
@@ -52,7 +53,9 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-09-19",
 
   nitro: {
+    preset: "cloudflare_module",
     prerender: {
+      routes: ["/"],
       crawlLinks: true,
       failOnError: false,
     },
@@ -74,5 +77,14 @@ export default defineNuxtConfig({
     fonts: [
       "Zen Old Mincho",
     ],
+  },
+
+  studio: {
+    repository: {
+      provider: "github",
+      owner: "naitokosuke",
+      repo: "blog",
+      branch: "main",
+    },
   },
 });
