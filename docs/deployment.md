@@ -5,10 +5,11 @@
 ## Hosting
 
 Cloudflare Workers (Static Assets) でホスティング。
+カスタムドメイン: `blog.naito.dev`
 
 ## CI/CD Pipeline
 
-GitHub Actions でデプロイを自動化。
+GitHub Actions でデプロイを自動化。`main` ブランチへの push でトリガー。
 
 ```yaml
 # .github/workflows/deploy.yml
@@ -25,9 +26,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: pnpm install
       - run: pnpm generate
-      - run: npx wrangler pages deploy ...
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
 ```
 
 ## Build Commands
@@ -40,7 +47,7 @@ nr dev
 nr generate
 
 # プレビュー
-npx serve .output/public
+nr preview
 ```
 
 ## Environment
@@ -50,6 +57,7 @@ npx serve .output/public
 | 名前 | 説明 |
 |------|------|
 | `CLOUDFLARE_API_TOKEN` | Cloudflare API トークン |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare アカウント ID |
 
 ## Wrangler Configuration
 
@@ -57,6 +65,14 @@ npx serve .output/public
 # wrangler.toml
 name = "blog"
 compatibility_date = "2024-09-19"
+
+[assets]
+directory = ".output/public"
+html_handling = "drop-trailing-slash"
+
+[[routes]]
+pattern = "blog.naito.dev"
+custom_domain = true
 ```
 
 ## Post-Deployment
