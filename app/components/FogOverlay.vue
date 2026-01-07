@@ -286,6 +286,16 @@ onMounted(() => {
 
   window.addEventListener("resize", resizeCanvas);
 
+  // タブの可視性変更を監視（非アクティブ時にレンダリング停止）
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      cleanup();
+    }
+    else if (isLightMode.value) {
+      startRender();
+    }
+  });
+
   // 初期状態をチェック
   isLightMode.value = checkLightMode();
   if (isLightMode.value) {
