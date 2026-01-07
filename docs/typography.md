@@ -109,6 +109,20 @@ code {
 
 ---
 
+## フォント
+
+```css
+:root {
+  --font-sans: "Zen Old Mincho", ui-serif, serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+```
+
+- **本文**: Zen Old Mincho（@nuxt/fonts で管理）
+- **コード**: システムモノスペースフォント
+
+---
+
 ## 参照
 
-- [app/assets/css/main.css](../../app/assets/css/main.css) — 実装
+- [app/assets/css/main.css](../app/assets/css/main.css) — 実装
