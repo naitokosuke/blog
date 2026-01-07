@@ -7,9 +7,9 @@ directory = ".output/public"
 html_handling = "drop-trailing-slash"
 
 [[d1_databases]]
-binding = "DB"
-database_name = "blog-content"
-database_id = "<D1_DATABASE_ID>"
+binding = "blog"
+database_name = "blog"
+database_id = "0fbd7d8f-e55f-4bde-9a43-2ff8a81cfa18"
 
 [[routes]]
 pattern = "blog.naito.dev"
