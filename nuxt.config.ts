@@ -75,7 +75,7 @@ export default defineNuxtConfig({
   },
   ogImage: {
     fonts: [
-      "Zen Old Mincho",
+      "Zen+Old+Mincho:400",
     ],
   },
 
