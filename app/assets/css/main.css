@@ -81,7 +81,7 @@ html {
 
 body {
   min-height: 100dvh;
-  font-size: 1.375rem;
+  font-size: 1.125rem;
 }
 
 a {
@@ -149,20 +149,20 @@ img {
   }
 
   h1 {
-    font-size: 2rem;
+    font-size: 2.25rem;
     margin-top: 0;
   }
 
   h2 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
 
   h3 {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
   }
 
   h4 {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
   }
 
   p {
@@ -292,19 +292,19 @@ img {
     }
 
     h1 {
-      font-size: 1.5rem;
+      font-size: 1.75rem;
     }
 
     h2 {
-      font-size: 1.25rem;
+      font-size: 1.5rem;
     }
 
     h3 {
-      font-size: 1.125rem;
+      font-size: 1.25rem;
     }
 
     h4 {
-      font-size: 1rem;
+      font-size: 1.125rem;
     }
 
     table {
@@ -320,6 +320,6 @@ img {
 /* Mobile base styles */
 @media (width <= 768px) {
   body {
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
 }
