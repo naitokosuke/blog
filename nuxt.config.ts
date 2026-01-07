@@ -77,7 +77,7 @@ export default defineNuxtConfig({
     fonts: [
       "Zen+Old+Mincho:400",
     ],
-    runtimeCacheStorage: false,
+    zeroRuntime: true,
   },
 
   studio: {
