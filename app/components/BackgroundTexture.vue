@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { textureOpacity } = useOverlay();
-const canvasRef = ref<HTMLCanvasElement | null>(null);
+const canvasRef = useTemplateRef<HTMLCanvasElement>("canvasRef");
 const colorMode = useColorMode();
 
 const vertexShaderSource = `

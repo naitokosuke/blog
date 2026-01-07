@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { fogOpacity } = useOverlay();
-const canvasRef = ref<HTMLCanvasElement | null>(null);
+const canvasRef = useTemplateRef<HTMLCanvasElement>("canvasRef");
 const colorMode = useColorMode();
 
 // シェーダーコード
