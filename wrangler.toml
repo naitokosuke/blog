@@ -14,3 +14,6 @@ database_id = "0fbd7d8f-e55f-4bde-9a43-2ff8a81cfa18"
 [[routes]]
 pattern = "blog.naito.dev"
 custom_domain = true
+
+[vars]
+STUDIO_GITHUB_CLIENT_ID = "Ov23liPcajld1CHyJMQY"
