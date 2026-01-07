@@ -1,38 +1,38 @@
 <script setup lang="ts">
 const props = defineProps<{
-  title: string
-  url?: string
-}>()
+  title: string;
+  url?: string;
+}>();
 
-const runtimeConfig = useRuntimeConfig()
+const runtimeConfig = useRuntimeConfig();
 
 const shareUrl = computed(() => {
-  if (props.url) return props.url
+  if (props.url) return props.url;
   if (import.meta.client) {
-    return window.location.href
+    return window.location.href;
   }
-  return `${runtimeConfig.public.siteUrl}${useRoute().path}`
-})
+  return `${runtimeConfig.public.siteUrl}${useRoute().path}`;
+});
 
 const xShareUrl = computed(() => {
-  const text = `『${props.title}』- blog.naito.dev`
+  const text = `『${props.title}』- blog.naito.dev`;
   const params = new URLSearchParams({
     url: shareUrl.value,
     text,
-    hashtags: 'naitokosuke_blog',
-  })
-  return `https://twitter.com/intent/tweet?${params.toString()}`
-})
+    hashtags: "naitokosuke_blog",
+  });
+  return `https://twitter.com/intent/tweet?${params.toString()}`;
+});
 
-const copied = ref(false)
+const copied = ref(false);
 
 async function copyUrl() {
-  const textToCopy = `『${props.title}』- blog.naito.dev\n${shareUrl.value}`
-  await navigator.clipboard.writeText(textToCopy)
-  copied.value = true
+  const textToCopy = `『${props.title}』- blog.naito.dev\n${shareUrl.value}`;
+  await navigator.clipboard.writeText(textToCopy);
+  copied.value = true;
   setTimeout(() => {
-    copied.value = false
-  }, 2000)
+    copied.value = false;
+  }, 2000);
 }
 </script>
 
@@ -45,7 +45,10 @@ async function copyUrl() {
       class="share-button"
       aria-label="X(Twitter)でシェア"
     >
-      <Icon name="mdi:twitter" size="20" />
+      <Icon
+        name="mdi:twitter"
+        size="20"
+      />
     </a>
     <button
       type="button"
@@ -53,8 +56,16 @@ async function copyUrl() {
       :aria-label="copied ? 'コピーしました' : 'URLをコピー'"
       @click="copyUrl"
     >
-      <Icon v-if="copied" name="mdi:check" size="20" />
-      <Icon v-else name="mdi:link-variant" size="20" />
+      <Icon
+        v-if="copied"
+        name="mdi:check"
+        size="20"
+      />
+      <Icon
+        v-else
+        name="mdi:link-variant"
+        size="20"
+      />
     </button>
   </div>
 </template>
