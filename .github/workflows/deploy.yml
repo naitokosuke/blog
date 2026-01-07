@@ -20,8 +20,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Generate static site
-        run: pnpm generate
+      - name: Build with SSR
+        run: pnpm build
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
