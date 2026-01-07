@@ -55,8 +55,8 @@ export default defineNuxtConfig({
     studio: {
       auth: {
         github: {
-          clientId: process.env.STUDIO_GITHUB_CLIENT_ID,
-          clientSecret: process.env.STUDIO_GITHUB_CLIENT_SECRET,
+          clientId: "",
+          clientSecret: "",
         },
       },
     },
