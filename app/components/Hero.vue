@@ -47,7 +47,10 @@ watch(() => props.imagePath, (newPath) => {
     >
     <figcaption>
       <span class="title">{{ title }}</span>
-      <ShareButtons v-if="showShare" :title="title" />
+      <ShareButtons
+        v-if="showShare"
+        :title="title"
+      />
     </figcaption>
   </figure>
 </template>
