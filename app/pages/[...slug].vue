@@ -36,7 +36,7 @@ useSchemaOrg([
 ]);
 
 defineOgImage({
-  component: "OgImageDefault",
+  component: "OgImage",
   props: {
     title: page.value.title,
     description: page.value.description,
@@ -49,9 +49,25 @@ defineOgImage({
     <Hero
       :title="page.title"
       :image-path="heroImagePath"
+      show-share
     />
     <article class="prose">
       <ContentRenderer :value="page" />
     </article>
+    <div class="share-section">
+      <ShareButtons :title="page.title" />
+    </div>
   </div>
 </template>
+
+<style scoped>
+.share-section {
+  display: flex;
+  justify-content: center;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+}
+</style>

@@ -2,11 +2,11 @@
 const props = defineProps<{
   title: string;
   imagePath?: string;
+  showShare?: boolean;
 }>();
 
 const DEFAULT_HERO_IMAGE = "/og-background.png";
 
-const imageRef = ref<HTMLImageElement | null>(null);
 const currentImage = ref(DEFAULT_HERO_IMAGE);
 
 onMounted(() => {
@@ -42,11 +42,16 @@ watch(() => props.imagePath, (newPath) => {
 <template>
   <figure>
     <img
-      ref="imageRef"
       :src="currentImage"
       :alt="title"
     >
-    <figcaption>{{ title }}</figcaption>
+    <figcaption>
+      <span class="title">{{ title }}</span>
+      <ShareButtons
+        v-if="showShare"
+        :title="title"
+      />
+    </figcaption>
   </figure>
 </template>
 
@@ -72,10 +77,16 @@ figure {
     right: 0;
     margin: 0;
     padding: 2rem;
-    font-size: 2rem;
-    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
     color: var(--color-text);
     background: linear-gradient(transparent, var(--color-bg));
+
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+    }
   }
 }
 </style>
