@@ -1,22 +1,14 @@
-import { useRuntimeConfig, defineEventHandler } from "#imports";
+import { defineEventHandler } from "#imports";
 
 export default defineEventHandler((event) => {
   const cloudflareEnv = event.context.cloudflare?.env;
   if (cloudflareEnv) {
-    const config = useRuntimeConfig(event);
-
-    // Update runtimeConfig with Cloudflare env vars
+    // nuxt-studio uses STUDIO_GITHUB_CLIENT_ID directly in process.env
     if (cloudflareEnv.NUXT_STUDIO_AUTH_GITHUB_CLIENT_ID) {
-      config.studio = config.studio || {};
-      config.studio.auth = config.studio.auth || {};
-      config.studio.auth.github = config.studio.auth.github || {};
-      config.studio.auth.github.clientId = cloudflareEnv.NUXT_STUDIO_AUTH_GITHUB_CLIENT_ID;
+      process.env.STUDIO_GITHUB_CLIENT_ID = cloudflareEnv.NUXT_STUDIO_AUTH_GITHUB_CLIENT_ID;
     }
     if (cloudflareEnv.NUXT_STUDIO_AUTH_GITHUB_CLIENT_SECRET) {
-      config.studio = config.studio || {};
-      config.studio.auth = config.studio.auth || {};
-      config.studio.auth.github = config.studio.auth.github || {};
-      config.studio.auth.github.clientSecret = cloudflareEnv.NUXT_STUDIO_AUTH_GITHUB_CLIENT_SECRET;
+      process.env.STUDIO_GITHUB_CLIENT_SECRET = cloudflareEnv.NUXT_STUDIO_AUTH_GITHUB_CLIENT_SECRET;
     }
   }
 });
