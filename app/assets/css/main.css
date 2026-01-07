@@ -298,6 +298,14 @@ img {
     h4 {
       font-size: 1rem;
     }
+
+    table {
+      font-size: 0.875rem;
+    }
+
+    :is(th, td) {
+      padding: 0.5rem;
+    }
   }
 }
 
