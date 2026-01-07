@@ -58,18 +58,11 @@ const fragmentShaderSource = `
     return 130.0 * dot(m, g);
   }
 
-  // FBM (Fractal Brownian Motion) for more natural fog
+  // FBM (Fractal Brownian Motion) for more natural fog - optimized to 2 octaves
   float fbm(vec2 p) {
     float value = 0.0;
-    float amplitude = 0.5;
-    float frequency = 1.0;
-
-    for (int i = 0; i < 5; i++) {
-      value += amplitude * snoise(p * frequency);
-      amplitude *= 0.5;
-      frequency *= 2.0;
-    }
-
+    value += 0.5 * snoise(p);
+    value += 0.25 * snoise(p * 2.0);
     return value;
   }
 
@@ -81,13 +74,12 @@ const fragmentShaderSource = `
     // Slow time for gentle fog movement
     float t = u_time * 0.02;
 
-    // Multiple layers of fog with different speeds and scales
+    // Two layers of fog with different speeds and scales (optimized)
     float fog1 = fbm(p * 1.5 + vec2(t * 0.3, t * 0.1));
-    float fog2 = fbm(p * 2.5 + vec2(-t * 0.2, t * 0.15));
-    float fog3 = fbm(p * 0.8 + vec2(t * 0.1, -t * 0.05));
+    float fog2 = fbm(p * 0.8 + vec2(t * 0.1, -t * 0.05));
 
     // Combine fog layers
-    float fog = (fog1 + fog2 * 0.5 + fog3 * 0.7) / 2.2;
+    float fog = (fog1 + fog2 * 0.7) / 1.7;
 
     // Normalize to 0-1 range
     fog = fog * 0.5 + 0.5;
@@ -117,6 +109,9 @@ let gl: WebGLRenderingContext | null = null;
 let program: WebGLProgram | null = null;
 let animationId: number | null = null;
 let startTime = 0;
+let lastFrameTime = 0;
+const TARGET_FPS = 30;
+const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
 const prefersReducedMotion = ref(false);
 const isLightMode = ref(false);
@@ -201,7 +196,7 @@ function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!canvas || !gl) return;
 
-  const dpr = Math.min(window.devicePixelRatio, 2);
+  const dpr = Math.min(window.devicePixelRatio, 1.5);
   const width = window.innerWidth;
   const height = window.innerHeight;
 
@@ -216,6 +211,16 @@ function resizeCanvas() {
 function render() {
   if (!gl || !program) return;
 
+  const now = performance.now();
+  const elapsed = now - lastFrameTime;
+
+  // Frame rate limiting to 30fps
+  if (elapsed < FRAME_INTERVAL) {
+    animationId = requestAnimationFrame(render);
+    return;
+  }
+  lastFrameTime = now - (elapsed % FRAME_INTERVAL);
+
   // Clear with transparent background
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -227,7 +232,7 @@ function render() {
   const resolutionLoc = gl.getUniformLocation(program, "u_resolution");
   const isLightLoc = gl.getUniformLocation(program, "u_isLight");
 
-  const time = prefersReducedMotion.value ? 0 : (performance.now() - startTime) / 1000;
+  const time = prefersReducedMotion.value ? 0 : (now - startTime) / 1000;
   gl.uniform1f(timeLoc, time);
   gl.uniform2f(resolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
   gl.uniform1f(isLightLoc, colorMode.value === "light" ? 1.0 : 0.0);
