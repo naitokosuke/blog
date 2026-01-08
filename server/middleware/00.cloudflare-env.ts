@@ -1,5 +1,3 @@
-import { defineEventHandler } from "#imports";
-
 export default defineEventHandler((event) => {
   const cloudflareEnv = event.context.cloudflare?.env;
   if (cloudflareEnv) {
