@@ -3,7 +3,7 @@ import * as v from "valibot";
 
 const posts = defineCollection({
   type: "page",
-  source: "**",
+  source: "**/*.md",
   schema: v.object({
     title: v.string(),
     description: v.optional(v.string()),
@@ -16,7 +16,7 @@ const posts = defineCollection({
 const docs = defineCollection({
   type: "page",
   source: {
-    include: "**",
+    include: "**/*.md",
     prefix: "/docs",
     cwd: "docs",
   },
