@@ -347,5 +347,7 @@ canvas {
   inset: 0;
   z-index: 100;
   pointer-events: none;
+  touch-action: none;
+  user-select: none;
 }
 </style>
