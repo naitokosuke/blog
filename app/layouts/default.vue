@@ -21,18 +21,16 @@
   min-height: 100vh;
   position: relative;
   z-index: 1;
-}
 
-main {
-  width: 100%;
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-@media (width <= 768px) {
   main {
-    padding: 0 1.25rem;
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+
+    @media (width <= 768px) {
+      padding: 0 1.25rem;
+    }
   }
 }
 </style>
