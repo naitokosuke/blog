@@ -12,6 +12,7 @@
       <slot />
     </main>
     <Footer />
+    <StudioEditButton />
   </div>
 </template>
 
