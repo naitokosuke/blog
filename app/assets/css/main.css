@@ -323,3 +323,9 @@ img {
     font-size: 1.125rem;
   }
 }
+
+/* Nuxt Studio - ensure floating button is above overlays */
+nuxt-studio {
+  position: relative;
+  z-index: 9999;
+}
