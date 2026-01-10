@@ -16,15 +16,14 @@
 
 <style scoped>
 .layout {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   min-height: 100vh;
   position: relative;
   z-index: 1;
 }
 
 main {
-  flex: 1;
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
