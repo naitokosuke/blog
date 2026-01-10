@@ -19,10 +19,9 @@
 .layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   position: relative;
   z-index: 1;
-  overflow: hidden;
 }
 
 main {
@@ -31,7 +30,6 @@ main {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 1rem;
-  overflow-y: auto;
 }
 
 @media (width <= 768px) {
