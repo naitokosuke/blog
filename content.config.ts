@@ -13,8 +13,22 @@ const posts = defineCollection({
   }),
 });
 
+const docs = defineCollection({
+  type: "page",
+  source: {
+    include: "**",
+    prefix: "/docs",
+    cwd: "docs",
+  },
+  schema: v.object({
+    title: v.optional(v.string()),
+    description: v.optional(v.string()),
+  }),
+});
+
 export default defineContentConfig({
   collections: {
     posts,
+    docs,
   },
 });

@@ -1,4 +1,4 @@
-# ADR 001: Nuxt Studio モバイル対応のための Overlay 修正
+# Nuxt Studio モバイル対応のための Overlay 修正
 
 ## ステータス
 
