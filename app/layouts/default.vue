@@ -1,17 +1,16 @@
 <template>
-  <div class="layout">
+  <div>
     <ClientOnly>
       <BackgroundTexture />
       <FogOverlay />
-      <template #fallback>
-        <div />
-      </template>
     </ClientOnly>
-    <Header />
-    <main>
-      <slot />
-    </main>
-    <Footer />
+    <div class="layout">
+      <Header />
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
   </div>
 </template>
 
