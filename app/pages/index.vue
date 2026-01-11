@@ -39,9 +39,9 @@ defineOgImage({
         v-for="post in posts"
         :key="post.path"
       >
-        <time v-if="post.date">[{{ post.date }}]</time>
         <NuxtLink :to="post.path">
-          {{ post.title }}
+          <time v-if="post.date">{{ post.date }}</time>
+          <span class="title">{{ post.title }}</span>
         </NuxtLink>
       </li>
     </ul>
@@ -68,25 +68,28 @@ defineOgImage({
   }
 
   li {
+    margin-bottom: 1.5rem;
+  }
+
+  a {
     display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
+    flex-direction: column;
+    gap: 0.25rem;
+    color: var(--color-text);
+
+    &:hover {
+      color: var(--color-accent-hover);
+    }
   }
 
   time {
     font-family: var(--font-mono);
     font-size: 0.875rem;
     color: var(--color-text-secondary);
-    flex-shrink: 0;
   }
 
-  a {
-    color: var(--color-text);
-
-    &:hover {
-      color: var(--color-accent-hover);
-    }
+  .title {
+    font-size: 1rem;
   }
 }
 </style>
