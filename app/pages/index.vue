@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const { data: posts } = await useAsyncData("posts", () =>
-  queryCollection("posts")
+  queryCollection("content")
     .where("path", "NOT LIKE", "/")
+    .where("extension", "=", "md")
     .order("date", "DESC")
     .all(),
 );
