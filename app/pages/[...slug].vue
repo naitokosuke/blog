@@ -42,14 +42,14 @@ defineOgImage({
 <template>
   <div v-if="page">
     <Hero
-      :title="page.title"
+      :title="page.title ?? ''"
       show-share
     />
     <article class="prose">
       <ContentRenderer :value="page" />
     </article>
     <div class="share-section">
-      <ShareButtons :title="page.title" />
+      <ShareButtons :title="page.title ?? ''" />
     </div>
   </div>
 </template>
