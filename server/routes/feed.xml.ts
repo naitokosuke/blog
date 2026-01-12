@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
     .map((post) => {
       const pubDate = post.date ? new Date(post.date).toUTCString() : "";
       const link = `${siteUrl}${post.path}`;
+      const ogImageUrl = `${siteUrl}/__og-image__/static${post.path}/og.png`;
 
       return `    <item>
       <title><![CDATA[${post.title || "Untitled"}]]></title>
@@ -27,6 +28,7 @@ export default defineEventHandler(async (event) => {
       <guid isPermaLink="true">${link}</guid>
       <description><![CDATA[${post.description || ""}]]></description>
       <pubDate>${pubDate}</pubDate>
+      <enclosure url="${ogImageUrl}" type="image/png" length="0"/>
     </item>`;
     })
     .join("\n");
