@@ -41,6 +41,7 @@ const isLight = computed(() => colorMode.value === "light");
         </ClientOnly>
         <NuxtLink
           to="/feed.xml"
+          external
           class="icon-link"
           aria-label="RSS Feed"
         >
