@@ -38,6 +38,7 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: "icon", href: "/favicon.ico" },
+        { rel: "alternate", type: "application/rss+xml", title: "RSS Feed", href: "/feed.xml" },
       ],
     },
   },

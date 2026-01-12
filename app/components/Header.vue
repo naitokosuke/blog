@@ -40,9 +40,19 @@ const isLight = computed(() => colorMode.value === "light");
           </button>
         </ClientOnly>
         <NuxtLink
+          to="/feed.xml"
+          class="icon-link"
+          aria-label="RSS Feed"
+        >
+          <Icon
+            name="lucide:rss"
+            size="20"
+          />
+        </NuxtLink>
+        <NuxtLink
           to="https://github.com/naitokosuke/blog"
           target="_blank"
-          class="github-link"
+          class="icon-link"
           aria-label="GitHub"
         >
           <Icon
@@ -90,7 +100,7 @@ header {
     gap: 0.5rem;
   }
 
-  .github-link {
+  .icon-link {
     display: flex;
     align-items: center;
     color: var(--color-text);
