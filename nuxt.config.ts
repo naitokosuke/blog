@@ -72,7 +72,7 @@ export default defineNuxtConfig({
 
   nitro: {
     prerender: {
-      routes: ["/"],
+      routes: ["/", "/feed.xml"],
       crawlLinks: true,
       failOnError: false,
     },
