@@ -4,14 +4,14 @@ const props = defineProps<{
   url?: string;
 }>();
 
-const runtimeConfig = useRuntimeConfig();
+const siteConfig = useSiteConfig();
 
 const shareUrl = computed(() => {
   if (props.url) return props.url;
   if (import.meta.client) {
     return window.location.href;
   }
-  return `${runtimeConfig.public.siteUrl}${useRoute().path}`;
+  return `${siteConfig.url}${useRoute().path}`;
 });
 
 const xShareUrl = computed(() => {
