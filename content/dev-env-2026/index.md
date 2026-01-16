@@ -68,5 +68,3 @@ POSIX 標準でないために Claude Code が正しく操作できないこと�
 Raycast 
 
 Ctrl 2 回で開くように hotkey を設定
-
-\--- Unknown node: hardBreak ------ Unknown node: hardBreak ------ Unknown node: hardBreak ------ Unknown node: hardBreak ---
