@@ -72,15 +72,42 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.51.0
         version: 8.52.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      debug:
+        specifier: ^4.4.3
+        version: 4.4.3
       eslint-plugin-oxlint:
         specifier: ^1.36.0
         version: 1.38.0
       oxlint:
         specifier: ^1.36.0
         version: 1.38.0
+      parse5:
+        specifier: ^8.0.0
+        version: 8.0.0
+      rehype-raw:
+        specifier: ^7.0.0
+        version: 7.0.0
+      remark-emoji:
+        specifier: ^5.0.2
+        version: 5.0.2
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
+      remark-mdc:
+        specifier: ^3.10.0
+        version: 3.10.0
+      remark-rehype:
+        specifier: ^11.1.2
+        version: 11.1.2
       secretlint:
         specifier: ^11.2.5
         version: 11.2.5
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
+      unist-util-visit:
+        specifier: ^5.0.0
+        version: 5.0.0
       wrangler:
         specifier: ^4.54.0
         version: 4.58.0
