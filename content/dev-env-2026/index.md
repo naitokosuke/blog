@@ -1,5 +1,5 @@
 ---
-title: Dev-env-2026 root file
+title: 開発環境現状確認2026
 seo:
   title: 開発環境現状確認2026
   description: ""
