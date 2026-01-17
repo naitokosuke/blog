@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+console.log("[nuxt.config] POSTGRES_URL:", process.env.POSTGRES_URL ? "SET" : "NOT SET");
+
 export default defineNuxtConfig({
   modules: [
     "./modules/content-assets.ts",
