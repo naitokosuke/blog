@@ -3,7 +3,10 @@ import * as v from "valibot";
 
 const posts = defineCollection({
   type: "page",
-  source: "content",
+  source: {
+    include: "**/*.{md,yml,json}",
+    cwd: "content",
+  },
   schema: v.object({
     title: v.optional(v.string()),
     description: v.optional(v.string()),
