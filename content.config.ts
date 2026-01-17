@@ -1,12 +1,9 @@
 import { defineContentConfig, defineCollection } from "@nuxt/content";
 import * as v from "valibot";
 
-const posts = defineCollection({
+const content = defineCollection({
   type: "page",
-  source: {
-    include: "**/*.{md,yml,json}",
-    cwd: "content",
-  },
+  source: "**/*.{md,yml,json}",
   schema: v.object({
     title: v.optional(v.string()),
     description: v.optional(v.string()),
@@ -31,7 +28,7 @@ const docs = defineCollection({
 
 export default defineContentConfig({
   collections: {
-    posts,
+    content,
     docs,
   },
 });
