@@ -31,7 +31,7 @@ const docs = defineCollection({
 
 export default defineContentConfig({
   collections: {
-    content: posts,
+    posts,
     docs,
   },
 });
