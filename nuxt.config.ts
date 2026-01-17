@@ -58,6 +58,9 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    content: {
+      integrityCheck: true,
+    },
     studio: {
       auth: {
         github: {
