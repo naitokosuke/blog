@@ -45,17 +45,18 @@ export default defineNuxtConfig({
   colorMode: {
     classSuffix: "",
   },
-  content: {
-    ...(process.env.POSTGRES_URL && {
-      database: {
-        type: "postgresql",
-        url: process.env.POSTGRES_URL,
+  content: process.env.POSTGRES_URL
+    ? {
+        database: {
+          type: "postgresql",
+          url: process.env.POSTGRES_URL,
+        },
+      }
+    : {
+        experimental: {
+          sqliteConnector: "native",
+        },
       },
-    }),
-    experimental: {
-      sqliteConnector: "native",
-    },
-  },
 
   runtimeConfig: {
     studio: {
