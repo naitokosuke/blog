@@ -1,5 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-console.log("[nuxt.config] POSTGRES_URL:", process.env.POSTGRES_URL ? "SET" : "NOT SET");
+const hasPostgres = !!process.env.POSTGRES_URL;
+if (!hasPostgres) {
+  throw new Error("[nuxt.config] POSTGRES_URL is NOT SET - build will fail intentionally");
+}
 
 export default defineNuxtConfig({
   modules: [
