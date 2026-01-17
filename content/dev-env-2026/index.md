@@ -1,10 +1,10 @@
 ---
-title: 開発環境現状確認2026
-seo:
-  title: 開発環境現状確認2026
-  description: ""
+title: 開発環境現状確認 2026
+date: 2026-01-12
+draft: false
 navigation:
-  title: 開発環境現状確認2026
+  title: 開発環境現状確認 2026
+tags: []
 ---
 
 # 開発環境現状確認 2026
