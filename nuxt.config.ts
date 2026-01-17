@@ -46,8 +46,9 @@ export default defineNuxtConfig({
     classSuffix: "",
   },
   content: {
-    experimental: {
-      sqliteConnector: "native",
+    database: {
+      type: "postgresql",
+      url: process.env.POSTGRES_URL!,
     },
   },
 
