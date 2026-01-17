@@ -45,22 +45,18 @@ export default defineNuxtConfig({
   colorMode: {
     classSuffix: "",
   },
-  // 開発環境: SQLite (native connector)
-  content: {
-    experimental: {
-      sqliteConnector: "native",
-    },
-  },
-
-  // 本番環境: PostgreSQL (Neon)
-  $production: {
-    content: {
-      database: {
-        type: "postgresql",
-        url: process.env.POSTGRES_URL || "",
+  content: process.env.POSTGRES_URL
+    ? {
+        database: {
+          type: "postgresql",
+          url: process.env.POSTGRES_URL,
+        },
+      }
+    : {
+        experimental: {
+          sqliteConnector: "native",
+        },
       },
-    },
-  },
 
   runtimeConfig: {
     studio: {
