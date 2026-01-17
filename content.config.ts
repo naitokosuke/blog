@@ -6,6 +6,7 @@ const posts = defineCollection({
   source: {
     include: "**/*.{md,yml,json}",
     prefix: "/",
+    cwd: "content",
   },
   schema: v.object({
     title: v.optional(v.string()),
