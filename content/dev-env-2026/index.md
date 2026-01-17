@@ -12,6 +12,14 @@ tags: []
 
 ぼくもやっていく
 
+## キーボード
+
+Keyball 61 を愛用している
+
+Keyball ユーザーでも珍しいと思うが左手側にトラックボールを配置している
+
+これは右手で物理メモ帳を取ることが多いので、最低限左手のみでスクロールやクリック操作を行えるようにしたかったから
+
 ## エディタ
 
 VS Code です
@@ -69,3 +77,17 @@ POSIX 標準でないために Claude Code が正しく操作できないこと�
 Raycast 
 
 Ctrl 2 回で開くように hotkey を設定
+
+ランチャーとして以外の機能も重宝している
+
+Rectangle もやめて画面分割も Raycast でやっている
+
+Ghostty の起動を Hotkey 登録している(Opt + Opt)
+
+HyperKey が便利でおすすめだけど Keyball ユーザーなので普通に Ctrl + Shift + Opt +Cmd を実際に押している
+
+ただし MacBook のキーボードを使用することもあってその時は大変
+
+dotfiles で端末ごとの Raycast 設定を管理できるようにして Macbook の方では Hyperkey を登録したい
+
+##
