@@ -14,12 +14,6 @@ export default defineNuxtConfig({
     "nuxt-studio",
   ],
 
-  $production: {
-    nitro: {
-      preset: "cloudflare_module",
-    },
-  },
-
   components: {
     dirs: [
       { path: "~/components/content/prose/heading", prefix: "Prose", pathPrefix: false },
