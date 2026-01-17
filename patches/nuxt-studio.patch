@@ -1,0 +1,15 @@
+diff --git a/dist/module/runtime/utils/source.js b/dist/module/runtime/utils/source.js
+index 95b77049e0d0477f09f180ce1cfc5157a065e857..3e61f98bc9150e5e392277b407e85b5b1586299f 100644
+--- a/dist/module/runtime/utils/source.js
++++ b/dist/module/runtime/utils/source.js
+@@ -22,7 +22,9 @@ export function getCollectionSourceById(id, sources) {
+     let fsPath;
+     const [fixPart] = source.include.includes("*") ? source.include.split("*") : ["", source.include];
+     const fixed = withoutTrailingSlash(fixPart || "/");
+-    if (withoutLeadingSlash(fixed) === withoutLeadingSlash(prefix)) {
++    const normalizedFixed = withoutLeadingSlash(fixed) || "";
++    const normalizedPrefix = withoutLeadingSlash(prefix) || "";
++    if (normalizedFixed === normalizedPrefix) {
+       fsPath = prefixAndPath;
+     } else {
+       const path = prefixAndPath.replace(prefix, "");
