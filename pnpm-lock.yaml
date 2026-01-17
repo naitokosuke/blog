@@ -52,7 +52,7 @@ importers:
         version: 4.2.2(@parcel/watcher@2.5.4)(@types/node@25.0.9)(@vue/compiler-sfc@3.5.26)(cac@6.7.14)(db0@0.3.4)(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.2)(lightningcss@1.30.2)(magicast@0.5.1)(optionator@0.9.4)(oxlint@1.39.0)(rollup@4.55.1)(terser@5.46.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(yaml@2.8.2))(yaml@2.8.2)
       nuxt-studio:
         specifier: github:naitokosuke/nuxt-studio#fix/get-collection-by-file-path
-        version: https://codeload.github.com/naitokosuke/nuxt-studio/tar.gz/df937d4274baf029f82a8df9f05f74ca4b65ecad(db0@0.3.4)(ioredis@5.9.2)(magicast@0.5.1)(vue@3.5.26(typescript@5.9.3))
+        version: https://codeload.github.com/naitokosuke/nuxt-studio/tar.gz/3b8790f52e0c2e17d3f7abdd87cca86d31a267bd(db0@0.3.4)(ioredis@5.9.2)(magicast@0.5.1)(vue@3.5.26(typescript@5.9.3))
       pg:
         specifier: ^8.17.1
         version: 8.17.1
@@ -4405,8 +4405,8 @@ packages:
   nuxt-site-config@3.2.17:
     resolution: {integrity: sha512-gmQkBWesVsEt0r10Jo16awufLpQYV4Ql2sOcmDz6CPdk0msZG/pDN6mzFVtMMorEtqixjqPVSIcFK++AueTKFw==}
 
-  nuxt-studio@https://codeload.github.com/naitokosuke/nuxt-studio/tar.gz/df937d4274baf029f82a8df9f05f74ca4b65ecad:
-    resolution: {tarball: https://codeload.github.com/naitokosuke/nuxt-studio/tar.gz/df937d4274baf029f82a8df9f05f74ca4b65ecad}
+  nuxt-studio@https://codeload.github.com/naitokosuke/nuxt-studio/tar.gz/3b8790f52e0c2e17d3f7abdd87cca86d31a267bd:
+    resolution: {tarball: https://codeload.github.com/naitokosuke/nuxt-studio/tar.gz/3b8790f52e0c2e17d3f7abdd87cca86d31a267bd}
     version: 1.1.0
 
   nuxt@4.2.2:
@@ -11282,7 +11282,7 @@ snapshots:
       - magicast
       - vue
 
-  nuxt-studio@https://codeload.github.com/naitokosuke/nuxt-studio/tar.gz/df937d4274baf029f82a8df9f05f74ca4b65ecad(db0@0.3.4)(ioredis@5.9.2)(magicast@0.5.1)(vue@3.5.26(typescript@5.9.3)):
+  nuxt-studio@https://codeload.github.com/naitokosuke/nuxt-studio/tar.gz/3b8790f52e0c2e17d3f7abdd87cca86d31a267bd(db0@0.3.4)(ioredis@5.9.2)(magicast@0.5.1)(vue@3.5.26(typescript@5.9.3)):
     dependencies:
       '@iconify-json/lucide': 1.2.86
       '@nuxtjs/mdc': 0.19.2(magicast@0.5.1)
