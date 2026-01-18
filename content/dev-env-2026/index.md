@@ -14,7 +14,7 @@ tags: []
 
 ## エディタ
 
-VS Code です
+VS Code 
 
 とはいえ Neovim, helix などに憧れる年頃
 
