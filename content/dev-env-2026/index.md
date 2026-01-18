@@ -74,7 +74,7 @@ Ctrl 2 回で開くように hotkey を設定
 
 Rectangle もやめて画面分割も Raycast でやっている
 
-Ghostty の起動を Hotkey 登録している(Opt + Opt)
+Ghostty の起動を Hotkey 登録している(Opt 2 回)
 
 HyperKey が便利でおすすめだけど Keyball ユーザーなので普通に Ctrl + Shift + Opt +Cmd を実際に押している
 
