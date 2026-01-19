@@ -3,7 +3,10 @@ import * as v from "valibot";
 
 const content = defineCollection({
   type: "page",
-  source: "**/*.{md,yml,json}",
+  source: {
+    include: "**/*.{md,yml,json}",
+    exclude: ["docs/**"],
+  },
   schema: v.object({
     title: v.optional(v.string()),
     description: v.optional(v.string()),
@@ -16,9 +19,8 @@ const content = defineCollection({
 const docs = defineCollection({
   type: "page",
   source: {
-    include: "**/*.md",
+    include: "docs/**/*.md",
     prefix: "/docs",
-    cwd: "docs",
   },
   schema: v.object({
     title: v.optional(v.string()),
