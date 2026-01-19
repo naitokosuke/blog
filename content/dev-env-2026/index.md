@@ -1,7 +1,7 @@
 ---
 title: 開発環境現状確認 2026
-date: 2026-01-12T00:00:00.000Z
 description: ぼくもやっていく
+date: 2026-01-19T00:00:00.000Z
 draft: false
 navigation:
   title: 開発環境現状確認 2026
@@ -47,6 +47,14 @@ Ctrl + esc で開くようなショートカットを設定している
 特にこだわりはないんけど、2024 年の年末から Ghostty を使用している
 
 最近 Cmd + d, Opt + Cmd + d でパネル？を分割できることを知った
+
+## パッケージマネージャー
+
+- mise
+- Nix(devenv)
+- bun
+- pnpm
+- uv
 
 ## ターミナルマルチプレクサ
 
