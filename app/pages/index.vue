@@ -1,3 +1,9 @@
+<script lang="ts">
+function displayDate(date: string | undefined): string {
+  return date?.split("T")[0] ?? "";
+}
+</script>
+
 <script setup lang="ts">
 const { data: posts } = await useAsyncData("posts", () =>
   queryCollection("content")
@@ -41,7 +47,7 @@ defineOgImage({
         :key="post.path"
       >
         <NuxtLink :to="post.path">
-          <time v-if="post.date">{{ post.date }}</time>
+          <time v-if="post.date">{{ displayDate(post.date) }}</time>
           <span class="title">{{ post.title }}</span>
         </NuxtLink>
       </li>
