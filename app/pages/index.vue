@@ -79,7 +79,7 @@ defineOgImage({
   }
 
   a {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     gap: 0.25rem;
     color: var(--color-text);
