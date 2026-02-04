@@ -1,6 +1,6 @@
 ---
 title: 好きなもの
-date: 2026-02-04T00:00:00.000z
+date: 2026-02-04T00:00:00.000Z
 description: ナイトウが好きなもの
 draft: false
 navigation:
