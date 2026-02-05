@@ -10,26 +10,23 @@ const isDark = computed({
 </script>
 
 <template>
-  <button
-    class="theme-toggle"
-    :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-    @click="isDark = !isDark"
-  >
-    <Icon
-      v-if="isDark"
-      name="lucide:sun"
-      size="20"
-    />
-    <Icon
-      v-else
-      name="lucide:moon"
-      size="20"
-    />
-  </button>
+  <ClientOnly>
+    <button
+      :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+      @click="isDark = !isDark"
+    >
+      {{ isDark ? "表" : "裏" }}
+    </button>
+    <template #fallback>
+      <button aria-label="Toggle theme">
+        暗
+      </button>
+    </template>
+  </ClientOnly>
 </template>
 
 <style scoped>
-.theme-toggle {
+button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,10 +38,13 @@ const isDark = computed({
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
-}
+  font-family: "Noto Serif JP", serif;
+  font-size: 18px;
+  font-weight: 500;
 
-.theme-toggle:hover {
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text);
+  &:hover {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+  }
 }
 </style>
