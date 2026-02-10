@@ -1,6 +1,6 @@
 ---
 title: 二十歳になってから二日酔いするようになった
-date: 2026-01-12
+date: "2026-01-12"
 draft: false
 navigation:
   title: 二十歳になってから二日酔いするようになった

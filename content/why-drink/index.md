@@ -1,6 +1,6 @@
 ---
 title: どうして飲むのかいつ飲みたくなるのか
-date: 2026-01-07
+date: "2026-01-07"
 description: ぼくがどうして飲酒しているのか。
 draft: false
 seo:

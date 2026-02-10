@@ -1,7 +1,7 @@
 ---
 title: 開発環境現状確認 2026
 description: ぼくもやっていく
-date: 2026-01-19T00:00:00.000Z
+date: "2026-01-19"
 draft: false
 navigation:
   title: 開発環境現状確認 2026

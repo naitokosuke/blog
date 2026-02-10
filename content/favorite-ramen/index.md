@@ -1,6 +1,6 @@
 ---
 title: 好きなラーメン屋
-date: 2026-01-13
+date: "2026-01-13"
 draft: false
 navigation:
   title: 好きなラーメン屋
