@@ -10,7 +10,7 @@ const content = defineCollection({
   schema: v.object({
     title: v.optional(v.string()),
     description: v.optional(v.string()),
-    date: v.optional(v.pipe(v.string(), v.isoDate())),
+    date: v.optional(v.date()),
     tags: v.optional(v.array(v.string()), []),
     draft: v.optional(v.boolean(), false),
   }),
