@@ -12,7 +12,7 @@ const vertexShaderSource = `
 `;
 
 const fragmentShaderSource = `
-  precision highp float;
+  precision mediump float;
 
   uniform float u_time;
   uniform vec2 u_resolution;
@@ -25,10 +25,10 @@ const fragmentShaderSource = `
 
   float snoise(vec2 v) {
     const vec4 C = vec4(
-      0.211324865405187,   // (3.0-sqrt(3.0))/6.0
-      0.366025403784439,   // 0.5*(sqrt(3.0)-1.0)
-      -0.577350269189626,  // -1.0 + 2.0 * C.x
-      0.024390243902439    // 1.0 / 41.0
+      0.211324865405187,
+      0.366025403784439,
+      -0.577350269189626,
+      0.024390243902439
     );
 
     vec2 i = floor(v + dot(v, C.yy));
@@ -58,18 +58,12 @@ const fragmentShaderSource = `
     return 130.0 * dot(m, g);
   }
 
-  // FBM (Fractal Brownian Motion) for more natural fog
+  // FBM (Fractal Brownian Motion) - 3 octaves (4th/5th contribute < 0.07 amplitude, invisible after smoothstep)
   float fbm(vec2 p) {
     float value = 0.0;
-    float amplitude = 0.5;
-    float frequency = 1.0;
-
-    for (int i = 0; i < 5; i++) {
-      value += amplitude * snoise(p * frequency);
-      amplitude *= 0.5;
-      frequency *= 2.0;
-    }
-
+    value += 0.5 * snoise(p);
+    value += 0.25 * snoise(p * 2.0);
+    value += 0.125 * snoise(p * 4.0);
     return value;
   }
 
@@ -106,10 +100,7 @@ const fragmentShaderSource = `
     fog = smoothstep(0.1, 0.7, fog) * 0.7;
 
     // Black fog for light mode
-    vec3 fogColor = vec3(0.0);
-
-    // Only show in light mode
-    gl_FragColor = vec4(fogColor, fog * u_isLight);
+    gl_FragColor = vec4(0.0, 0.0, 0.0, fog * u_isLight);
   }
 `;
 
@@ -120,6 +111,11 @@ let startTime = 0;
 let lastFrameTime = 0;
 const TARGET_FPS = 30;
 const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
+// Cached uniform locations
+let uTimeLoc: WebGLUniformLocation | null = null;
+let uResolutionLoc: WebGLUniformLocation | null = null;
+let uIsLightLoc: WebGLUniformLocation | null = null;
 
 const prefersReducedMotion = ref(false);
 const isLightMode = ref(false);
@@ -196,6 +192,11 @@ function initWebGL() {
   gl.enableVertexAttribArray(positionLoc);
   gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
 
+  // Cache uniform locations
+  uTimeLoc = gl.getUniformLocation(program, "u_time");
+  uResolutionLoc = gl.getUniformLocation(program, "u_resolution");
+  uIsLightLoc = gl.getUniformLocation(program, "u_isLight");
+
   startTime = performance.now();
   resizeCanvas();
 }
@@ -204,7 +205,7 @@ function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!canvas || !gl) return;
 
-  const dpr = Math.min(window.devicePixelRatio, 1.5);
+  const dpr = Math.min(window.devicePixelRatio, 1.0);
   const width = window.innerWidth;
   const height = window.innerHeight;
 
@@ -235,15 +236,10 @@ function render() {
 
   gl.useProgram(program);
 
-  // Update uniforms
-  const timeLoc = gl.getUniformLocation(program, "u_time");
-  const resolutionLoc = gl.getUniformLocation(program, "u_resolution");
-  const isLightLoc = gl.getUniformLocation(program, "u_isLight");
-
   const time = prefersReducedMotion.value ? 0 : (now - startTime) / 1000;
-  gl.uniform1f(timeLoc, time);
-  gl.uniform2f(resolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
-  gl.uniform1f(isLightLoc, colorMode.value === "light" ? 1.0 : 0.0);
+  gl.uniform1f(uTimeLoc, time);
+  gl.uniform2f(uResolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
+  gl.uniform1f(uIsLightLoc, colorMode.value === "light" ? 1.0 : 0.0);
 
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 
