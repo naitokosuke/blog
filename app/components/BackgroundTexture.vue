@@ -12,7 +12,7 @@ const vertexShaderSource = `
 
 // 血と錆と闇のシェーダー
 const fragmentShaderSource = `
-  precision highp float;
+  precision mediump float;
 
   uniform float u_time;
   uniform vec2 u_resolution;
@@ -58,26 +58,15 @@ const fragmentShaderSource = `
     return 130.0 * dot(m, g);
   }
 
-  // FBM with rotation to reduce axial bias
+  // Rotation matrix to reduce axial bias
   mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);
 
-  float fbm(vec2 p) {
-    float f = 0.0;
-    f += 0.5000 * snoise(p); p = m2 * p * 2.02;
-    f += 0.2500 * snoise(p); p = m2 * p * 2.03;
-    f += 0.1250 * snoise(p); p = m2 * p * 2.01;
-    f += 0.0625 * snoise(p); p = m2 * p * 2.04;
-    f += 0.0312 * snoise(p);
-    return f / 0.9687;
-  }
-
-  // 錆のFBM（より粗い質感）
+  // 錆のFBM - 3 octaves (4th was 0.05 amplitude, negligible after smoothstep)
   float rustFbm(vec2 p) {
     float f = 0.0;
     f += 0.5000 * snoise(p); p = m2 * p * 1.8;
     f += 0.3000 * snoise(p); p = m2 * p * 2.2;
-    f += 0.1500 * snoise(p); p = m2 * p * 2.5;
-    f += 0.0500 * snoise(p);
+    f += 0.1500 * snoise(p);
     return f;
   }
 
@@ -155,6 +144,11 @@ let lastFrameTime = 0;
 const TARGET_FPS = 30;
 const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
+// Cached uniform locations
+let uTimeLoc: WebGLUniformLocation | null = null;
+let uResolutionLoc: WebGLUniformLocation | null = null;
+let uIsDarkLoc: WebGLUniformLocation | null = null;
+
 const prefersReducedMotion = ref(false);
 const isDarkMode = ref(false);
 
@@ -228,6 +222,11 @@ function initWebGL() {
   gl.enableVertexAttribArray(positionLoc);
   gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
 
+  // Cache uniform locations
+  uTimeLoc = gl.getUniformLocation(program, "u_time");
+  uResolutionLoc = gl.getUniformLocation(program, "u_resolution");
+  uIsDarkLoc = gl.getUniformLocation(program, "u_isDark");
+
   startTime = performance.now();
   resizeCanvas();
 }
@@ -236,7 +235,7 @@ function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!canvas || !gl) return;
 
-  const dpr = Math.min(window.devicePixelRatio, 1.5);
+  const dpr = Math.min(window.devicePixelRatio, 1.0);
   const width = window.innerWidth;
   const height = window.innerHeight;
 
@@ -266,14 +265,10 @@ function render() {
 
   gl.useProgram(program);
 
-  const timeLoc = gl.getUniformLocation(program, "u_time");
-  const resolutionLoc = gl.getUniformLocation(program, "u_resolution");
-  const isDarkLoc = gl.getUniformLocation(program, "u_isDark");
-
   const time = prefersReducedMotion.value ? 0 : (now - startTime) / 1000;
-  gl.uniform1f(timeLoc, time);
-  gl.uniform2f(resolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
-  gl.uniform1f(isDarkLoc, colorMode.value === "dark" ? 1.0 : 0.0);
+  gl.uniform1f(uTimeLoc, time);
+  gl.uniform2f(uResolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
+  gl.uniform1f(uIsDarkLoc, colorMode.value === "dark" ? 1.0 : 0.0);
 
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 
