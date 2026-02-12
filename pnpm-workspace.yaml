@@ -1,0 +1,9 @@
+overrides:
+  chokidar: "^3.6.0"
+
+onlyBuiltDependencies:
+  - "@parcel/watcher"
+  - better-sqlite3
+  - esbuild
+  - sharp
+  - unrs-resolver
