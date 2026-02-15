@@ -1,48 +1,14 @@
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   title: string;
-  imagePath?: string;
   showShare?: boolean;
 }>();
-
-const DEFAULT_HERO_IMAGE = "/og-background.png";
-
-const currentImage = ref(DEFAULT_HERO_IMAGE);
-
-onMounted(() => {
-  if (props.imagePath) {
-    const img = new Image();
-    img.onload = () => {
-      currentImage.value = props.imagePath!;
-    };
-    img.onerror = () => {
-      currentImage.value = DEFAULT_HERO_IMAGE;
-    };
-    img.src = props.imagePath;
-  }
-});
-
-watch(() => props.imagePath, (newPath) => {
-  if (newPath) {
-    const img = new Image();
-    img.onload = () => {
-      currentImage.value = newPath;
-    };
-    img.onerror = () => {
-      currentImage.value = DEFAULT_HERO_IMAGE;
-    };
-    img.src = newPath;
-  }
-  else {
-    currentImage.value = DEFAULT_HERO_IMAGE;
-  }
-});
 </script>
 
 <template>
   <figure>
     <img
-      :src="currentImage"
+      src="/og-background.png"
       :alt="title"
     >
     <figcaption>
