@@ -19,69 +19,39 @@ const domain = computed(() => {
 
 <template>
   <!-- Loading -->
-  <div
-    v-if="status === 'pending'"
-    class="card"
-    role="status"
-    aria-label="リンク情報を読み込み中"
-  >
-    <div class="body">
-      <!-- title, description ×2, domain -->
-      <div
-        v-for="n in 4"
-        :key="n"
-        class="placeholder"
-      />
+  <div v-if="status === 'pending'" class="card" role="status" aria-label="リンク情報を読み込み中">
+    <!-- title, description ×2, domain -->
+    <div>
+      <div v-for="n in 4" :key="n" class="placeholder" />
     </div>
     <div class="thumbnail" />
   </div>
 
   <!-- Error fallback -->
-  <NuxtLink
-    v-else-if="status === 'error' || !data"
-    :to="url"
-    class="fallback"
-    target="_blank"
-  >
+  <NuxtLink v-else-if="status === 'error' || !data" :to="url" class="fallback" target="_blank">
     {{ url }}
     <span class="sr-only">(新しいタブで開きます)</span>
   </NuxtLink>
 
   <!-- Success -->
-  <NuxtLink
-    v-else
-    :to="data.url || url"
-    class="card"
-    target="_blank"
-  >
-    <div class="body">
-      <strong class="title">{{ data.title }}</strong>
-      <span
-        v-if="data.description"
-        class="description"
-      >{{ data.description }}</span>
-      <span class="meta">
+  <NuxtLink v-else :to="data.url || url" class="card" target="_blank">
+    <div>
+      <strong>{{ data.title }}</strong>
+      <p v-if="data.description">{{ data.description }}</p>
+      <small>
         <img
           v-if="data.favicon"
           :src="data.favicon"
           alt=""
-          class="favicon"
           width="16"
           height="16"
           loading="lazy"
         >
-        <span class="domain">{{ data.siteName || domain }}</span>
-      </span>
+        <span>{{ data.siteName || domain }}</span>
+      </small>
     </div>
-    <div
-      v-if="data.image"
-      class="thumbnail"
-    >
-      <img
-        :src="data.image"
-        alt=""
-        loading="lazy"
-      >
+    <div v-if="data.image" class="thumbnail">
+      <img :src="data.image" alt="" loading="lazy">
     </div>
     <span class="sr-only">(新しいタブで開きます)</span>
   </NuxtLink>
@@ -114,7 +84,7 @@ const domain = computed(() => {
     }
   }
 
-  .body {
+  > div:first-of-type {
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
@@ -122,9 +92,8 @@ const domain = computed(() => {
     min-width: 0;
   }
 
-  .title {
+  strong {
     font-size: 1rem;
-    font-weight: 700;
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -133,9 +102,10 @@ const domain = computed(() => {
     overflow: hidden;
   }
 
-  .description {
+  p {
     font-size: 0.8125rem;
     line-height: 1.5;
+    margin: 0;
     color: var(--color-text-secondary);
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -144,27 +114,27 @@ const domain = computed(() => {
     overflow: hidden;
   }
 
-  .meta {
+  small {
     display: flex;
     align-items: center;
     gap: 0.375rem;
     margin-top: auto;
-  }
-
-  .favicon {
-    width: 16px;
-    height: 16px;
-    border-radius: 2px;
-    border: none;
-    margin: 0;
-  }
-
-  .domain {
     font-size: 0.75rem;
     color: var(--color-text-secondary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+    img {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+      border: none;
+      margin: 0;
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .thumbnail {
