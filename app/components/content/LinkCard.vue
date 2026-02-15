@@ -172,7 +172,7 @@ const domain = computed(() => {
   height: 1em;
   background-color: var(--color-border);
   border-radius: 4px;
-  opacity: 0.3;
+  opacity: 0.2;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
