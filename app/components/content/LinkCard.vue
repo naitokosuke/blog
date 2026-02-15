@@ -25,7 +25,7 @@ const domain = computed(() => {
     role="status"
     aria-label="リンク情報を読み込み中"
   >
-    <!-- title, description ×2, domain -->
+    <!-- title, description*2, domain -->
     <div>
       <div
         v-for="n in 4"
