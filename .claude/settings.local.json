@@ -9,7 +9,8 @@
       "Bash(gh issue view:*)",
       "Bash(gh issue list:*)",
       "Bash(gh search:*)",
-      "Bash(gh issue:*)"
+      "Bash(gh issue:*)",
+      "Bash(nr build:*)"
     ]
   }
 }
