@@ -50,9 +50,6 @@ export default defineNuxtConfig({
       type: "postgresql",
       url: process.env.POSTGRES_URL || "",
     },
-    experimental: {
-      sqliteConnector: "native",
-    },
   },
 
   runtimeConfig: {
