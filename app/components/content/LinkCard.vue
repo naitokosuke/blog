@@ -60,7 +60,8 @@ const domain = computed(() => {
 
 <style scoped>
 .card {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   margin-block: 1.5rem;
   border: 1px solid var(--color-border);
   border-radius: 8px;
@@ -85,7 +86,6 @@ const domain = computed(() => {
   }
 
   .body {
-    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
@@ -139,7 +139,6 @@ const domain = computed(() => {
   }
 
   .thumbnail {
-    flex-shrink: 0;
     width: 230px;
 
     img {
@@ -153,9 +152,10 @@ const domain = computed(() => {
   }
 
   @media (width <= 768px) {
-    flex-direction: column-reverse;
+    grid-template-columns: 1fr;
 
     .thumbnail {
+      grid-row: 1;
       width: 100%;
       height: 160px;
     }
