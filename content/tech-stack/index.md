@@ -23,7 +23,8 @@ Nuxt を使いたかったからという理由以外特にない。
 
 ### Nuxt Content
 
-https://content.nuxt.com/
+::link-card{url="https://content.nuxt.com/"}
+::
 
 > The git-based CMS for Nuxt.
 
@@ -35,7 +36,8 @@ MDC とかも使ってみたい。
 元々この Nuxt モジュールが気になっていた。
 Nuxt Studio についても気になっている。
 
-https://nuxt.studio/
+::link-card{url="https://nuxt.studio/"}
+::
 
 > Self-hosted CMS for your Nuxt Content website.
 
@@ -57,7 +59,8 @@ Cloudflare の [yusukebe](https://x.com/yusukebe) さんが
 
 > これからは理由がない限りCloudflare PagesではなくCloudflare Workersを使ってください。
 
-https://x.com/yusukebe/status/1917869496267915641
+::link-card{url="https://x.com/yusukebe/status/1917869496267915641"}
+::
 
 と言っているので「はい、わかりました」。
 
@@ -115,7 +118,8 @@ JS Plugin 対応をやってくれているみたいでとてもありがたい�
 
 ただ、まだ Language Server のサポートが足りていないところがあり、ESLint とペアでやってもらっている。
 
-https://oxc.rs/docs/guide/usage/linter/js-plugins.html#api-support
+::link-card{url="https://oxc.rs/docs/guide/usage/linter/js-plugins.html#api-support"}
+::
 
 > Not supported yet:
 > * Language server (IDE) support + suggestions (so no in-editor diagnostics or quick-fixes yet).

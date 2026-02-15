@@ -7,7 +7,8 @@ tags: ["vuefes", "slidev"]
 
 Vue Fes Japan 2025 で『最高の DX - Nuxt Typed Router と Pinia Colada で実現する次世代 Vue/Nuxt 開発』という題で発表した。
 
-https://naitokosuke.github.io/vue-fes-japan-2025-slide/
+::link-card{url="https://naitokosuke.github.io/vue-fes-japan-2025-slide/"}
+::
 
 いい加減な発表にはしたくないと思い、自分なりに色々考えて発表に臨んだ。
 そのことについて書く。
@@ -45,27 +46,31 @@ CfP 提出から 3 週間後くらいに採択の旨のメールが来た。7 �
 
 [Pinia Colada の公式ドキュメント](https://pinia-colada.esm.dev/)に、他のライブラリとの比較が載っていた。
 
-https://pinia-colada.esm.dev/why.html#Comparison-to-other-solutions
+::link-card{url="https://pinia-colada.esm.dev/why.html#Comparison-to-other-solutions"}
+::
 
 ここに [rstore](https://rstore.dev), [swrv](https://github.com/Kong/swrv), [TanStack Query](https://tanstack.com/query/latest/docs/framework/vue/overview) との比較もあったので、7 月〜 8 月にはこれらのライブラリについても勉強した。
 
 TanStack Query と SWR ということで、React, Next.js での情報が非常にたくさんあったのでそちらも参考にした。
 特に以下の記事が参考になった。
 
-https://zenn.dev/cybozu_frontend/articles/a735baacc09c6a
+::link-card{url="https://zenn.dev/cybozu_frontend/articles/a735baacc09c6a"}
+::
 
 8 月の後半には Next.js で typed routes が stable feature になったので、人生初 Next.js もした。
 
 [rstore](https://rstore.dev) については発表前に Zenn の記事にするつもりだったが、ちょうど？破壊的変更をたくさん含んでいるらしいリリースが入り断念した。
 アドカレの時期になるので書きたい。
 
-https://x.com/Akryum/status/1966602960512663743
+::link-card{url="https://x.com/Akryum/status/1966602960512663743"}
+::
 
 ## スライド作成
 
 もちろんスライドは Slidev で作成する予定だったのでリポジトリも作成して、プロジェクトを用意した。
 
-https://sli.dev/
+::link-card{url="https://sli.dev/"}
+::
 
 これまでにも Slidev を使用してスライドを作っていたが、今回は Slidev でスライドを作るにあたって 2 つやりたいこと(目標)を決めた。
 
@@ -85,7 +90,8 @@ https://sli.dev/
 全然うまくいかなかった。
 スマホで Claude Code を遊んでいた時期だったので、毎日の行き帰りに vibe sliding を繰り返していた。
 
-https://x.com/naitokosuke/status/1957029491055698143
+::link-card{url="https://x.com/naitokosuke/status/1957029491055698143"}
+::
 
 全然うまくいかないので、スライドのリポジトリに `___research___/` というディレクトリを作成して、そこに markdown 形式で調べた内容やスライドの構成についてをまとめた。
 このディレクトリを参照させることによって Claude Code にコンテキストを与えたのだが、全然うまくいかなかった。
@@ -105,9 +111,11 @@ vibe sliding によって良スライド生成ガチャを繰り返したのだ�
 ぼくに良いきっかけを与えてくれるのはいつもコミュニティだ。
 大吉祥寺.pm に参加して、そこでようやくコンセプトというかスタンスを決められるようになった。
 
-https://fortee.jp/dai-kichijojipm-2025/proposal/aa5ec3a4-7b70-46f9-ac30-efc6c356aa5d
+::link-card{url="https://fortee.jp/dai-kichijojipm-2025/proposal/aa5ec3a4-7b70-46f9-ac30-efc6c356aa5d"}
+::
 
-https://www.docswell.com/s/hk_it7/Z446WL-community-toukatsu-dev/
+::link-card{url="https://www.docswell.com/s/hk_it7/Z446WL-community-toukatsu-dev/"}
+::
 
 の 2 つの発表を見てとても感動した。
 技術的な内容だけでなく、「エモ」も伝えたいという気持ちになった。
@@ -162,7 +170,8 @@ Vue Fes Japan が広報や SNS にも力を入れていることを知ってい�
 こだわったスライドだが、動作が重くなってしまうという致命的な欠陥を孕んだまま発表を迎えた。
 原因特定修正に時間を割くより練習した方が良いと思い、思い当たる実装を剥がしたバージョンのスライドも用意してこちらも公開した。
 
-https://naitokosuke.github.io/vue-fes-japan-2025-slide-lite
+::link-card{url="https://naitokosuke.github.io/vue-fes-japan-2025-slide-lite"}
+::
 
 カラオケ行ったりした。
 ハンドマイクの練習をしたのだが、当日は台の上にスタンドマイクが固定されていたので意味はなくなった。
@@ -183,13 +192,15 @@ https://naitokosuke.github.io/vue-fes-japan-2025-slide-lite
 
 現在はスライドの重さを解決できた！改めて見てほしい！
 
-https://naitokosuke.github.io/vue-fes-japan-2025-slide/
+::link-card{url="https://naitokosuke.github.io/vue-fes-japan-2025-slide/"}
+::
 
 ## 伝えきれなかったんじゃないかということ
 
 最後の posva さんの最近取り組んでいることについてもっと強調したかった。
 
-https://x.com/posva/status/1954833342114783538
+::link-card{url="https://x.com/posva/status/1954833342114783538"}
+::
 
 現在はファイル内で route の型をアサーション、型ガードをする必要がある。
 posva さんはこれをページファイル名から型を当てることができるような機能を実装しているようだ。
@@ -208,18 +219,21 @@ posva さんはこれをページファイル名から型を当てることが�
 昨年の Daniel Roe さんの発表で Nuxt 3 を使用しているかどうかのアンケート結果をリアルタイムでスライドに反映していたのがとても面白く、真似したかった。
 Slidev では実現できることのはずだが、ぼくの実力が足りず間に合わなかった。
 
-https://youtu.be/M48iEFch-6s
+::link-card{url="https://youtu.be/M48iEFch-6s"}
+::
 
 [toddeTV](https://github.com/toddeTV) さんの発表ではリアルタイムにリアクションを送信できるようになっていたとのことだった、見たかった。
 
-https://talk-2025-10-25-vue-fes-japan.vercel.app/
+::link-card{url="https://talk-2025-10-25-vue-fes-japan.vercel.app/"}
+::
 
 また、Vue Fes Japan はたくさんの海外参加者の方が来られるイベントだ。
 裏の発表が 2 つ英語であるということもあって、海外参加者の多くはそちらに行くだろうということで今回は諦めてしまった。
 
 [Yuichi Yogo](https://x.com/yogo_escentier) さんの発表では 3 ヶ国語対応していて素晴らしかった。
 
-https://building-audio-apps-with-js.vercel.app
+::link-card{url="https://building-audio-apps-with-js.vercel.app"}
+::
 
 ## 感想と学び
 
