@@ -18,57 +18,52 @@ const domain = computed(() => {
 </script>
 
 <template>
-  <div class="link-card-wrapper">
-    <!-- Loading -->
-    <div v-if="status === 'pending'" class="link-card link-card--skeleton" role="status" aria-label="リンク情報を読み込み中">
-      <div class="link-card__body">
-        <div class="skeleton-line skeleton-line--title" />
-        <div class="skeleton-line skeleton-line--desc" />
-        <div class="skeleton-line skeleton-line--desc skeleton-line--short" />
-        <div class="skeleton-line skeleton-line--domain" />
-      </div>
-      <div class="link-card__image skeleton-image" />
+  <!-- Loading -->
+  <div v-if="status === 'pending'" class="card" role="status" aria-label="リンク情報を読み込み中">
+    <div class="body">
+      <div class="placeholder" />
+      <div class="placeholder" />
+      <div class="placeholder" />
+      <div class="placeholder" />
     </div>
-
-    <!-- Error fallback -->
-    <a v-else-if="status === 'error' || !data" :href="url" target="_blank" rel="noopener noreferrer">
-      {{ url }}
-      <span class="sr-only">(新しいタブで開きます)</span>
-    </a>
-
-    <!-- Success -->
-    <a v-else :href="data.url || url" class="link-card" target="_blank" rel="noopener noreferrer">
-      <div class="link-card__body">
-        <strong class="link-card__title">{{ data.title }}</strong>
-        <span v-if="data.description" class="link-card__description">{{ data.description }}</span>
-        <span class="link-card__meta">
-          <img
-            v-if="data.favicon"
-            :src="data.favicon"
-            alt=""
-            class="link-card__favicon"
-            width="16"
-            height="16"
-            loading="lazy"
-          >
-          <span class="link-card__domain">{{ data.siteName || domain }}</span>
-        </span>
-      </div>
-      <div v-if="data.image" class="link-card__image">
-        <img :src="data.image" alt="" loading="lazy">
-      </div>
-      <span class="sr-only">(新しいタブで開きます)</span>
-    </a>
+    <div class="thumbnail placeholder-bg" />
   </div>
+
+  <!-- Error fallback -->
+  <NuxtLink v-else-if="status === 'error' || !data" :to="url" class="fallback" target="_blank">
+    {{ url }}
+    <span class="sr-only">(新しいタブで開きます)</span>
+  </NuxtLink>
+
+  <!-- Success -->
+  <NuxtLink v-else :to="data.url || url" class="card" target="_blank">
+    <div class="body">
+      <strong class="title">{{ data.title }}</strong>
+      <span v-if="data.description" class="description">{{ data.description }}</span>
+      <span class="meta">
+        <img
+          v-if="data.favicon"
+          :src="data.favicon"
+          alt=""
+          class="favicon"
+          width="16"
+          height="16"
+          loading="lazy"
+        >
+        <span class="domain">{{ data.siteName || domain }}</span>
+      </span>
+    </div>
+    <div v-if="data.image" class="thumbnail">
+      <img :src="data.image" alt="" loading="lazy">
+    </div>
+    <span class="sr-only">(新しいタブで開きます)</span>
+  </NuxtLink>
 </template>
 
 <style scoped>
-.link-card-wrapper {
-  margin-block: 1.5rem;
-}
-
-.link-card {
+.card {
   display: flex;
+  margin-block: 1.5rem;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background-color: var(--color-bg-secondary);
@@ -81,11 +76,11 @@ const domain = computed(() => {
     border-color: var(--color-accent-hover);
   }
 
-  &--skeleton {
+  &[role="status"] {
     pointer-events: none;
   }
 
-  &__body {
+  .body {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -94,7 +89,7 @@ const domain = computed(() => {
     min-width: 0;
   }
 
-  &__title {
+  .title {
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.4;
@@ -105,7 +100,7 @@ const domain = computed(() => {
     overflow: hidden;
   }
 
-  &__description {
+  .description {
     font-size: 0.8125rem;
     line-height: 1.5;
     color: var(--color-text-secondary);
@@ -116,14 +111,14 @@ const domain = computed(() => {
     overflow: hidden;
   }
 
-  &__meta {
+  .meta {
     display: flex;
     align-items: center;
     gap: 0.375rem;
     margin-top: auto;
   }
 
-  &__favicon {
+  .favicon {
     width: 16px;
     height: 16px;
     border-radius: 2px;
@@ -131,7 +126,7 @@ const domain = computed(() => {
     margin: 0;
   }
 
-  &__domain {
+  .domain {
     font-size: 0.75rem;
     color: var(--color-text-secondary);
     overflow: hidden;
@@ -139,7 +134,7 @@ const domain = computed(() => {
     white-space: nowrap;
   }
 
-  &__image {
+  .thumbnail {
     flex-shrink: 0;
     width: 230px;
 
@@ -154,6 +149,11 @@ const domain = computed(() => {
   }
 }
 
+.fallback {
+  display: block;
+  margin-block: 1.5rem;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -166,34 +166,31 @@ const domain = computed(() => {
   border-width: 0;
 }
 
-.skeleton-line {
+.placeholder {
   height: 1em;
+  width: 90%;
   background-color: var(--color-border);
   border-radius: 4px;
   opacity: 0.2;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 
-  &--title {
+  &:nth-child(1) {
     width: 70%;
     height: 1.125em;
   }
 
-  &--desc {
-    width: 90%;
-  }
-
-  &--short {
+  &:nth-child(3) {
     width: 50%;
   }
 
-  &--domain {
+  &:nth-child(4) {
     width: 30%;
     height: 0.75em;
     margin-top: auto;
   }
 }
 
-.skeleton-image {
+.placeholder-bg {
   background-color: var(--color-border);
   opacity: 0.2;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
@@ -211,10 +208,10 @@ const domain = computed(() => {
 }
 
 @media (width <= 768px) {
-  .link-card {
+  .card {
     flex-direction: column-reverse;
 
-    &__image {
+    .thumbnail {
       width: 100%;
       height: 160px;
     }
