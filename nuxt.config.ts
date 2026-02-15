@@ -77,6 +77,14 @@ export default defineNuxtConfig({
       failOnError: false,
     },
   },
+  vite: {
+    css: {
+      transformer: "lightningcss",
+    },
+    build: {
+      cssMinify: "lightningcss",
+    },
+  },
   eslint: {
     config: {
       stylistic: {
