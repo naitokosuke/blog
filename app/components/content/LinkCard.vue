@@ -19,22 +19,41 @@ const domain = computed(() => {
 
 <template>
   <!-- Loading -->
-  <div v-if="status === 'pending'" class="card" role="status" aria-label="リンク情報を読み込み中">
+  <div
+    v-if="status === 'pending'"
+    class="card"
+    role="status"
+    aria-label="リンク情報を読み込み中"
+  >
     <!-- title, description ×2, domain -->
     <div>
-      <div v-for="n in 4" :key="n" class="placeholder" />
+      <div
+        v-for="n in 4"
+        :key="n"
+        class="placeholder"
+      />
     </div>
     <div class="thumbnail" />
   </div>
 
   <!-- Error fallback -->
-  <NuxtLink v-else-if="status === 'error' || !data" :to="url" class="fallback" target="_blank">
+  <NuxtLink
+    v-else-if="status === 'error' || !data"
+    :to="url"
+    class="fallback"
+    target="_blank"
+  >
     {{ url }}
     <span class="sr-only">(新しいタブで開きます)</span>
   </NuxtLink>
 
   <!-- Success -->
-  <NuxtLink v-else :to="data.url || url" class="card" target="_blank">
+  <NuxtLink
+    v-else
+    :to="data.url || url"
+    class="card"
+    target="_blank"
+  >
     <div>
       <strong>{{ data.title }}</strong>
       <p v-if="data.description">{{ data.description }}</p>
@@ -50,8 +69,15 @@ const domain = computed(() => {
         <span>{{ data.siteName || domain }}</span>
       </small>
     </div>
-    <div v-if="data.image" class="thumbnail">
-      <img :src="data.image" alt="" loading="lazy">
+    <div
+      v-if="data.image"
+      class="thumbnail"
+    >
+      <img
+        :src="data.image"
+        alt=""
+        loading="lazy"
+      >
     </div>
     <span class="sr-only">(新しいタブで開きます)</span>
   </NuxtLink>
