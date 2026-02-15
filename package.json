@@ -23,7 +23,6 @@
     "@nuxt/hints": "1.0.0-alpha.5",
     "@nuxt/icon": "2.1.1",
     "@nuxt/image": "2.0.0",
-    "@nuxt/scripts": "0.13.2",
     "@nuxtjs/color-mode": "^4.0.0",
     "@nuxtjs/seo": "^3.3.0",
     "@unhead/vue": "^2.0.3",
