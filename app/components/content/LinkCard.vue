@@ -20,7 +20,7 @@ const domain = computed(() => {
 <template>
   <div class="link-card-wrapper">
     <!-- Loading -->
-    <div v-if="status === 'pending'" class="link-card link-card--skeleton">
+    <div v-if="status === 'pending'" class="link-card link-card--skeleton" role="status" aria-label="リンク情報を読み込み中">
       <div class="link-card__body">
         <div class="skeleton-line skeleton-line--title" />
         <div class="skeleton-line skeleton-line--desc" />
@@ -33,6 +33,7 @@ const domain = computed(() => {
     <!-- Error fallback -->
     <a v-else-if="status === 'error' || !data" :href="url" target="_blank" rel="noopener noreferrer">
       {{ url }}
+      <span class="sr-only">(新しいタブで開きます)</span>
     </a>
 
     <!-- Success -->
@@ -44,7 +45,7 @@ const domain = computed(() => {
           <img
             v-if="data.favicon"
             :src="data.favicon"
-            :alt="domain"
+            alt=""
             class="link-card__favicon"
             width="16"
             height="16"
@@ -54,8 +55,9 @@ const domain = computed(() => {
         </span>
       </div>
       <div v-if="data.image" class="link-card__image">
-        <img :src="data.image" :alt="data.title" loading="lazy">
+        <img :src="data.image" alt="" loading="lazy">
       </div>
+      <span class="sr-only">(新しいタブで開きます)</span>
     </a>
   </div>
 </template>
@@ -147,6 +149,18 @@ const domain = computed(() => {
     border-radius: 0 !important;
     margin: 0 !important;
   }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 /* Skeleton loading */
