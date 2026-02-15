@@ -1,5 +1,8 @@
-import type { ChildNode, Element } from "parse5/dist/tree-adapters/default";
+import type { DefaultTreeAdapterMap } from "parse5";
 import { parse } from "parse5";
+
+type Element = DefaultTreeAdapterMap["element"];
+type ChildNode = DefaultTreeAdapterMap["childNode"];
 
 interface OgpData {
   title: string;
