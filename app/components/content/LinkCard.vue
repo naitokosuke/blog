@@ -24,7 +24,7 @@ const domain = computed(() => {
     <div class="body">
       <div v-for="n in 4" :key="n" class="placeholder" />
     </div>
-    <div class="thumbnail placeholder-bg" />
+    <div class="thumbnail" />
   </div>
 
   <!-- Error fallback -->
@@ -76,6 +76,12 @@ const domain = computed(() => {
 
   &[role="status"] {
     pointer-events: none;
+
+    .thumbnail {
+      background-color: var(--color-border);
+      opacity: 0.2;
+      animation: skeleton-pulse 1.5s ease-in-out infinite;
+    }
   }
 
   .body {
@@ -145,6 +151,15 @@ const domain = computed(() => {
       margin: 0;
     }
   }
+
+  @media (width <= 768px) {
+    flex-direction: column-reverse;
+
+    .thumbnail {
+      width: 100%;
+      height: 160px;
+    }
+  }
 }
 
 .fallback {
@@ -188,12 +203,6 @@ const domain = computed(() => {
   }
 }
 
-.placeholder-bg {
-  background-color: var(--color-border);
-  opacity: 0.2;
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-}
-
 @keyframes skeleton-pulse {
   0%,
   100% {
@@ -205,14 +214,4 @@ const domain = computed(() => {
   }
 }
 
-@media (width <= 768px) {
-  .card {
-    flex-direction: column-reverse;
-
-    .thumbnail {
-      width: 100%;
-      height: 160px;
-    }
-  }
-}
 </style>
