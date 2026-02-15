@@ -19,25 +19,47 @@ const domain = computed(() => {
 
 <template>
   <!-- Loading -->
-  <div v-if="status === 'pending'" class="card" role="status" aria-label="リンク情報を読み込み中">
-    <!-- title, description ×2, domain -->
+  <div
+    v-if="status === 'pending'"
+    class="card"
+    role="status"
+    aria-label="リンク情報を読み込み中"
+  >
     <div class="body">
-      <div v-for="n in 4" :key="n" class="placeholder" />
+      <!-- title, description ×2, domain -->
+      <div
+        v-for="n in 4"
+        :key="n"
+        class="placeholder"
+      />
     </div>
     <div class="thumbnail" />
   </div>
 
   <!-- Error fallback -->
-  <NuxtLink v-else-if="status === 'error' || !data" :to="url" class="fallback" target="_blank">
+  <NuxtLink
+    v-else-if="status === 'error' || !data"
+    :to="url"
+    class="fallback"
+    target="_blank"
+  >
     {{ url }}
     <span class="sr-only">(新しいタブで開きます)</span>
   </NuxtLink>
 
   <!-- Success -->
-  <NuxtLink v-else :to="data.url || url" class="card" target="_blank">
+  <NuxtLink
+    v-else
+    :to="data.url || url"
+    class="card"
+    target="_blank"
+  >
     <div class="body">
       <strong class="title">{{ data.title }}</strong>
-      <span v-if="data.description" class="description">{{ data.description }}</span>
+      <span
+        v-if="data.description"
+        class="description"
+      >{{ data.description }}</span>
       <span class="meta">
         <img
           v-if="data.favicon"
@@ -51,8 +73,15 @@ const domain = computed(() => {
         <span class="domain">{{ data.siteName || domain }}</span>
       </span>
     </div>
-    <div v-if="data.image" class="thumbnail">
-      <img :src="data.image" alt="" loading="lazy">
+    <div
+      v-if="data.image"
+      class="thumbnail"
+    >
+      <img
+        :src="data.image"
+        alt=""
+        loading="lazy"
+      >
     </div>
     <span class="sr-only">(新しいタブで開きます)</span>
   </NuxtLink>
@@ -213,5 +242,4 @@ const domain = computed(() => {
     opacity: 0.4;
   }
 }
-
 </style>
