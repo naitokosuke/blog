@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     dirs: [
       { path: "~/components/content/prose/heading", prefix: "Prose", pathPrefix: false },
       { path: "~/components/content/prose", prefix: "Prose", pathPrefix: false },
+      { path: "~/components/content", pathPrefix: false },
       { path: "~/components", pathPrefix: true },
     ],
   },
