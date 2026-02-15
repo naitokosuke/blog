@@ -38,7 +38,7 @@ const domain = computed(() => {
     <!-- Success -->
     <a v-else :href="data.url || url" class="link-card" target="_blank" rel="noopener noreferrer">
       <div class="link-card__body">
-        <span class="link-card__title">{{ data.title }}</span>
+        <strong class="link-card__title">{{ data.title }}</strong>
         <span v-if="data.description" class="link-card__description">{{ data.description }}</span>
         <span class="link-card__meta">
           <img
