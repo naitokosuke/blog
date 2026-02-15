@@ -7,7 +7,6 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@nuxt/hints",
     "@nuxt/icon",
-    "@nuxt/image",
     "@nuxt/scripts",
     "@nuxtjs/color-mode",
     "@nuxtjs/seo",
@@ -87,10 +86,6 @@ export default defineNuxtConfig({
         semi: true,
       },
     },
-  },
-  image: {
-    quality: 80,
-    format: ["avif", "webp"],
   },
   ogImage: {
     fonts: [
