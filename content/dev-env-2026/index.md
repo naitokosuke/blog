@@ -120,7 +120,8 @@ Space 機能をきちんと使えていない
 
 ## Dotfiles
 
-<https://github.com/naitokosuke/dotfiles>
+::link-card{url="https://github.com/naitokosuke/dotfiles"}
+::
 
 Nix を使うために盆栽し始めた
 
@@ -180,7 +181,8 @@ ASUS と Xiaomi のやつ
 
 Cap っていう画面録画アプリを最近使っている
 
-<https://cap.so/>
+::link-card{url="https://cap.so/"}
+::
 
 無料プランで全く問題ない
 

@@ -12,7 +12,8 @@ tags: []
 
 サブスク解禁前夜ということで急遽ブログを書く
 
-<https://www.up-front-works.jp/news/20055/>
+::link-card{url="https://www.up-front-works.jp/news/20055/"}
+::
 
 > 2026年2月13日より、各サブスクリプション型(定額制)音楽ストリーミングサービスで配信開始いたします！
 
