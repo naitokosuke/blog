@@ -20,11 +20,9 @@ const domain = computed(() => {
 <template>
   <!-- Loading -->
   <div v-if="status === 'pending'" class="card" role="status" aria-label="リンク情報を読み込み中">
+    <!-- title, description ×2, domain -->
     <div class="body">
-      <div class="placeholder" />
-      <div class="placeholder" />
-      <div class="placeholder" />
-      <div class="placeholder" />
+      <div v-for="n in 4" :key="n" class="placeholder" />
     </div>
     <div class="thumbnail placeholder-bg" />
   </div>
