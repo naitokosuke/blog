@@ -11,7 +11,8 @@
       "Bash(gh search:*)",
       "Bash(gh issue:*)",
       "Bash(nr build:*)",
-      "Bash(git worktree remove:*)"
+      "Bash(git worktree remove:*)",
+      "Bash(gh pr view:*)"
     ]
   }
 }
