@@ -12,7 +12,10 @@
       "Bash(gh issue:*)",
       "Bash(nr build:*)",
       "Bash(git worktree remove:*)",
-      "Bash(gh pr view:*)"
+      "Bash(gh pr view:*)",
+      "Bash(git branch:*)",
+      "Bash(git worktree add:*)",
+      "Bash(git worktree:*)"
     ]
   }
 }
