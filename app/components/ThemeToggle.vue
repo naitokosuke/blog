@@ -27,9 +27,8 @@ const isDark = computed({
 
 <style scoped>
 button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   width: 40px;
   height: 40px;
   background: none;
