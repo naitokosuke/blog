@@ -10,7 +10,7 @@ const vertexShaderSource = `
   }
 `;
 
-// 血と錆と闇のシェーダー
+// Shader for blood, rust, and darkness
 const fragmentShaderSource = `
   precision mediump float;
 
@@ -61,7 +61,7 @@ const fragmentShaderSource = `
   // Rotation matrix to reduce axial bias
   mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);
 
-  // 錆のFBM - 3 octaves (4th was 0.05 amplitude, negligible after smoothstep)
+  // Rust FBM - 3 octaves (4th was 0.05 amplitude, negligible after smoothstep)
   float rustFbm(vec2 p) {
     float f = 0.0;
     f += 0.5000 * snoise(p); p = m2 * p * 1.8;
@@ -70,7 +70,7 @@ const fragmentShaderSource = `
     return f;
   }
 
-  // 血のFBM（滲むような質感）
+  // Blood FBM (bleeding texture)
   float bloodFbm(vec2 p) {
     float f = 0.0;
     f += 0.6000 * snoise(p); p = m2 * p * 1.5;
@@ -84,52 +84,52 @@ const fragmentShaderSource = `
     float aspect = u_resolution.x / u_resolution.y;
     vec2 p = vec2(uv.x * aspect, uv.y);
 
-    // 非常にゆっくりとした時間変化
+    // Very slow time progression
     float t = u_time * 0.005;
 
-    // === 闇のベース色 ===
+    // === Darkness base color ===
     vec3 darkness = vec3(0.051, 0.039, 0.035); // #0d0a09
 
-    // === 錆のテクスチャ ===
+    // === Rust texture ===
     float rust1 = rustFbm(p * 1.5 + vec2(t * 0.1, 0.0));
     float rust2 = rustFbm(p * 2.5 + vec2(100.0, t * 0.05));
     float rust3 = rustFbm(p * 0.8 + vec2(50.0, 30.0));
 
-    // 錆のノイズを合成
+    // Compose rust noise
     float rustNoise = (rust1 + rust2 * 0.7 + rust3 * 0.5) / 2.2;
     rustNoise = rustNoise * 0.5 + 0.5;
 
-    // 錆の色（より明るく）
-    vec3 rustColor1 = vec3(0.30, 0.15, 0.10); // 錆茶
-    vec3 rustColor2 = vec3(0.45, 0.22, 0.12); // 明るい錆オレンジ
+    // Rust colors (brighter)
+    vec3 rustColor1 = vec3(0.30, 0.15, 0.10); // rust brown
+    vec3 rustColor2 = vec3(0.45, 0.22, 0.12); // bright rust orange
     vec3 rustColor = mix(rustColor1, rustColor2, rustNoise);
 
-    // === 血のテクスチャ ===
+    // === Blood texture ===
     float blood1 = bloodFbm(p * 1.2 + vec2(200.0, t * 0.02));
     float blood2 = bloodFbm(p * 2.0 + vec2(150.0, 80.0));
 
     float bloodNoise = (blood1 + blood2 * 0.6) / 1.6;
     bloodNoise = bloodNoise * 0.5 + 0.5;
 
-    // 血の色（より明るく）
-    vec3 bloodColor1 = vec3(0.22, 0.05, 0.05); // 暗い血
-    vec3 bloodColor2 = vec3(0.40, 0.10, 0.08); // 明るい血
+    // Blood colors (brighter)
+    vec3 bloodColor1 = vec3(0.22, 0.05, 0.05); // dark blood
+    vec3 bloodColor2 = vec3(0.40, 0.10, 0.08); // bright blood
     vec3 bloodColor = mix(bloodColor1, bloodColor2, bloodNoise);
 
-    // === 合成 ===
-    // 全体にノイズで錆と血を散らす
+    // === Composite ===
+    // Scatter rust and blood across the frame with noise
     float rustAmount = smoothstep(0.30, 0.60, rustNoise);
     float bloodAmount = smoothstep(0.40, 0.65, bloodNoise);
 
     vec3 finalColor = darkness;
 
-    // 錆を強めに混ぜる
+    // Mix in rust more strongly
     finalColor = mix(finalColor, rustColor, rustAmount * 0.7);
 
-    // 血を混ぜる
+    // Mix in blood
     finalColor = mix(finalColor, bloodColor, bloodAmount * 0.5);
 
-    // ダークモードでのみ表示
+    // Only visible in dark mode
     float alpha = u_isDark;
 
     gl_FragColor = vec4(finalColor, alpha);
@@ -290,7 +290,7 @@ function startRender() {
 
 function stopRender() {
   cleanup();
-  // キャンバスをクリア
+  // Clear the canvas
   if (gl) {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -311,7 +311,7 @@ onMounted(() => {
 
   window.addEventListener("resize", resizeCanvas);
 
-  // タブの可視性変更を監視（非アクティブ時にレンダリング停止）
+  // Watch tab visibility changes (pause rendering when inactive)
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       cleanup();
@@ -321,13 +321,13 @@ onMounted(() => {
     }
   });
 
-  // 初期状態をチェック
+  // Check initial state
   isDarkMode.value = checkDarkMode();
   if (isDarkMode.value) {
     startRender();
   }
 
-  // html要素のclass変更を監視
+  // Watch for class changes on the html element
   const observer = new MutationObserver(() => {
     const newIsDark = checkDarkMode();
     if (newIsDark !== isDarkMode.value) {

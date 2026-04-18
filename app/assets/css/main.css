@@ -1,11 +1,11 @@
 :root {
   /*
-   * Theme: 血と霧と錆と闇
+   * Theme: blood, fog, rust, and darkness
    *
-   * 闇: 湿度のある暗褐色、純黒ではない
-   * 霧: WebGLで別途実装
-   * 錆: くすんだ茶〜オレンジ、朽ちた金属
-   * 血: 控えめな暗い赤、ごく一部のみ
+   * Darkness: damp dark brown, not pure black
+   * Fog: implemented separately in WebGL
+   * Rust: muted brown to orange, decayed metal
+   * Blood: subdued dark red, used sparingly
    */
 
   /* Colors - Light Mode */
@@ -30,18 +30,18 @@
 }
 
 .dark {
-  /* 闇: 湿度のある暗褐色 */
+  /* Darkness: damp dark brown */
   --color-bg: #0d0a09;
   --color-bg-secondary: #1a1412;
 
-  /* テキスト: 温かみのあるオフホワイト */
+  /* Text: warm off-white */
   --color-text: #d4c8b8;
   --color-text-secondary: #8a7f73;
 
-  /* 錆: くすんだ茶色 */
+  /* Rust: muted brown */
   --color-border: #3d302a;
 
-  /* 血: 控えめな暗い赤 */
+  /* Blood: subdued dark red */
   --color-accent: #d4c8b8;
   --color-accent-hover: #8b4d4d;
 

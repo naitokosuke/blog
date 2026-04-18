@@ -1,7 +1,7 @@
 export default defineNuxtPlugin(() => {
   if (!import.meta.client) return;
 
-  // nuxt-studio 要素が追加されるのを監視して z-index を設定
+  // Watch for the nuxt-studio element to be added and set its z-index
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes) {
@@ -19,7 +19,7 @@ export default defineNuxtPlugin(() => {
 
   observer.observe(document.body, { childList: true });
 
-  // 既に存在する場合も対応
+  // Handle the case where the element already exists
   const existing = document.querySelector("nuxt-studio") as HTMLElement | null;
   if (existing) {
     existing.style.position = "fixed";

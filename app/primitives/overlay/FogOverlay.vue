@@ -3,7 +3,7 @@ const { fogOpacity } = useOverlay();
 const canvasRef = useTemplateRef<HTMLCanvasElement>("canvasRef");
 const colorMode = useColorMode();
 
-// シェーダーコード
+// Shader code
 const vertexShaderSource = `
   attribute vec2 a_position;
   void main() {
@@ -261,7 +261,7 @@ function startRender() {
 
 function stopRender() {
   cleanup();
-  // キャンバスをクリア
+  // Clear the canvas
   if (gl) {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -282,7 +282,7 @@ onMounted(() => {
 
   window.addEventListener("resize", resizeCanvas);
 
-  // タブの可視性変更を監視（非アクティブ時にレンダリング停止）
+  // Watch tab visibility changes (pause rendering when inactive)
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       cleanup();
@@ -292,13 +292,13 @@ onMounted(() => {
     }
   });
 
-  // 初期状態をチェック
+  // Check initial state
   isLightMode.value = checkLightMode();
   if (isLightMode.value) {
     startRender();
   }
 
-  // html要素のclass変更を監視
+  // Watch for class changes on the html element
   const observer = new MutationObserver(() => {
     const newIsLight = checkLightMode();
     if (newIsLight !== isLightMode.value) {
