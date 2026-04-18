@@ -11,9 +11,7 @@ export function useOverlay() {
   const textureOpacity = useState("textureOpacity", () => 1);
 
   function toggleFog() {
-    if (fogAnimationId !== null) {
-      cancelAnimationFrame(fogAnimationId);
-    }
+    if (fogAnimationId !== null) cancelAnimationFrame(fogAnimationId);
 
     const targetOpacity = fogEnabled.value ? 0 : 1;
     const startOpacity = fogOpacity.value;
