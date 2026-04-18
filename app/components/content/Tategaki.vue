@@ -2,10 +2,7 @@
 import { measureGraphemes } from "~/utils/tategaki/metrics";
 import { LAYOUTS, type ModeKey, type Position } from "~/utils/tategaki/layouts";
 import { DomRenderer } from "~/utils/tategaki/renderers/dom";
-import { CanvasRenderer } from "~/utils/tategaki/renderers/canvas";
 import type { Renderer, RenderOpts, RenderPayload } from "~/utils/tategaki/renderers/types";
-
-type RendererKey = "dom" | "canvas";
 
 const MODES: { key: ModeKey; jp: string }[] = [
   { key: "vertical", jp: "縦" },
@@ -54,7 +51,6 @@ watch(() => props.text, (v) => {
 });
 
 const current = ref<ModeKey>(props.mode);
-const rendererKind = ref<RendererKey>("dom");
 const seed = ref(0);
 
 const stageRef = ref<HTMLDivElement | null>(null);
@@ -110,7 +106,7 @@ function currentPayload(): RenderPayload {
 function mountRenderer() {
   if (!rendererRef.value) return;
   renderer?.unmount();
-  renderer = rendererKind.value === "canvas" ? new CanvasRenderer() : new DomRenderer();
+  renderer = new DomRenderer();
   renderer.mount(rendererRef.value, buildOpts());
   renderer.render(currentPayload());
 }
@@ -121,7 +117,6 @@ function pushRender() {
   renderer.render(currentPayload());
 }
 
-watch(rendererKind, () => mountRenderer());
 watch([current, graphemes, positions, fontSize], () => pushRender(), { deep: true });
 
 const selectMode = (key: ModeKey) => {
@@ -226,28 +221,6 @@ onBeforeUnmount(() => {
           @click="selectMode(m.key)"
         >
           {{ m.jp }}
-        </button>
-      </div>
-      <div
-        class="tg-renderer-group"
-        role="group"
-        aria-label="描き手"
-      >
-        <button
-          type="button"
-          :class="['tg-chip', { 'is-active': rendererKind === 'dom' }]"
-          :aria-pressed="rendererKind === 'dom'"
-          @click="rendererKind = 'dom'"
-        >
-          紙
-        </button>
-        <button
-          type="button"
-          :class="['tg-chip', { 'is-active': rendererKind === 'canvas' }]"
-          :aria-pressed="rendererKind === 'canvas'"
-          @click="rendererKind = 'canvas'"
-        >
-          画布
         </button>
       </div>
     </footer>

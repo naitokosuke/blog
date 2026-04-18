@@ -65,43 +65,101 @@ const isLatinOrDigit = (ch: string): boolean => {
  * for CJK so chars stack at natural metrics.
  */
 export const vertical: LayoutFn = (graphemes, { w, h }, { fontSize, lineHeight }) => {
-  const padX = fontSize * 1.6;
   const padY = fontSize * 1.2;
   const lineGap = fontSize * lineHeight;
   const charAdvance = fontSize * 1.05;
   const columnBottom = h - padY;
   const cornerShift = fontSize * 0.3;
 
-  const positions: Position[] = [];
+  // Every Latin letter / digit and the punctuation in VERT_ROTATE rotate
+  // 90° CW in vertical text (matches `text-orientation: mixed`).
+  type Item =
+    | { kind: "newline"; i: number }
+    | { kind: "single"; i: number; rotated: boolean };
+
+  const items: Item[] = [];
+  for (let i = 0; i < graphemes.length; i++) {
+    const ch = graphemes[i]!.char;
+    if (ch === "\n") {
+      items.push({ kind: "newline", i });
+      continue;
+    }
+    const rotated = isLatinOrDigit(ch) || VERT_ROTATE.has(ch);
+    items.push({ kind: "single", i, rotated });
+  }
+
+  // Height this item consumes in the column direction. Rotated Latin/digit
+  // chars step by their (now-vertical) advance so "1 7" read tightly stacked
+  // instead of each sitting in a full CJK em cell.
+  const itemStep = (item: Item): number => {
+    if (item.kind === "newline") return 0;
+    if (!item.rotated) return charAdvance;
+    const g = graphemes[item.i]!;
+    if (isLatinOrDigit(g.char)) return (g.advance || fontSize) * 1.05;
+    return charAdvance;
+  };
+
+  // Count columns so we can center the whole block horizontally.
+  let colCount = 1;
+  let scanY = padY;
+  for (const item of items) {
+    if (item.kind === "newline") {
+      colCount += 1;
+      scanY = padY;
+      continue;
+    }
+    const step = itemStep(item);
+    if (scanY + step > columnBottom) {
+      colCount += 1;
+      scanY = padY;
+    }
+    scanY += step;
+  }
+
+  const blockWidth = colCount * lineGap;
+  const rightAnchor = (w + blockWidth) / 2;
+
+  const positions: Position[] = Array.from({ length: graphemes.length }, () => ({ x: 0, y: 0, rotation: 0 }));
   let col = 0;
   let y = padY;
 
-  for (const g of graphemes) {
-    if (g.char === "\n") {
+  for (const item of items) {
+    if (item.kind === "newline") {
       col += 1;
       y = padY;
-      positions.push({ x: 0, y: 0, rotation: 0 });
+      positions[item.i] = { x: 0, y: 0, rotation: 0 };
       continue;
     }
-    if (y + charAdvance > columnBottom) {
+    const step = itemStep(item);
+    if (y + step > columnBottom) {
       col += 1;
       y = padY;
     }
+    const colCenterX = rightAnchor - col * lineGap;
+
+    const g = graphemes[item.i]!;
     const ch = g.char;
-    const rotation = VERT_ROTATE.has(ch) || isLatinOrDigit(ch) ? Math.PI / 2 : 0;
+    const adv = g.advance || fontSize;
     let ox = 0;
     let oy = 0;
     if (VERT_CORNER_PUNCT.has(ch)) {
       ox = cornerShift;
       oy = -cornerShift;
     }
-    positions.push({
-      x: w - padX - col * lineGap - fontSize / 2 + ox,
-      y: y - fontSize / 2 + oy,
-      rotation,
-    });
-    y += charAdvance;
+    // Rotated ASCII: step equals advance, so we align the top of the
+    // rotated bbox to y (not the CJK cell center). Shift y_translate up
+    // by (fontSize - advance) / 2 so the rotated visual top aligns with y.
+    const rotatedAsciiOffsetY
+      = item.rotated && isLatinOrDigit(ch) ? -(fontSize - adv) / 2 : 0;
+    positions[item.i] = {
+      x: colCenterX - adv / 2 + ox,
+      y: y - fontSize / 2 + rotatedAsciiOffsetY + oy,
+      rotation: item.rotated ? Math.PI / 2 : 0,
+    };
+
+    y += step;
   }
+
   return positions;
 };
 
@@ -152,19 +210,20 @@ export const horizontal: LayoutFn = (graphemes, { w }, opts) => {
     for (const seg of segmenter.segment(line.text)) {
       if (gi >= graphemes.length) break;
       const g = graphemes[gi]!;
+      const adv = g.advance || fontSize;
       positions[gi] = {
-        x: x - fontSize / 2,
+        x,
         y: y - fontSize / 2,
         rotation: 0,
       };
-      x += g.advance || fontSize;
+      x += adv;
       gi += 1;
       void seg;
     }
     y += lh;
   }
   while (gi < graphemes.length) {
-    positions[gi] = { x: padX - fontSize / 2, y: y - fontSize / 2, rotation: 0 };
+    positions[gi] = { x: padX, y: y - fontSize / 2, rotation: 0 };
     gi += 1;
   }
   return positions;
@@ -234,11 +293,11 @@ export const spiral: LayoutFn = (graphemes, { w, h }, { fontSize }) => {
     idx += 1;
     const theta = findAngle(target);
     const r = theta * dr;
-    const angle = theta - Math.PI / 2;
+    const angle = -theta - Math.PI / 2;
     return {
       x: cx + Math.cos(angle) * r - fontSize / 2,
       y: cy + Math.sin(angle) * r - fontSize / 2,
-      rotation: clampRot(angle + Math.PI / 2),
+      rotation: clampRot(angle - Math.PI / 2),
     };
   });
 };
