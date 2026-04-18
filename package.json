@@ -17,6 +17,7 @@
     "secretlint": "secretlint '**/*'"
   },
   "dependencies": {
+    "@chenglou/pretext": "^0.0.5",
     "@nuxt/content": "3.11.0",
     "@nuxt/eslint": "1.12.1",
     "@nuxt/fonts": "0.12.1",
