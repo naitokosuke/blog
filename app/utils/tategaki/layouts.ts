@@ -73,9 +73,9 @@ export const vertical: LayoutFn = (graphemes, { w, h }, { fontSize, lineHeight }
 
   // Every Latin letter / digit and the punctuation in VERT_ROTATE rotate
   // 90° CW in vertical text (matches `text-orientation: mixed`).
-  type Item =
-    | { kind: "newline"; i: number }
-    | { kind: "single"; i: number; rotated: boolean };
+  type Item
+    = | { kind: "newline"; i: number }
+      | { kind: "single"; i: number; rotated: boolean };
 
   const items: Item[] = [];
   for (let i = 0; i < graphemes.length; i++) {

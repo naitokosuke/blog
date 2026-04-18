@@ -1,4 +1,6 @@
-import { prepareWithSegments, layoutWithLines, type LayoutLine } from "@chenglou/pretext";
+import { prepareWithSegments, layoutWithLines } from "@chenglou/pretext";
+
+import type { LayoutLine } from "@chenglou/pretext";
 
 export type Grapheme = {
   char: string;
@@ -11,14 +13,12 @@ let ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null = n
 const advanceCache = new Map<string, FontCache>();
 let segmenter: Intl.Segmenter | null = null;
 
-function getSegmenter(): Intl.Segmenter {
-  if (!segmenter) {
-    segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
-  }
+const getSegmenter = (): Intl.Segmenter => {
+  if (!segmenter) segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
   return segmenter;
-}
+};
 
-function getCtx(): CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D {
+const getCtx = (): CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D => {
   if (ctx) return ctx;
   if (typeof OffscreenCanvas !== "undefined") {
     ctx = new OffscreenCanvas(1, 1).getContext("2d")!;
@@ -28,14 +28,14 @@ function getCtx(): CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D 
     ctx = el.getContext("2d")!;
   }
   return ctx;
-}
+};
 
 /**
  * Per-grapheme advance using Intl.Segmenter + canvas measureText.
  * Same ground truth that Pretext uses internally, but exposed per grapheme
  * so circle / spiral / scatter layouts can distribute along arc length.
  */
-export function measureGraphemes(text: string, font: string): Grapheme[] {
+export const measureGraphemes = (text: string, font: string): Grapheme[] => {
   const seg = getSegmenter();
   const c = getCtx();
   c.font = font;
@@ -54,23 +54,23 @@ export function measureGraphemes(text: string, font: string): Grapheme[] {
     out.push({ char: s.segment, advance: adv });
   }
   return out;
-}
+};
 
 /**
- * Horizontal flow line layout via Pretext. Used by CanvasRenderer when
- * drawing horizontal text without DOM. Returns precomputed lines with
- * widths and cursor ranges.
+ * Horizontal flow line layout via Pretext. Returns precomputed lines with
+ * widths and cursor ranges so callers can render each line without forcing
+ * a DOM reflow.
  */
-export function measureHorizontalFlow(
+export const measureHorizontalFlow = (
   text: string,
   font: string,
   maxWidth: number,
   lineHeight: number,
-): LayoutLine[] {
+): LayoutLine[] => {
   const prep = prepareWithSegments(text, font, { wordBreak: "keep-all" });
   return layoutWithLines(prep, maxWidth, lineHeight).lines;
-}
+};
 
-export function clearMetricsCache(): void {
+export const clearMetricsCache = (): void => {
   advanceCache.clear();
-}
+};

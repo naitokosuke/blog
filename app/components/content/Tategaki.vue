@@ -1,42 +1,58 @@
 <script setup lang="ts">
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  useTemplateRef,
+  watch,
+} from "vue";
 import { measureGraphemes } from "~/utils/tategaki/metrics";
-import { LAYOUTS, type ModeKey, type Position } from "~/utils/tategaki/layouts";
-import { DomRenderer } from "~/utils/tategaki/renderers/dom";
-import type { Renderer, RenderOpts, RenderPayload } from "~/utils/tategaki/renderers/types";
+import { LAYOUTS } from "~/utils/tategaki/layouts";
 
-const MODES: { key: ModeKey; jp: string }[] = [
+import type { ModeKey, Position } from "~/utils/tategaki/layouts";
+
+const MODES: readonly { key: ModeKey; jp: string }[] = [
   { key: "vertical", jp: "縦" },
   { key: "horizontal", jp: "横" },
   { key: "spiral", jp: "螺旋" },
   { key: "scatter", jp: "散" },
-];
+] as const;
 
 const MAX_CHARS = 2000;
 const FONT_FAMILY = "\"Zen Old Mincho\", ui-serif, serif";
 const LINE_HEIGHT = 1.9;
-const TRANSITION_MS = 900;
 const STAGGER_MS = 12;
 
-const props = withDefaults(
-  defineProps<{
-    text?: string;
-    editable?: boolean;
-    mode?: ModeKey;
-  }>(),
-  {
-    text: "",
-    editable: false,
-    mode: "vertical",
-  },
-);
+const {
+  text: textProp = "",
+  editable = false,
+  mode: initialMode = "vertical",
+} = defineProps<{
+  text?: string;
+  editable?: boolean;
+  mode?: ModeKey;
+}>();
 
-const slotHostRef = ref<HTMLDivElement | null>(null);
+defineSlots<{
+  default?: () => unknown;
+}>();
+
+const slotHost = useTemplateRef<HTMLDivElement>("slot-host");
+const stage = useTemplateRef<HTMLDivElement>("stage");
+
 const slotText = ref("");
+const text = ref(textProp);
+const current = ref<ModeKey>(initialMode);
+const seed = ref(0);
+const size = ref({ w: 800, h: 500 });
+
+watch(() => textProp, (v) => {
+  if (!slotText.value) text.value = v;
+});
 
 function extractSlotText(host: HTMLElement): string {
-  if (host.children.length === 0) {
-    return host.textContent?.trim() ?? "";
-  }
+  if (host.children.length === 0) return host.textContent?.trim() ?? "";
   const parts: string[] = [];
   for (const child of Array.from(host.children)) {
     const t = (child.textContent ?? "").trim();
@@ -44,18 +60,6 @@ function extractSlotText(host: HTMLElement): string {
   }
   return parts.join("\n");
 }
-
-const text = ref(props.text);
-watch(() => props.text, (v) => {
-  if (!slotText.value) text.value = v;
-});
-
-const current = ref<ModeKey>(props.mode);
-const seed = ref(0);
-
-const stageRef = ref<HTMLDivElement | null>(null);
-const rendererRef = ref<HTMLDivElement | null>(null);
-const size = ref({ w: 800, h: 500 });
 
 const fontSize = computed(() => {
   const s = Math.min(size.value.w, size.value.h);
@@ -79,91 +83,53 @@ const positions = computed<Position[]>(() => {
   });
 });
 
-let renderer: Renderer | null = null;
-
-function buildOpts(): RenderOpts {
-  const color = import.meta.client
-    ? getComputedStyle(document.documentElement).getPropertyValue("--color-text").trim() || "#1a1614"
-    : "#1a1614";
-  return {
-    fontSize: fontSize.value,
-    fontFamily: FONT_FAMILY,
-    color,
-    transitionMs: TRANSITION_MS,
-    staggerMs: STAGGER_MS,
-  };
+function isBreak(ch: string): boolean {
+  return ch === "\n" || ch === "\r";
 }
 
-function currentPayload(): RenderPayload {
-  if (graphemes.value.length === 0) return { kind: "idle" };
-  return {
-    kind: "positioned",
-    graphemes: graphemes.value,
-    positions: positions.value,
-  };
-}
-
-function mountRenderer() {
-  if (!rendererRef.value) return;
-  renderer?.unmount();
-  renderer = new DomRenderer();
-  renderer.mount(rendererRef.value, buildOpts());
-  renderer.render(currentPayload());
-}
-
-function pushRender() {
-  if (!renderer) return;
-  renderer.setOpts(buildOpts());
-  renderer.render(currentPayload());
-}
-
-watch([current, graphemes, positions, fontSize], () => pushRender(), { deep: true });
-
-const selectMode = (key: ModeKey) => {
+function selectMode(key: ModeKey): void {
   if (key === "scatter" && current.value === "scatter") {
     seed.value += 1;
     return;
   }
   current.value = key;
-};
+}
 
-let ro: ResizeObserver | null = null;
+function clearText(): void {
+  text.value = "";
+}
+
+let resize: ResizeObserver | null = null;
 
 onMounted(() => {
-  if (slotHostRef.value) {
-    const extracted = extractSlotText(slotHostRef.value);
+  if (slotHost.value) {
+    const extracted = extractSlotText(slotHost.value);
     if (extracted) {
       slotText.value = extracted;
       text.value = extracted;
     }
   }
 
-  const update = () => {
-    if (!stageRef.value) return;
-    const r = stageRef.value.getBoundingClientRect();
+  const update = (): void => {
+    if (!stage.value) return;
+    const r = stage.value.getBoundingClientRect();
     size.value = { w: r.width, h: r.height };
-    renderer?.resize(r.width, r.height);
-    renderer?.render(currentPayload());
   };
   update();
-  ro = new ResizeObserver(update);
-  if (stageRef.value) ro.observe(stageRef.value);
-
-  mountRenderer();
+  resize = new ResizeObserver(update);
+  if (stage.value) resize.observe(stage.value);
 });
 
 onBeforeUnmount(() => {
-  ro?.disconnect();
-  ro = null;
-  renderer?.unmount();
-  renderer = null;
+  resize?.disconnect();
+  resize = null;
 });
 </script>
 
 <template>
   <div class="tg-root">
     <div
-      ref="slotHostRef"
+      ref="slot-host"
       class="tg-slot-host"
       aria-hidden="true"
     >
@@ -186,29 +152,36 @@ onBeforeUnmount(() => {
       >
       <button
         v-if="text"
-        class="tg-field-clear"
+        class="tg-clear"
         type="button"
         aria-label="消す"
-        @click="text = ''"
+        @click="clearText"
       >
         ×
       </button>
     </header>
 
     <main
-      ref="stageRef"
-      class="tg-stage-wrap"
+      ref="stage"
+      class="tg-stage"
+      :style="{ '--tg-font-size': `${fontSize}px` }"
+      aria-hidden="true"
     >
-      <div
-        ref="rendererRef"
-        class="tg-renderer-layer"
-        aria-hidden="true"
-      />
+      <span
+        v-for="(pos, i) in positions"
+        :key="i"
+        class="tg-char"
+        :class="{ 'is-break': isBreak(graphemes[i]?.char ?? '') }"
+        :style="{
+          transform: `translate(${pos.x}px, ${pos.y}px) rotate(${pos.rotation}rad)`,
+          transitionDelay: `${i * STAGGER_MS}ms`,
+        }"
+      >{{ isBreak(graphemes[i]?.char ?? '') ? '' : graphemes[i]?.char }}</span>
     </main>
 
     <footer class="tg-bottombar">
       <div
-        class="tg-mode-group"
+        class="tg-modes"
         role="group"
         aria-label="字の配り方"
       >
@@ -216,7 +189,8 @@ onBeforeUnmount(() => {
           v-for="m in MODES"
           :key="m.key"
           type="button"
-          :class="['tg-chip', { 'is-active': current === m.key }]"
+          class="tg-chip"
+          :class="{ 'is-active': current === m.key }"
           :aria-pressed="current === m.key"
           @click="selectMode(m.key)"
         >
@@ -244,16 +218,16 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-rows: 1fr auto;
   font-family: var(--font-sans);
-}
 
-.tg-root:has(.tg-topbar) {
-  grid-template-rows: auto 1fr auto;
-}
+  &:has(.tg-topbar) {
+    grid-template-rows: auto 1fr auto;
+  }
 
-.tg-root *,
-.tg-root *::before,
-.tg-root *::after {
-  box-sizing: border-box;
+  & *,
+  & *::before,
+  & *::after {
+    box-sizing: border-box;
+  }
 }
 
 .tg-slot-host {
@@ -263,75 +237,91 @@ onBeforeUnmount(() => {
 .tg-topbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 0;
+  gap: 0.5rem;
+  padding: 0.625rem 0;
+
+  & .tg-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-text) 15%, transparent);
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--color-text);
+    caret-color: var(--color-accent-hover);
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0;
+
+    &::placeholder {
+      color: color-mix(in oklab, var(--color-text-secondary) 60%, transparent);
+    }
+
+    &:focus {
+      border-bottom-color: var(--color-accent-hover);
+    }
+  }
+
+  & .tg-clear {
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: 1.125rem;
+    line-height: 1;
+    padding: 0 0.25rem;
+    flex-shrink: 0;
+    font-family: inherit;
+
+    &:hover {
+      color: var(--color-accent-hover);
+    }
+  }
 }
 
-.tg-input {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  border: none;
-  outline: none;
-  border-bottom: 1px solid color-mix(in oklab, var(--color-text) 15%, transparent);
-  font-family: inherit;
-  font-size: 1rem;
-  color: var(--color-text);
-  caret-color: var(--color-accent-hover);
-  letter-spacing: 0.08em;
-  padding: 0.25rem 0;
-}
-
-.tg-input::placeholder {
-  color: color-mix(in oklab, var(--color-text-secondary) 60%, transparent);
-}
-
-.tg-input:focus {
-  border-bottom-color: var(--color-accent-hover);
-}
-
-.tg-field-clear {
-  background: transparent;
-  border: none;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
-  padding: 0 4px;
-  flex-shrink: 0;
-  font-family: inherit;
-}
-
-.tg-field-clear:hover {
-  color: var(--color-accent-hover);
-}
-
-.tg-stage-wrap {
+.tg-stage {
   position: relative;
   overflow: hidden;
   aspect-ratio: 16 / 11;
   min-height: 24rem;
+  font-size: var(--tg-font-size);
+
+  @media (width <= 768px) {
+    aspect-ratio: 4 / 5;
+    min-height: 20rem;
+  }
 }
 
-.tg-renderer-layer {
+.tg-char {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  transform-origin: center;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  user-select: none;
   pointer-events: none;
+  line-height: 1;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  font-size: var(--tg-font-size);
+
+  &.is-break {
+    visibility: hidden;
+  }
 }
 
 .tg-bottombar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
   padding: 1.25rem 0 0;
   color: var(--color-text-secondary);
-}
 
-.tg-mode-group,
-.tg-renderer-group {
-  display: flex;
-  gap: 0.25rem;
+  & .tg-modes {
+    display: flex;
+    gap: 0.25rem;
+  }
 }
 
 .tg-chip {
@@ -345,21 +335,16 @@ onBeforeUnmount(() => {
   letter-spacing: 0.18em;
   line-height: 1;
   border-bottom: 1px solid transparent;
-  transition: color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-}
+  transition: color 0.2s ease, border-color 0.2s ease;
 
-.tg-chip:hover:not(:disabled) {
-  color: var(--color-text);
-}
+  &:hover:not(:disabled) {
+    color: var(--color-text);
+  }
 
-.tg-chip.is-active {
-  color: var(--color-text);
-  border-bottom-color: var(--color-accent-hover);
-}
-
-.tg-chip:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+  &.is-active {
+    color: var(--color-text);
+    border-bottom-color: var(--color-accent-hover);
+  }
 }
 
 .tg-sr-only {
@@ -377,15 +362,6 @@ onBeforeUnmount(() => {
 @media (width <= 768px) {
   .tg-root {
     margin: 1.75rem auto;
-  }
-
-  .tg-stage-wrap {
-    aspect-ratio: 4 / 5;
-    min-height: 20rem;
-  }
-
-  .tg-bottombar {
-    gap: 0.75rem;
   }
 
   .tg-chip {
