@@ -44,3 +44,5 @@ devenv.local.yaml
 
 # Nuxt Studio auto-generated
 content/**/.navigation.yml
+
+.claude/settings.local.json
