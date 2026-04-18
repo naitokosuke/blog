@@ -1,9 +1,8 @@
 <script setup lang="ts">
-const { fogOpacity } = useOverlay();
+const { textureOpacity } = useOverlay();
 const canvasRef = useTemplateRef<HTMLCanvasElement>("canvasRef");
 const colorMode = useColorMode();
 
-// シェーダーコード
 const vertexShaderSource = `
   attribute vec2 a_position;
   void main() {
@@ -11,14 +10,15 @@ const vertexShaderSource = `
   }
 `;
 
+// Shader for blood, rust, and darkness
 const fragmentShaderSource = `
   precision mediump float;
 
   uniform float u_time;
   uniform vec2 u_resolution;
-  uniform float u_isLight;
+  uniform float u_isDark;
 
-  // Simplex noise functions
+  // Simplex noise
   vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
   vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
   vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
@@ -58,13 +58,25 @@ const fragmentShaderSource = `
     return 130.0 * dot(m, g);
   }
 
-  // FBM (Fractal Brownian Motion) - 3 octaves (4th/5th contribute < 0.07 amplitude, invisible after smoothstep)
-  float fbm(vec2 p) {
-    float value = 0.0;
-    value += 0.5 * snoise(p);
-    value += 0.25 * snoise(p * 2.0);
-    value += 0.125 * snoise(p * 4.0);
-    return value;
+  // Rotation matrix to reduce axial bias
+  mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);
+
+  // Rust FBM - 3 octaves (4th was 0.05 amplitude, negligible after smoothstep)
+  float rustFbm(vec2 p) {
+    float f = 0.0;
+    f += 0.5000 * snoise(p); p = m2 * p * 1.8;
+    f += 0.3000 * snoise(p); p = m2 * p * 2.2;
+    f += 0.1500 * snoise(p);
+    return f;
+  }
+
+  // Blood FBM (bleeding texture)
+  float bloodFbm(vec2 p) {
+    float f = 0.0;
+    f += 0.6000 * snoise(p); p = m2 * p * 1.5;
+    f += 0.2500 * snoise(p); p = m2 * p * 2.0;
+    f += 0.1000 * snoise(p);
+    return f;
   }
 
   void main() {
@@ -72,35 +84,55 @@ const fragmentShaderSource = `
     float aspect = u_resolution.x / u_resolution.y;
     vec2 p = vec2(uv.x * aspect, uv.y);
 
-    // Slow time for gentle fog movement
-    float t = u_time * 0.02;
+    // Very slow time progression
+    float t = u_time * 0.005;
 
-    // Multiple layers of fog with different speeds and scales
-    float fog1 = fbm(p * 1.5 + vec2(t * 0.3, t * 0.1));
-    float fog2 = fbm(p * 2.5 + vec2(-t * 0.2, t * 0.15));
-    float fog3 = fbm(p * 0.8 + vec2(t * 0.1, -t * 0.05));
+    // === Darkness base color ===
+    vec3 darkness = vec3(0.051, 0.039, 0.035); // #0d0a09
 
-    // Combine fog layers
-    float fog = (fog1 + fog2 * 0.5 + fog3 * 0.7) / 2.2;
+    // === Rust texture ===
+    float rust1 = rustFbm(p * 1.5 + vec2(t * 0.1, 0.0));
+    float rust2 = rustFbm(p * 2.5 + vec2(100.0, t * 0.05));
+    float rust3 = rustFbm(p * 0.8 + vec2(50.0, 30.0));
 
-    // Normalize to 0-1 range
-    fog = fog * 0.5 + 0.5;
+    // Compose rust noise
+    float rustNoise = (rust1 + rust2 * 0.7 + rust3 * 0.5) / 2.2;
+    rustNoise = rustNoise * 0.5 + 0.5;
 
-    // Slight vertical gradient (subtle fade at extreme edges)
-    float verticalFog = 1.0 - abs(uv.y - 0.5) * 0.3;
-    verticalFog = smoothstep(0.0, 1.0, verticalFog);
+    // Rust colors (brighter)
+    vec3 rustColor1 = vec3(0.30, 0.15, 0.10); // rust brown
+    vec3 rustColor2 = vec3(0.45, 0.22, 0.12); // bright rust orange
+    vec3 rustColor = mix(rustColor1, rustColor2, rustNoise);
 
-    // Slight edge gradient (subtle fade at extreme edges)
-    float edgeFog = 1.0 - abs(uv.x - 0.5) * 0.3;
-    edgeFog = smoothstep(0.0, 1.0, edgeFog);
+    // === Blood texture ===
+    float blood1 = bloodFbm(p * 1.2 + vec2(200.0, t * 0.02));
+    float blood2 = bloodFbm(p * 2.0 + vec2(150.0, 80.0));
 
-    fog = fog * mix(0.7, 1.0, verticalFog * edgeFog);
+    float bloodNoise = (blood1 + blood2 * 0.6) / 1.6;
+    bloodNoise = bloodNoise * 0.5 + 0.5;
 
-    // Adjust fog intensity
-    fog = smoothstep(0.1, 0.7, fog) * 0.7;
+    // Blood colors (brighter)
+    vec3 bloodColor1 = vec3(0.22, 0.05, 0.05); // dark blood
+    vec3 bloodColor2 = vec3(0.40, 0.10, 0.08); // bright blood
+    vec3 bloodColor = mix(bloodColor1, bloodColor2, bloodNoise);
 
-    // Black fog for light mode
-    gl_FragColor = vec4(0.0, 0.0, 0.0, fog * u_isLight);
+    // === Composite ===
+    // Scatter rust and blood across the frame with noise
+    float rustAmount = smoothstep(0.30, 0.60, rustNoise);
+    float bloodAmount = smoothstep(0.40, 0.65, bloodNoise);
+
+    vec3 finalColor = darkness;
+
+    // Mix in rust more strongly
+    finalColor = mix(finalColor, rustColor, rustAmount * 0.7);
+
+    // Mix in blood
+    finalColor = mix(finalColor, bloodColor, bloodAmount * 0.5);
+
+    // Only visible in dark mode
+    float alpha = u_isDark;
+
+    gl_FragColor = vec4(finalColor, alpha);
   }
 `;
 
@@ -115,10 +147,10 @@ const FRAME_INTERVAL = 1000 / TARGET_FPS;
 // Cached uniform locations
 let uTimeLoc: WebGLUniformLocation | null = null;
 let uResolutionLoc: WebGLUniformLocation | null = null;
-let uIsLightLoc: WebGLUniformLocation | null = null;
+let uIsDarkLoc: WebGLUniformLocation | null = null;
 
 const prefersReducedMotion = ref(false);
-const isLightMode = ref(false);
+const isDarkMode = ref(false);
 
 function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
@@ -163,7 +195,6 @@ function initWebGL() {
     return;
   }
 
-  // Enable alpha blending
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -174,7 +205,6 @@ function initWebGL() {
   program = createProgram(gl, vs, fs);
   if (!program) return;
 
-  // Create fullscreen quad
   const positions = new Float32Array([
     -1, -1,
     1, -1,
@@ -195,7 +225,7 @@ function initWebGL() {
   // Cache uniform locations
   uTimeLoc = gl.getUniformLocation(program, "u_time");
   uResolutionLoc = gl.getUniformLocation(program, "u_resolution");
-  uIsLightLoc = gl.getUniformLocation(program, "u_isLight");
+  uIsDarkLoc = gl.getUniformLocation(program, "u_isDark");
 
   startTime = performance.now();
   resizeCanvas();
@@ -230,7 +260,6 @@ function render() {
   }
   lastFrameTime = now - (elapsed % FRAME_INTERVAL);
 
-  // Clear with transparent background
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -239,7 +268,7 @@ function render() {
   const time = prefersReducedMotion.value ? 0 : (now - startTime) / 1000;
   gl.uniform1f(uTimeLoc, time);
   gl.uniform2f(uResolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
-  gl.uniform1f(uIsLightLoc, colorMode.value === "light" ? 1.0 : 0.0);
+  gl.uniform1f(uIsDarkLoc, colorMode.value === "dark" ? 1.0 : 0.0);
 
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -261,15 +290,15 @@ function startRender() {
 
 function stopRender() {
   cleanup();
-  // キャンバスをクリア
+  // Clear the canvas
   if (gl) {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
   }
 }
 
-function checkLightMode() {
-  return document.documentElement.classList.contains("light");
+function checkDarkMode() {
+  return document.documentElement.classList.contains("dark");
 }
 
 onMounted(() => {
@@ -282,28 +311,28 @@ onMounted(() => {
 
   window.addEventListener("resize", resizeCanvas);
 
-  // タブの可視性変更を監視（非アクティブ時にレンダリング停止）
+  // Watch tab visibility changes (pause rendering when inactive)
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       cleanup();
     }
-    else if (isLightMode.value) {
+    else if (isDarkMode.value) {
       startRender();
     }
   });
 
-  // 初期状態をチェック
-  isLightMode.value = checkLightMode();
-  if (isLightMode.value) {
+  // Check initial state
+  isDarkMode.value = checkDarkMode();
+  if (isDarkMode.value) {
     startRender();
   }
 
-  // html要素のclass変更を監視
+  // Watch for class changes on the html element
   const observer = new MutationObserver(() => {
-    const newIsLight = checkLightMode();
-    if (newIsLight !== isLightMode.value) {
-      isLightMode.value = newIsLight;
-      if (newIsLight) {
+    const newIsDark = checkDarkMode();
+    if (newIsDark !== isDarkMode.value) {
+      isDarkMode.value = newIsDark;
+      if (newIsDark) {
         startRender();
       }
       else {
@@ -331,7 +360,7 @@ onBeforeUnmount(() => {
 <template>
   <canvas
     ref="canvasRef"
-    :style="{ opacity: fogOpacity }"
+    :style="{ opacity: textureOpacity }"
     width="1"
     height="1"
   />
@@ -341,7 +370,7 @@ onBeforeUnmount(() => {
 canvas {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: -1;
   pointer-events: none;
   touch-action: none;
   user-select: none;

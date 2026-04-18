@@ -2,18 +2,16 @@ let fogAnimationId: number | null = null;
 let textureAnimationId: number | null = null;
 
 export function useOverlay() {
-  // 霧（ライトモード用）
+  // Fog (for light mode)
   const fogEnabled = useState("fogEnabled", () => true);
   const fogOpacity = useState("fogOpacity", () => 1);
 
-  // 血と錆（ダークモード用）
+  // Blood and rust (for dark mode)
   const textureEnabled = useState("textureEnabled", () => true);
   const textureOpacity = useState("textureOpacity", () => 1);
 
   function toggleFog() {
-    if (fogAnimationId !== null) {
-      cancelAnimationFrame(fogAnimationId);
-    }
+    if (fogAnimationId !== null) cancelAnimationFrame(fogAnimationId);
 
     const targetOpacity = fogEnabled.value ? 0 : 1;
     const startOpacity = fogOpacity.value;

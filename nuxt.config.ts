@@ -14,12 +14,16 @@ export default defineNuxtConfig({
 
   components: {
     dirs: [
-      { path: "~/components/content/prose/heading", prefix: "Prose", pathPrefix: false },
-      { path: "~/components/content/prose", prefix: "Prose", pathPrefix: false },
-      { path: "~/components/content", pathPrefix: false },
-      { path: "~/tategaki", pathPrefix: false },
-      { path: "~/components", pathPrefix: true },
+      { path: "~/content/prose/heading", prefix: "Prose", pathPrefix: false },
+      { path: "~/content/prose", prefix: "Prose", pathPrefix: false },
+      { path: "~/content", pathPrefix: false },
+      { path: "~/features", pathPrefix: false },
+      { path: "~/primitives", pathPrefix: false },
     ],
+  },
+
+  imports: {
+    dirs: ["primitives/overlay"],
   },
   devtools: { enabled: true },
 
