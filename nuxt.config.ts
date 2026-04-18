@@ -17,6 +17,7 @@ export default defineNuxtConfig({
       { path: "~/components/content/prose/heading", prefix: "Prose", pathPrefix: false },
       { path: "~/components/content/prose", prefix: "Prose", pathPrefix: false },
       { path: "~/components/content", pathPrefix: false },
+      { path: "~/tategaki", pathPrefix: false },
       { path: "~/components", pathPrefix: true },
     ],
   },

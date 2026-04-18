@@ -7,10 +7,10 @@ import {
   useTemplateRef,
   watch,
 } from "vue";
-import { measureGraphemes } from "~/utils/tategaki/metrics";
-import { LAYOUTS } from "~/utils/tategaki/layouts";
+import { measureGraphemes } from "./metrics";
+import { LAYOUTS } from "./layouts";
 
-import type { ModeKey, Position } from "~/utils/tategaki/layouts";
+import type { ModeKey, Position } from "./layouts";
 
 const MODES: readonly { key: ModeKey; jp: string }[] = [
   { key: "vertical", jp: "縦" },
