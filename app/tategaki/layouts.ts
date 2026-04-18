@@ -1,5 +1,14 @@
-import { prepareWithSegments, layoutWithLines } from "@chenglou/pretext";
+import { layoutWithLines } from "@chenglou/pretext";
+
 import type { Grapheme } from "./metrics";
+import { getPreparedHorizontal } from "./metrics";
+import { isLatinOrDigit } from "./unicode";
+
+const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+
+// -------------------------------------------------------------------------
+// Types
+// -------------------------------------------------------------------------
 
 export type Position = {
   x: number;
@@ -22,141 +31,77 @@ export type LayoutFn = (
   _opts: LayoutOpts,
 ) => Position[];
 
-const rand = (i: number, salt: number, seed: number): number => {
-  const s = Math.sin((i + 1) * 12.9898 + salt * 78.233 + seed * 37.719) * 43758.5453;
-  return s - Math.floor(s);
-};
-
-// Glyphs that need 90° CW rotation in vertical writing (the font's
-// native glyphs assume horizontal flow; we swap them for tategaki by
-// rotating the span itself).
-const VERT_ROTATE = new Set<string>([
-  "「", "」", "『", "』",
-  "（", "）", "(", ")",
-  "［", "］", "[", "]",
-  "【", "】", "〔", "〕",
-  "〈", "〉", "《", "》",
-  "{", "}", "｛", "｝",
-  "<", ">", "＜", "＞",
-  "ー", "〜", "～",
-  "—", "–", "−", "-",
-  "…", "‥",
-]);
-
-// Punctuation that lives at the top-right of its em-box in vertical text
-// rather than centered. Shift position by ~0.3em up-right from the cell center.
-const VERT_CORNER_PUNCT = new Set<string>([
-  "。", "、", "，", "．", "：", "；", ",", ".",
-]);
-
-// Latin letters and digits: follow `text-orientation: mixed` and rotate
-// 90° CW so they flow down the column instead of standing upright.
-const isLatinOrDigit = (ch: string): boolean => {
-  if (ch.length !== 1) return false;
-  const c = ch.charCodeAt(0);
-  return (c >= 0x30 && c <= 0x39) // 0-9
-    || (c >= 0x41 && c <= 0x5a) // A-Z
-    || (c >= 0x61 && c <= 0x7a); // a-z
-};
+// -------------------------------------------------------------------------
+// Implementations
+// -------------------------------------------------------------------------
 
 /**
- * Vertical (tategaki) — right-to-left columns, top-to-bottom within column.
- * Hard breaks (\n in the text) force a new column. vAdvance uses em-square
- * for CJK so chars stack at natural metrics.
+ * Vertical (tategaki). Hard breaks (\n) force a new column. Latin runs
+ * step by their advance so "17" reads tightly stacked instead of each
+ * sitting in a full CJK em cell.
  */
 export const vertical: LayoutFn = (graphemes, { w, h }, { fontSize, lineHeight }) => {
   const padY = fontSize * 1.2;
   const lineGap = fontSize * lineHeight;
   const charAdvance = fontSize * 1.05;
   const columnBottom = h - padY;
-  const cornerShift = fontSize * 0.3;
 
-  // Every Latin letter / digit and the punctuation in VERT_ROTATE rotate
-  // 90° CW in vertical text (matches `text-orientation: mixed`).
-  type Item
-    = | { kind: "newline"; i: number }
-      | { kind: "single"; i: number; rotated: boolean };
-
-  const items: Item[] = [];
-  for (let i = 0; i < graphemes.length; i++) {
-    const ch = graphemes[i]!.char;
-    if (ch === "\n") {
-      items.push({ kind: "newline", i });
-      continue;
-    }
-    const rotated = isLatinOrDigit(ch) || VERT_ROTATE.has(ch);
-    items.push({ kind: "single", i, rotated });
-  }
-
-  // Height this item consumes in the column direction. Rotated Latin/digit
-  // chars step by their (now-vertical) advance so "1 7" read tightly stacked
-  // instead of each sitting in a full CJK em cell.
-  const itemStep = (item: Item): number => {
-    if (item.kind === "newline") return 0;
-    if (!item.rotated) return charAdvance;
-    const g = graphemes[item.i]!;
+  const stepOf = (g: Grapheme): number => {
+    if (g.char === "\n") return 0;
     if (isLatinOrDigit(g.char)) return (g.advance || fontSize) * 1.05;
     return charAdvance;
   };
 
-  // Count columns so we can center the whole block horizontally.
+  // First pass — count columns so we can center the whole block horizontally.
   let colCount = 1;
-  let scanY = padY;
-  for (const item of items) {
-    if (item.kind === "newline") {
-      colCount += 1;
-      scanY = padY;
-      continue;
+  {
+    let y = padY;
+    for (const g of graphemes) {
+      if (g.char === "\n") {
+        colCount += 1;
+        y = padY;
+        continue;
+      }
+      const step = stepOf(g);
+      if (y + step > columnBottom) {
+        colCount += 1;
+        y = padY;
+      }
+      y += step;
     }
-    const step = itemStep(item);
-    if (scanY + step > columnBottom) {
-      colCount += 1;
-      scanY = padY;
-    }
-    scanY += step;
   }
 
   const blockWidth = colCount * lineGap;
   const rightAnchor = (w + blockWidth) / 2;
 
-  const positions: Position[] = Array.from({ length: graphemes.length }, () => ({ x: 0, y: 0, rotation: 0 }));
+  // Second pass — emit positions. CSS handles glyph orientation; layout
+  // only concerns itself with cell placement.
+  const positions: Position[] = Array.from(
+    { length: graphemes.length },
+    () => ({ x: 0, y: 0, rotation: 0 }),
+  );
   let col = 0;
   let y = padY;
 
-  for (const item of items) {
-    if (item.kind === "newline") {
+  for (let i = 0; i < graphemes.length; i++) {
+    const g = graphemes[i]!;
+    if (g.char === "\n") {
       col += 1;
       y = padY;
-      positions[item.i] = { x: 0, y: 0, rotation: 0 };
       continue;
     }
-    const step = itemStep(item);
+    const step = stepOf(g);
     if (y + step > columnBottom) {
       col += 1;
       y = padY;
     }
-    const colCenterX = rightAnchor - col * lineGap;
-
-    const g = graphemes[item.i]!;
-    const ch = g.char;
     const adv = g.advance || fontSize;
-    let ox = 0;
-    let oy = 0;
-    if (VERT_CORNER_PUNCT.has(ch)) {
-      ox = cornerShift;
-      oy = -cornerShift;
-    }
-    // Rotated ASCII: step equals advance, so we align the top of the
-    // rotated bbox to y (not the CJK cell center). Shift y_translate up
-    // by (fontSize - advance) / 2 so the rotated visual top aligns with y.
-    const rotatedAsciiOffsetY
-      = item.rotated && isLatinOrDigit(ch) ? -(fontSize - adv) / 2 : 0;
-    positions[item.i] = {
-      x: colCenterX - adv / 2 + ox,
-      y: y - fontSize / 2 + rotatedAsciiOffsetY + oy,
-      rotation: item.rotated ? Math.PI / 2 : 0,
+    const colCenterX = rightAnchor - col * lineGap;
+    positions[i] = {
+      x: colCenterX - adv / 2,
+      y: y - fontSize / 2,
+      rotation: 0,
     };
-
     y += step;
   }
 
@@ -164,61 +109,54 @@ export const vertical: LayoutFn = (graphemes, { w, h }, { fontSize, lineHeight }
 };
 
 /**
- * Horizontal — line-breaking via Pretext so the break points match what the
- * browser would produce at the same font / width. Per-char positions use the
- * glyph advance cached in `graphemes`. Treats `\n` as a hard break.
+ * Horizontal. Pretext computes line breaks at the same font/width the
+ * browser would, and each glyph is placed by its cached advance.
+ * Treats `\n` as a hard break.
  */
-export const horizontal: LayoutFn = (graphemes, { w }, opts) => {
-  const { fontSize, lineHeight, fontFamily } = opts;
+export const horizontal: LayoutFn = (graphemes, { w }, { fontSize, lineHeight, fontFamily }) => {
+  if (graphemes.length === 0) return [];
+
   const padX = fontSize * 1.4;
   const padY = fontSize * 1.2;
   const lh = fontSize * lineHeight;
   const maxWidth = Math.max(fontSize, w - padX * 2);
-
-  if (graphemes.length === 0) return [];
 
   const text = graphemes.map(g => g.char).join("");
   const font = `${fontSize}px ${fontFamily}`;
 
   let lines: { text: string }[];
   try {
-    const prepared = prepareWithSegments(text, font, {
-      whiteSpace: "pre-wrap",
-      wordBreak: "keep-all",
-    });
-    lines = layoutWithLines(prepared, maxWidth, lh).lines;
+    lines = layoutWithLines(getPreparedHorizontal(text, font), maxWidth, lh).lines;
   }
   catch {
     lines = [{ text }];
   }
 
-  const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
-  const positions: Position[] = Array.from({ length: graphemes.length }, () => ({ x: 0, y: 0, rotation: 0 }));
+  const positions: Position[] = Array.from(
+    { length: graphemes.length },
+    () => ({ x: 0, y: 0, rotation: 0 }),
+  );
   let gi = 0;
   let y = padY;
 
-  const skipBreakGraphemes = () => {
-    while (gi < graphemes.length && (graphemes[gi]!.char === "\n" || graphemes[gi]!.char === "\r")) {
-      positions[gi] = { x: 0, y: 0, rotation: 0 };
+  const skipHardBreaks = (): void => {
+    while (gi < graphemes.length) {
+      const ch = graphemes[gi]!.char;
+      if (ch !== "\n" && ch !== "\r") break;
       gi += 1;
     }
   };
 
   for (const line of lines) {
-    skipBreakGraphemes();
+    skipHardBreaks();
     let x = padX;
-    for (const seg of segmenter.segment(line.text)) {
+    for (const _seg of segmenter.segment(line.text)) {
       if (gi >= graphemes.length) break;
       const g = graphemes[gi]!;
-      const adv = g.advance || fontSize;
-      positions[gi] = {
-        x,
-        y: y - fontSize / 2,
-        rotation: 0,
-      };
-      x += adv;
+      positions[gi] = { x, y: y - fontSize / 2, rotation: 0 };
+      x += g.advance || fontSize;
       gi += 1;
-      void seg;
+      void _seg;
     }
     y += lh;
   }
@@ -229,32 +167,28 @@ export const horizontal: LayoutFn = (graphemes, { w }, opts) => {
   return positions;
 };
 
-/**
- * Spiral — unfolds from center outward along an Archimedean spiral.
- * Chars are placed at equal arc-length increments (numerical integration
- * of ds = sqrt(r^2 + (dr/dθ)^2) dθ) so inner and outer turns hold
- * characters at the same visual spacing. Chars stay upright for readability.
- */
-export const spiral: LayoutFn = (graphemes, { w, h }, { fontSize }) => {
-  const cx = w / 2;
-  const cy = h / 2;
-  const pad = fontSize * 0.4;
-  const outerR = Math.max(fontSize * 3, Math.min(w, h) / 2 - pad);
-  const renderable = graphemes.filter(g => g.char !== "\n");
-  const n = renderable.length;
-  if (n === 0) return graphemes.map(() => ({ x: cx, y: cy, rotation: 0 }));
+// Normalise a rotation to (-π/2, π/2] so chars never end up upside down.
+// Anything past ±π/2 is flipped by π which keeps it readable from above.
+const clampReadable = (rot: number): number => {
+  let v = ((rot + Math.PI) % (2 * Math.PI)) - Math.PI;
+  if (v > Math.PI / 2) v -= Math.PI;
+  else if (v < -Math.PI / 2) v += Math.PI;
+  return v;
+};
 
-  const step = fontSize * 1.08;
-  const turns = Math.max(1.5, Math.min(4, (n * step) / (outerR * Math.PI * 1.4)));
-  const thetaMax = Math.PI * 2 * turns;
-  const dr = outerR / thetaMax;
+type ArcIndex = {
+  totalArc: number;
+  angleAt: (_targetArc: number) => number;
+};
 
-  const SAMPLES = 400;
-  const dTheta = thetaMax / SAMPLES;
+// Numerically integrate arc length along the Archimedean spiral r = dr·θ,
+// then binary-search the θ that lands at a target arc length.
+const buildArcIndex = (dr: number, thetaMax: number, samples = 400): ArcIndex => {
+  const dTheta = thetaMax / samples;
   const cumulative: number[] = [0];
   const thetas: number[] = [0];
   let arc = 0;
-  for (let i = 1; i <= SAMPLES; i++) {
+  for (let i = 1; i <= samples; i++) {
     const th = i * dTheta;
     const r = th * dr;
     const ds = Math.hypot(r, dr) * dTheta;
@@ -262,11 +196,9 @@ export const spiral: LayoutFn = (graphemes, { w, h }, { fontSize }) => {
     cumulative.push(arc);
     thetas.push(th);
   }
-  const totalArc = arc;
-
-  const findAngle = (targetArc: number): number => {
+  const angleAt = (targetArc: number): number => {
     let lo = 0;
-    let hi = SAMPLES;
+    let hi = samples;
     while (lo < hi) {
       const mid = (lo + hi) >> 1;
       if (cumulative[mid]! < targetArc) lo = mid + 1;
@@ -278,44 +210,67 @@ export const spiral: LayoutFn = (graphemes, { w, h }, { fontSize }) => {
     const t = a1 === a0 ? 0 : (targetArc - a0) / (a1 - a0);
     return thetas[j - 1]! + t * (thetas[j]! - thetas[j - 1]!);
   };
+  return { totalArc: arc, angleAt };
+};
 
-  const clampRot = (r: number): number => {
-    let v = ((r + Math.PI) % (2 * Math.PI)) - Math.PI;
-    if (v > Math.PI / 2) v -= Math.PI;
-    else if (v < -Math.PI / 2) v += Math.PI;
-    return v;
-  };
+/**
+ * Spiral — unfolds from center outward, chars at equal arc-length increments
+ * so inner and outer turns hold characters at the same visual spacing.
+ * Rotations are clamped to ±π/2 so no char ends up upside down.
+ */
+export const spiral: LayoutFn = (graphemes, { w, h }, { fontSize }) => {
+  const cx = w / 2;
+  const cy = h / 2;
+  const pad = fontSize * 0.4;
+  const outerR = Math.max(fontSize * 3, Math.min(w, h) / 2 - pad);
+
+  const n = graphemes.reduce((acc, g) => acc + (g.char === "\n" ? 0 : 1), 0);
+  if (n === 0) return graphemes.map(() => ({ x: cx, y: cy, rotation: 0 }));
+
+  const charStep = fontSize * 1.08;
+  const turns = Math.max(1.5, Math.min(4, (n * charStep) / (outerR * Math.PI * 1.4)));
+  const thetaMax = Math.PI * 2 * turns;
+  const dr = outerR / thetaMax;
+  const { totalArc, angleAt } = buildArcIndex(dr, thetaMax);
 
   let idx = 0;
   return graphemes.map((g) => {
     if (g.char === "\n") return { x: 0, y: 0, rotation: 0 };
     const target = ((idx + 0.5) / n) * totalArc;
     idx += 1;
-    const theta = findAngle(target);
+    const theta = angleAt(target);
     const r = theta * dr;
     const angle = -theta - Math.PI / 2;
     return {
       x: cx + Math.cos(angle) * r - fontSize / 2,
       y: cy + Math.sin(angle) * r - fontSize / 2,
-      rotation: clampRot(angle - Math.PI / 2),
+      rotation: clampReadable(angle - Math.PI / 2),
     };
   });
 };
 
+// Seeded pseudo-random in [0, 1). Deterministic per (i, salt, seed) triple so
+// re-renders at the same seed land in the same place.
+const rand = (i: number, salt: number, seed: number): number => {
+  const s = Math.sin((i + 1) * 12.9898 + salt * 78.233 + seed * 37.719) * 43758.5453;
+  return s - Math.floor(s);
+};
+
 export const scatter: LayoutFn = (graphemes, { w, h }, { fontSize, seed = 0 }) => {
   const pad = fontSize * 1.8;
+  const usableW = Math.max(0, w - pad * 2);
+  const usableH = Math.max(0, h - pad * 2);
+
   return graphemes.map((g, i) => {
     if (g.char === "\n") return { x: 0, y: 0, rotation: 0 };
-    const rx = rand(i, 1, seed);
-    const ry = rand(i, 2, seed);
-    const rr = rand(i, 3, seed);
     return {
-      x: pad + rx * Math.max(0, w - pad * 2) - fontSize / 2,
-      y: pad + ry * Math.max(0, h - pad * 2) - fontSize / 2,
-      rotation: (rr - 0.5) * 0.5,
+      x: pad + rand(i, 1, seed) * usableW - fontSize / 2,
+      y: pad + rand(i, 2, seed) * usableH - fontSize / 2,
+      rotation: (rand(i, 3, seed) - 0.5) * 0.5,
     };
   });
 };
 
 export const LAYOUTS = { vertical, horizontal, spiral, scatter } as const;
+
 export type ModeKey = keyof typeof LAYOUTS;

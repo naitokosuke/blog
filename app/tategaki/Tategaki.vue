@@ -164,6 +164,7 @@ onBeforeUnmount(() => {
     <main
       ref="stage"
       class="tg-stage"
+      :class="{ 'is-vertical': current === 'vertical' }"
       :style="{ '--tg-font-size': `${fontSize}px` }"
       aria-hidden="true"
     >
@@ -310,6 +311,16 @@ onBeforeUnmount(() => {
   &.is-break {
     visibility: hidden;
   }
+}
+
+/* Vertical mode: delegate per-char orientation to the browser. It consults
+ * Unicode Vertical_Orientation + the font's vert OpenType feature so CJK
+ * stays upright, Latin/digits rotate, and 「」 。、 ー get their vertical
+ * variants — no hardcoded char set required. */
+.tg-stage.is-vertical .tg-char {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-feature-settings: "vert";
 }
 
 .tg-bottombar {
