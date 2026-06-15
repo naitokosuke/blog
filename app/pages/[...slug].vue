@@ -58,7 +58,7 @@ defineOgImage({
 .share-section {
   display: flex;
   justify-content: center;
-  max-width: var(--max-width);
+  max-width: var(--content-width);
   margin-inline: auto;
   margin-top: 3rem;
   padding-top: 2rem;

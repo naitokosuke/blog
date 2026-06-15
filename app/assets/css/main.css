@@ -23,6 +23,10 @@
 
   /* Spacing */
   --max-width: 1200px;
+
+  /* Reading column width for article body (narrower than the layout shell
+     so long lines stay comfortable to read). */
+  --content-width: 760px;
   --header-height: 64px;
 
   /* Header */
@@ -134,7 +138,7 @@ img {
 
 /* Prose - Markdown content */
 .prose {
-  max-width: var(--max-width);
+  max-width: var(--content-width);
   margin-inline: auto;
 
   & > :first-child {

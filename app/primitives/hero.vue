@@ -25,8 +25,10 @@ defineProps<{
 figure {
   position: relative;
   width: 100%;
+  max-width: var(--content-width);
   height: 300px;
-  margin-bottom: 2rem;
+  margin-block: 0 2rem;
+  margin-inline: auto;
   overflow: hidden;
   border-radius: 8px;
 
