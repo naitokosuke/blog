@@ -7,6 +7,25 @@ const { data, status } = useFetch("/api/ogp", {
   query: { url: props.url },
 });
 
+const imageError = ref(false);
+const faviconError = ref(false);
+
+const thumbImg = useTemplateRef<HTMLImageElement>("thumbImg");
+const faviconImg = useTemplateRef<HTMLImageElement>("faviconImg");
+
+// When the image fails before hydration (e.g. SSR-rendered <img>), the
+// native error event fires before the @error listener is attached and is
+// missed. Re-check on mount: a finished load with no intrinsic size means
+// the image is broken.
+function isBroken(el: HTMLImageElement | null): boolean {
+  return !!el && el.complete && el.naturalWidth === 0;
+}
+
+onMounted(() => {
+  if (isBroken(thumbImg.value)) imageError.value = true;
+  if (isBroken(faviconImg.value)) faviconError.value = true;
+});
+
 const domain = computed(() => {
   try {
     return new URL(props.url).hostname;
@@ -59,24 +78,28 @@ const domain = computed(() => {
       <p v-if="data.description">{{ data.description }}</p>
       <small>
         <img
-          v-if="data.favicon"
+          v-if="data.favicon && !faviconError"
+          ref="faviconImg"
           :src="data.favicon"
           alt=""
           width="16"
           height="16"
           loading="lazy"
+          @error="faviconError = true"
         >
         <span>{{ data.siteName || domain }}</span>
       </small>
     </div>
     <div
-      v-if="data.image"
+      v-if="data.image && !imageError"
       class="thumbnail"
     >
       <img
+        ref="thumbImg"
         :src="data.image"
         alt=""
         loading="lazy"
+        @error="imageError = true"
       >
     </div>
     <span class="sr-only">(新しいタブで開きます)</span>
@@ -164,9 +187,16 @@ const domain = computed(() => {
   }
 
   .thumbnail {
+    position: relative;
     width: 230px;
+    /* Keep the card height driven by the text content, not the image's
+       aspect ratio: the image is absolutely positioned so a square/portrait
+       OG image can't stretch the whole card. */
+    align-self: stretch;
 
     img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
