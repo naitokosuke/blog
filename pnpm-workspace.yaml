@@ -1,15 +1,11 @@
-# pnpm 11 のデフォルトと同値だが、セキュリティ設定なので明示して固定する
-# (公開から 24h 未満のバージョンは解決しない / サプライチェーン対策)
 minimumReleaseAge: 1440
 
 overrides:
   chokidar: "^3.6.0"
 
-# pnpm 11 では .npmrc は auth/registry 専用になり pnpm 設定はこの YAML に置く
 publicHoistPattern:
   - "@shikijs/*"
 
-# pnpm 11 で onlyBuiltDependencies から allowBuilds (マップ) へ移行
 allowBuilds:
   "@parcel/watcher": true
   better-sqlite3: true
