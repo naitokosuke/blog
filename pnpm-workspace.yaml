@@ -1,10 +1,15 @@
+minimumReleaseAge: 1440
+
 overrides:
   chokidar: "^3.6.0"
 
-onlyBuiltDependencies:
-  - "@parcel/watcher"
-  - better-sqlite3
-  - esbuild
-  - lefthook
-  - sharp
-  - unrs-resolver
+publicHoistPattern:
+  - "@shikijs/*"
+
+allowBuilds:
+  "@parcel/watcher": true
+  better-sqlite3: true
+  esbuild: true
+  lefthook: true
+  sharp: true
+  unrs-resolver: true
