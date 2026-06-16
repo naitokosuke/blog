@@ -29,12 +29,9 @@ useSchemaOrg([
   defineWebPage(),
 ]);
 
-defineOgImage({
-  component: "OgImage",
-  props: {
-    title: "blog.naito.dev",
-    description: "ナイトウコウスケのブログ",
-  },
+defineOgImage("Default", {
+  title: "blog.naito.dev",
+  description: "ナイトウコウスケのブログ",
 });
 </script>
 

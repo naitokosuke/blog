@@ -23,13 +23,15 @@
     "@nuxt/fonts": "0.14.0",
     "@nuxt/icon": "2.2.3",
     "@nuxtjs/color-mode": "^4.0.1",
-    "@nuxtjs/seo": "^3.3.0",
+    "@nuxtjs/seo": "^5.3.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@unhead/vue": "^2.0.3",
     "@valibot/to-json-schema": "^1.7.1",
     "eslint": "^9.0.0",
     "nuxt": "^4.4.8",
     "nuxt-studio": "^1.7.0",
     "pg": "^8.21.0",
+    "satori": "^0.26.0",
     "valibot": "^1.4.1"
   },
   "devDependencies": {
