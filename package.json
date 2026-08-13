@@ -37,7 +37,7 @@
     "@iconify-json/mdi": "^1.2.3",
     "@nuxt/hints": "1.1.4",
     "@nuxt/kit": "^4.5.2",
-    "@secretlint/secretlint-rule-preset-recommend": "^11.7.1",
+    "@secretlint/secretlint-rule-preset-recommend": "^13.0.4",
     "@types/node": "^25.9.5",
     "@typescript-eslint/parser": "^8.67.0",
     "debug": "^4.4.3",
@@ -52,7 +52,7 @@
     "remark-gfm": "^4.0.1",
     "remark-mdc": "^3.11.1",
     "remark-rehype": "^11.1.2",
-    "secretlint": "^11.7.1",
+    "secretlint": "^13.0.4",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0"
   }
