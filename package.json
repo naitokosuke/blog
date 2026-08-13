@@ -33,7 +33,9 @@
     "valibot": "^1.4.2"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.123",
     "@iconify-json/mdi": "^1.2.3",
+    "@iconify/vue": "^5.0.1",
     "@nuxt/hints": "1.1.4",
     "@nuxt/kit": "^4.5.2",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.4",
@@ -42,6 +44,7 @@
     "debug": "^4.4.3",
     "eslint": "^10.8.1",
     "eslint-plugin-oxlint": "^1.78.0",
+    "extend": "^3.0.2",
     "lefthook": "^2.1.10",
     "lightningcss": "^1.33.0",
     "oxlint": "^1.78.0",
