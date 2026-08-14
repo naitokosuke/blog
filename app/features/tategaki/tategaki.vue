@@ -165,7 +165,6 @@ onBeforeUnmount(() => {
       ref="stage"
       class="tg-stage"
       :class="{ 'is-vertical': current === 'vertical' }"
-      :style="{ '--tg-font-size': `${fontSize}px` }"
       aria-hidden="true"
     >
       <span
@@ -282,6 +281,8 @@ onBeforeUnmount(() => {
 }
 
 .tg-stage {
+  --tg-font-size: v-bind('`${fontSize}px`');
+
   position: relative;
   overflow: hidden;
   aspect-ratio: 16 / 11;

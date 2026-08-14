@@ -58,13 +58,31 @@ const fragmentShaderSource = `
     return 130.0 * dot(m, g);
   }
 
-  // FBM (Fractal Brownian Motion) - 3 octaves (4th/5th contribute < 0.07 amplitude, invisible after smoothstep)
-  float fbm(vec2 p) {
-    float value = 0.0;
-    value += 0.5 * snoise(p);
-    value += 0.25 * snoise(p * 2.0);
-    value += 0.125 * snoise(p * 4.0);
-    return value;
+  // Rotation matrix to reduce axial bias
+  mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);
+
+  float fbm3(vec2 p) {
+    float f = 0.0;
+    f += 0.5000 * snoise(p); p = m2 * p * 2.02;
+    f += 0.2500 * snoise(p); p = m2 * p * 2.03;
+    f += 0.1250 * snoise(p);
+    return f / 0.875;
+  }
+
+  float fbm4(vec2 p) {
+    float f = 0.0;
+    f += 0.5000 * snoise(p); p = m2 * p * 2.02;
+    f += 0.2500 * snoise(p); p = m2 * p * 2.03;
+    f += 0.1250 * snoise(p); p = m2 * p * 2.01;
+    f += 0.0625 * snoise(p);
+    return f / 0.9375;
+  }
+
+  // Cheap hash for dithering
+  float hash12(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
   }
 
   void main() {
@@ -72,35 +90,43 @@ const fragmentShaderSource = `
     float aspect = u_resolution.x / u_resolution.y;
     vec2 p = vec2(uv.x * aspect, uv.y);
 
+    // Squash y so the fog stretches into horizontal wisps
+    vec2 ps = vec2(p.x * 0.85, p.y * 1.6);
+
     // Slow time for gentle fog movement
     float t = u_time * 0.02;
 
-    // Multiple layers of fog with different speeds and scales
-    float fog1 = fbm(p * 1.5 + vec2(t * 0.3, t * 0.1));
-    float fog2 = fbm(p * 2.5 + vec2(-t * 0.2, t * 0.15));
-    float fog3 = fbm(p * 0.8 + vec2(t * 0.1, -t * 0.05));
+    // Domain warping: warp fields curl the fog into drifting wisps.
+    // Warp fields run at lower frequency than the base noise so wisps
+    // gather in banks instead of swirling uniformly across the frame.
+    vec2 q = vec2(
+      fbm3(ps * 0.55 + vec2(t * 0.35, t * 0.05)),
+      fbm3(ps * 0.55 + vec2(5.2, 1.3) + vec2(-t * 0.25, t * 0.08))
+    );
+    vec2 r = vec2(
+      fbm3(ps * 0.85 + 1.5 * q + vec2(1.7, 9.2) + vec2(t * 0.15, 0.0)),
+      fbm3(ps * 0.85 + 1.5 * q + vec2(8.3, 2.8))
+    );
+    float f = fbm4(ps + 1.7 * r) * 0.5 + 0.5;
 
-    // Combine fog layers
-    float fog = (fog1 + fog2 * 0.5 + fog3 * 0.7) / 2.2;
+    // Wispy density: thin streaks with clear patches of paper between
+    float density = smoothstep(0.34, 0.88, f);
+    density *= 0.55 + 0.45 * smoothstep(0.2, 0.8, q.x * 0.5 + 0.5);
 
-    // Normalize to 0-1 range
-    fog = fog * 0.5 + 0.5;
+    // Keep the reading column clearer, thicken toward the edges
+    vec2 c = uv - 0.5;
+    float edge = smoothstep(0.15, 0.75, length(vec2(c.x * 1.1, c.y * 0.85)));
+    density *= mix(0.45, 1.0, edge);
 
-    // Slight vertical gradient (subtle fade at extreme edges)
-    float verticalFog = 1.0 - abs(uv.y - 0.5) * 0.3;
-    verticalFog = smoothstep(0.0, 1.0, verticalFog);
+    // Warm sumi-ink tone instead of neutral black, darker in the fog cores
+    vec3 ink = mix(vec3(0.24, 0.20, 0.17), vec3(0.10, 0.08, 0.07), smoothstep(0.2, 0.9, r.y * 0.5 + 0.5));
 
-    // Slight edge gradient (subtle fade at extreme edges)
-    float edgeFog = 1.0 - abs(uv.x - 0.5) * 0.3;
-    edgeFog = smoothstep(0.0, 1.0, edgeFog);
+    float alpha = density * 0.55;
 
-    fog = fog * mix(0.7, 1.0, verticalFog * edgeFog);
+    // Dither kills gradient banding in the thin fog ramps
+    alpha += (hash12(gl_FragCoord.xy) - 0.5) * 0.015;
 
-    // Adjust fog intensity
-    fog = smoothstep(0.1, 0.7, fog) * 0.7;
-
-    // Black fog for light mode
-    gl_FragColor = vec4(0.0, 0.0, 0.0, fog * u_isLight);
+    gl_FragColor = vec4(ink, alpha * u_isLight);
   }
 `;
 
@@ -205,7 +231,7 @@ function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!canvas || !gl) return;
 
-  const dpr = Math.min(window.devicePixelRatio, 1.0);
+  const dpr = Math.min(window.devicePixelRatio, 1.5);
   const width = window.innerWidth;
   const height = window.innerHeight;
 
@@ -331,7 +357,6 @@ onBeforeUnmount(() => {
 <template>
   <canvas
     ref="canvasRef"
-    :style="{ opacity: fogOpacity }"
     width="1"
     height="1"
   />
@@ -342,6 +367,7 @@ canvas {
   position: fixed;
   inset: 0;
   z-index: 100;
+  opacity: v-bind(fogOpacity);
   pointer-events: none;
   touch-action: none;
   user-select: none;

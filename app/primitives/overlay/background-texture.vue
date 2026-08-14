@@ -12,7 +12,11 @@ const vertexShaderSource = `
 
 // Shader for blood, rust, and darkness
 const fragmentShaderSource = `
+  #ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+  #else
   precision mediump float;
+  #endif
 
   uniform float u_time;
   uniform vec2 u_resolution;
@@ -61,73 +65,178 @@ const fragmentShaderSource = `
   // Rotation matrix to reduce axial bias
   mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);
 
-  // Rust FBM - 3 octaves (4th was 0.05 amplitude, negligible after smoothstep)
-  float rustFbm(vec2 p) {
+  float fbm3(vec2 p) {
     float f = 0.0;
-    f += 0.5000 * snoise(p); p = m2 * p * 1.8;
-    f += 0.3000 * snoise(p); p = m2 * p * 2.2;
-    f += 0.1500 * snoise(p);
-    return f;
+    f += 0.5000 * snoise(p); p = m2 * p * 2.02;
+    f += 0.2500 * snoise(p); p = m2 * p * 2.03;
+    f += 0.1250 * snoise(p);
+    return f / 0.875;
   }
 
-  // Blood FBM (bleeding texture)
-  float bloodFbm(vec2 p) {
+  float fbm4(vec2 p) {
     float f = 0.0;
-    f += 0.6000 * snoise(p); p = m2 * p * 1.5;
-    f += 0.2500 * snoise(p); p = m2 * p * 2.0;
-    f += 0.1000 * snoise(p);
-    return f;
+    f += 0.5000 * snoise(p); p = m2 * p * 2.02;
+    f += 0.2500 * snoise(p); p = m2 * p * 2.03;
+    f += 0.1250 * snoise(p); p = m2 * p * 2.01;
+    f += 0.0625 * snoise(p);
+    return f / 0.9375;
+  }
+
+  // Cheap hash for film grain / dithering
+  float hash12(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+  }
+
+  // Beer-Lambert-style density response: pigment saturates exponentially
+  // above the onset, leaving a long wet tail instead of a hard band
+  float dens(float x, float onset, float k) {
+    return 1.0 - exp(-max(x - onset, 0.0) * k);
+  }
+
+  // Scalar hash for per-drop lifecycle randomness
+  float hash11(float n) {
+    return fract(sin(n * 12.9898) * 43758.5453);
   }
 
   void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float aspect = u_resolution.x / u_resolution.y;
-    vec2 p = vec2(uv.x * aspect, uv.y);
+    vec2 uvA = vec2(uv.x * aspect, uv.y);
+    vec2 p = uvA * 2.0;
 
-    // Very slow time progression
-    float t = u_time * 0.005;
+    // Slow but perceptible drift
+    float t = u_time * 0.05;
 
     // === Darkness base color ===
     vec3 darkness = vec3(0.051, 0.039, 0.035); // #0d0a09
 
-    // === Rust texture ===
-    float rust1 = rustFbm(p * 1.5 + vec2(t * 0.1, 0.0));
-    float rust2 = rustFbm(p * 2.5 + vec2(100.0, t * 0.05));
-    float rust3 = rustFbm(p * 0.8 + vec2(50.0, 30.0));
+    // Gentle organic distortion — blotchy stains, not marble swirls
+    vec2 w = vec2(
+      fbm3(p * 0.55 + vec2(t * 0.03, 0.0)),
+      fbm3(p * 0.55 + vec2(4.7, 2.3))
+    );
+    vec2 pw = p + 0.38 * w;
 
-    // Compose rust noise
-    float rustNoise = (rust1 + rust2 * 0.7 + rust3 * 0.5) / 2.2;
-    rustNoise = rustNoise * 0.5 + 0.5;
+    // Fiber noise feathers the bleeding edges like ink wicking into paper;
+    // the drifting flow field keeps the bloom fronts writhing as they spread
+    float fiber = fbm3(pw * 5.5) * 0.5 + 0.5;
+    float flow = fbm3(pw * 2.2 + vec2(t * 0.6, -t * 0.4)) * 0.5 + 0.5;
+    float frontNoise = mix(fiber, flow, 0.6);
 
-    // Rust colors (brighter)
-    vec3 rustColor1 = vec3(0.30, 0.15, 0.10); // rust brown
-    vec3 rustColor2 = vec3(0.45, 0.22, 0.12); // bright rust orange
-    vec3 rustColor = mix(rustColor1, rustColor2, rustNoise);
+    // Vertical streak field: corrosion and filth run down the wall
+    float streak = fbm3(vec2(pw.x * 6.0, pw.y * 0.65)) * 0.5 + 0.5;
 
-    // === Blood texture ===
-    float blood1 = bloodFbm(p * 1.2 + vec2(200.0, t * 0.02));
-    float blood2 = bloodFbm(p * 2.0 + vec2(150.0, 80.0));
+    // Grime: the wall is never clean — faint vertical filth over everything
+    float grime = streak * 0.6 + fiber * 0.4;
 
-    float bloodNoise = (blood1 + blood2 * 0.6) / 1.6;
-    bloodNoise = bloodNoise * 0.5 + 0.5;
+    // === Rust: blotches gathered along the run-down streaks, heavily
+    //     granulated like corroded metal ===
+    float rustShape = fbm4(pw * 1.3 + vec2(7.0, 3.0)) * 0.5 + 0.5;
+    float rustEmerge = fbm3(p * 0.45 + vec2(t * 0.8, -t * 0.5)) * 0.5 + 0.5;
+    float rustField = 0.5 + (rustShape - 0.5) * 1.5 + (rustEmerge - 0.5) * 1.0 + (streak - 0.5) * 0.3;
 
-    // Blood colors (brighter)
-    vec3 bloodColor1 = vec3(0.22, 0.05, 0.05); // dark blood
-    vec3 bloodColor2 = vec3(0.40, 0.10, 0.08); // bright blood
-    vec3 bloodColor = mix(bloodColor1, bloodColor2, bloodNoise);
+    float rustWash = dens(rustField + (fiber - 0.5) * 0.36, 0.46, 3.5);
+    float rustCore = dens(rustField + (fiber - 0.5) * 0.16, 0.62, 6.0);
+    float rustGran = 0.45 + 0.55 * smoothstep(0.25, 0.85, fiber); // speckled corrosion
+    float rustHot = smoothstep(0.65, 0.95, fiber) * rustCore; // sparse burnt-orange peaks
 
-    // === Composite ===
-    // Scatter rust and blood across the frame with noise
-    float rustAmount = smoothstep(0.30, 0.60, rustNoise);
-    float bloodAmount = smoothstep(0.40, 0.65, bloodNoise);
+    // === Blood: long soaking halos, dense pools, and drips that run down
+    //     from the pools sitting higher on the wall ===
+    float bloodShape = fbm4(pw * 1.05 + vec2(2.4, 8.8)) * 0.5 + 0.5;
+    float bloodEmerge = fbm3(p * 0.4 + vec2(9.4 - t * 0.65, 4.1 + t * 0.95)) * 0.5 + 0.5;
+    float bloodField = 0.5 + (bloodShape - 0.5) * 1.5 + (bloodEmerge - 0.5) * 1.1;
+
+    float bloodSerum = dens(bloodField + (frontNoise - 0.5) * 0.40, 0.56, 3.0);
+    float bloodMid = dens(bloodField + (frontNoise - 0.5) * 0.24, 0.65, 4.5);
+    float bloodCore = dens(bloodField + (frontNoise - 0.5) * 0.10, 0.74, 8.0);
+
+    // gl_FragCoord's y axis points up, so sampling at +y asks "is there a
+    // blood pool above this pixel?" — its drips run down the streak lines
+    float bloodShapeAbove = fbm4((pw + vec2(0.0, 0.45)) * 1.05 + vec2(2.4, 8.8)) * 0.5 + 0.5;
+    float bloodAbove = 0.5 + (bloodShapeAbove - 0.5) * 1.5 + (bloodEmerge - 0.5) * 1.1;
+    float bloodDrip = dens(bloodAbove, 0.66, 6.0) * smoothstep(0.60, 0.72, streak);
+
+    // === Ink-drop blooms: like ink dropped into water, each drop opens as a
+    //     dense front ring with a thin interior wash. The radius follows a
+    //     diffusion curve (fast at first, then slowing), the front blurs and
+    //     feathers as it travels, then the drop fades and is reborn elsewhere ===
+    float bloodBloomWash = 0.0;
+    float bloodBloomRing = 0.0;
+    for (int i = 0; i < 3; i++) {
+      float fi = float(i);
+      float cycle = mix(12.0, 20.0, hash11(fi * 3.71 + 0.13));
+      float phase = u_time / cycle + hash11(fi * 7.93 + 2.7);
+      float age = fract(phase);
+      float gen = floor(phase);
+      vec2 center = vec2(hash11(fi * 13.17 + gen * 7.77 + 0.31) * aspect, hash11(fi * 29.31 + gen * 3.33 + 1.7));
+      float rmax = mix(0.16, 0.30, hash11(fi * 5.97 + gen * 11.13 + 0.77));
+      float radius = rmax * pow(age, 0.45);
+      float soft = 0.02 + 0.14 * age;
+      float feather = radius * (0.3 + 0.9 * age);
+      float d = length(uvA - center) + (frontNoise - 0.5) * feather;
+      float disk = 1.0 - smoothstep(radius - soft, radius + soft, d);
+      float inner = 1.0 - smoothstep(radius * 0.5 - soft, radius * 0.5 + soft, d);
+      float life = smoothstep(0.0, 0.06, age) * (1.0 - smoothstep(0.55, 1.0, age));
+      bloodBloomWash += inner * life;
+      bloodBloomRing += max(disk - inner, 0.0) * life;
+    }
+    float rustBloomWash = 0.0;
+    float rustBloomRing = 0.0;
+    for (int i = 0; i < 3; i++) {
+      float fi = float(i) + 100.0;
+      float cycle = mix(16.0, 26.0, hash11(fi * 3.71 + 0.13));
+      float phase = u_time / cycle + hash11(fi * 7.93 + 2.7);
+      float age = fract(phase);
+      float gen = floor(phase);
+      vec2 center = vec2(hash11(fi * 13.17 + gen * 7.77 + 0.31) * aspect, hash11(fi * 29.31 + gen * 3.33 + 1.7));
+      float rmax = mix(0.18, 0.34, hash11(fi * 5.97 + gen * 11.13 + 0.77));
+      float radius = rmax * pow(age, 0.45);
+      float soft = 0.02 + 0.16 * age;
+      float feather = radius * (0.35 + 1.0 * age);
+      float d = length(uvA - center) + (frontNoise - 0.5) * feather;
+      float disk = 1.0 - smoothstep(radius - soft, radius + soft, d);
+      float inner = 1.0 - smoothstep(radius * 0.5 - soft, radius * 0.5 + soft, d);
+      float life = smoothstep(0.0, 0.06, age) * (1.0 - smoothstep(0.55, 1.0, age));
+      rustBloomWash += inner * life;
+      rustBloomRing += max(disk - inner, 0.0) * life;
+    }
+
+    // === Composition: keep the reading column calm, push texture to the edges ===
+    vec2 c = uv - 0.5;
+    float calm = smoothstep(0.16, 0.60, length(vec2(c.x * 1.15, c.y * 0.75)));
+    float intensity = mix(0.30, 1.0, calm);
 
     vec3 finalColor = darkness;
 
-    // Mix in rust more strongly
-    finalColor = mix(finalColor, rustColor, rustAmount * 0.7);
+    // Filth pass: everything sits on a dirty, streaked wall
+    finalColor = mix(finalColor, vec3(0.16, 0.13, 0.105), grime * 0.22 * intensity);
 
-    // Mix in blood
-    finalColor = mix(finalColor, bloodColor, bloodAmount * 0.5);
+    // Rust: granular wash, speckled corroded core, sparse burnt-orange peaks
+    finalColor = mix(finalColor, vec3(0.115, 0.06, 0.032), rustWash * rustGran * 0.55 * intensity);
+    finalColor = mix(finalColor, vec3(0.33, 0.16, 0.06), rustCore * rustGran * 0.75 * intensity);
+    finalColor = mix(finalColor, vec3(0.54, 0.29, 0.10), rustHot * 0.55 * intensity);
+
+    // Blood: pale serum edge, long red soak, dense pool, drips running down
+    finalColor = mix(finalColor, vec3(0.14, 0.095, 0.05), bloodSerum * 0.30 * intensity);
+    finalColor = mix(finalColor, vec3(0.23, 0.045, 0.035), bloodMid * 0.55 * intensity);
+    finalColor = mix(finalColor, vec3(0.35, 0.06, 0.045), bloodCore * 0.80 * intensity);
+    finalColor = mix(finalColor, vec3(0.30, 0.05, 0.04), bloodDrip * 0.45 * intensity);
+
+    // Rust blooms: thin interior wash under a denser spreading front
+    finalColor = mix(finalColor, vec3(0.12, 0.07, 0.045), min(rustBloomWash, 1.0) * 0.45 * intensity);
+    finalColor = mix(finalColor, vec3(0.28, 0.14, 0.06), min(rustBloomRing, 1.0) * 0.65 * intensity);
+
+    // Blood blooms open on top
+    finalColor = mix(finalColor, vec3(0.15, 0.03, 0.03), min(bloodBloomWash, 1.0) * 0.50 * intensity);
+    finalColor = mix(finalColor, vec3(0.30, 0.05, 0.045), min(bloodBloomRing, 1.0) * 0.75 * intensity);
+
+    // Corner vignette
+    finalColor *= 1.0 - smoothstep(0.55, 0.95, length(c)) * 0.35;
+
+    // Film grain kills gradient banding on the dark ramps
+    finalColor += (hash12(gl_FragCoord.xy) - 0.5) * 0.02;
 
     // Only visible in dark mode
     float alpha = u_isDark;
@@ -235,7 +344,7 @@ function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!canvas || !gl) return;
 
-  const dpr = Math.min(window.devicePixelRatio, 1.0);
+  const dpr = Math.min(window.devicePixelRatio, 1.5);
   const width = window.innerWidth;
   const height = window.innerHeight;
 
@@ -360,7 +469,6 @@ onBeforeUnmount(() => {
 <template>
   <canvas
     ref="canvasRef"
-    :style="{ opacity: textureOpacity }"
     width="1"
     height="1"
   />
@@ -371,6 +479,7 @@ canvas {
   position: fixed;
   inset: 0;
   z-index: -1;
+  opacity: v-bind(textureOpacity);
   pointer-events: none;
   touch-action: none;
   user-select: none;
