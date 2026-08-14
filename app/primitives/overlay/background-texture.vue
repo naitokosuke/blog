@@ -10,7 +10,10 @@ const vertexShaderSource = `
   }
 `;
 
-// Shader for blood, rust, and darkness
+// SILENT HILL 3 Otherworld wall: rust built from real iron-oxide strata
+// (magnetite core -> hematite -> fresh goethite rim), blood spreading like
+// sumi ink dropped on a water surface (closed-form marbling rings + a dense
+// diffusion front + radial filaments).
 const fragmentShaderSource = `
   #ifdef GL_FRAGMENT_PRECISION_HIGH
   precision highp float;
@@ -82,22 +85,71 @@ const fragmentShaderSource = `
     return f / 0.9375;
   }
 
-  // Cheap hash for film grain / dithering
+  // Cheap hashes for grain, pit cells, and per-drop lifecycle randomness
   float hash12(vec2 p) {
     vec3 p3 = fract(vec3(p.xyx) * 0.1031);
     p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.x + p3.y) * p3.z);
   }
 
-  // Beer-Lambert-style density response: pigment saturates exponentially
-  // above the onset, leaving a long wet tail instead of a hard band
-  float dens(float x, float onset, float k) {
-    return 1.0 - exp(-max(x - onset, 0.0) * k);
-  }
-
-  // Scalar hash for per-drop lifecycle randomness
   float hash11(float n) {
     return fract(sin(n * 12.9898) * 43758.5453);
+  }
+
+  vec2 hash22(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xx + p3.yz) * p3.zy);
+  }
+
+  // Worley F1 for pitting corrosion: returns distance to the nearest feature
+  // point and the id of its cell so pits can be culled per-pit, not per-pixel
+  float worleyF1(vec2 p, out vec2 cellId) {
+    vec2 ip = floor(p);
+    vec2 fp = fract(p);
+    float d = 8.0;
+    cellId = ip;
+    for (int j = -1; j <= 1; j++) {
+      for (int i = -1; i <= 1; i++) {
+        vec2 g = vec2(float(i), float(j));
+        vec2 o = hash22(ip + g);
+        vec2 r = g + o - fp;
+        float dd = dot(r, r);
+        if (dd < d) {
+          d = dd;
+          cellId = ip + g;
+        }
+      }
+    }
+    return sqrt(d);
+  }
+
+  // Iron-oxide color ramp, dark to bright: magnetite black-brown, old
+  // hematite red-brown, #942D00 / #B7410E rust body, fresh goethite orange,
+  // powdery akaganeite ochre. Values darkened ~55% to sit behind text.
+  vec3 rustRamp(float t) {
+    vec3 c = mix(vec3(0.050, 0.036, 0.030), vec3(0.135, 0.085, 0.075), smoothstep(0.00, 0.30, t));
+    c = mix(c, vec3(0.210, 0.085, 0.030), smoothstep(0.30, 0.60, t));
+    c = mix(c, vec3(0.270, 0.115, 0.045), smoothstep(0.60, 0.80, t));
+    c = mix(c, vec3(0.300, 0.160, 0.100), smoothstep(0.80, 0.92, t));
+    c = mix(c, vec3(0.290, 0.200, 0.110), smoothstep(0.92, 1.00, t));
+    return c;
+  }
+
+  // Ink-drop lifecycle: each drop is reborn elsewhere every cycle; the radius
+  // follows the physical diffusion curve (fast at first, then slowing)
+  void dropParams(float fi, float aspect, out vec2 center, out float R, out float rmax, out float age) {
+    // One shared ~30s clock with quarter-cycle offsets: a fresh bloom is always
+    // opening somewhere, so the fast-spreading phase never leaves the screen
+    float phase = u_time * 0.033 + fi * 0.25 + hash11(fi * 7.93 + 2.7) * 0.05;
+    age = fract(phase);
+    float gen = floor(phase);
+    center = vec2(
+      hash11(fi * 13.17 + gen * 7.77 + 0.31) * aspect,
+      hash11(fi * 29.31 + gen * 3.33 + 1.7)
+    );
+    rmax = mix(0.26, 0.46, hash11(fi * 5.97 + gen * 11.13 + 0.77));
+    R = max(rmax * (1.0 - exp(-4.0 * age)), 0.0001);
   }
 
   void main() {
@@ -105,143 +157,155 @@ const fragmentShaderSource = `
     float aspect = u_resolution.x / u_resolution.y;
     vec2 uvA = vec2(uv.x * aspect, uv.y);
     vec2 p = uvA * 2.0;
+    float vY = 1.0 - uv.y; // 0 at top, grows downward: gravity for run-off
 
-    // Slow but perceptible drift
-    float t = u_time * 0.05;
-
-    // === Darkness base color ===
-    vec3 darkness = vec3(0.051, 0.039, 0.035); // #0d0a09
-
-    // Gentle organic distortion — blotchy stains, not marble swirls
-    vec2 w = vec2(
-      fbm3(p * 0.55 + vec2(t * 0.03, 0.0)),
-      fbm3(p * 0.55 + vec2(4.7, 2.3))
-    );
-    vec2 pw = p + 0.38 * w;
-
-    // Fiber noise feathers the bleeding edges like ink wicking into paper;
-    // the drifting flow field keeps the bloom fronts writhing as they spread
-    float fiber = fbm3(pw * 5.5) * 0.5 + 0.5;
-    float flow = fbm3(pw * 2.2 + vec2(t * 0.6, -t * 0.4)) * 0.5 + 0.5;
-    float frontNoise = mix(fiber, flow, 0.6);
-
-    // Vertical streak field: corrosion and filth run down the wall
-    float streak = fbm3(vec2(pw.x * 6.0, pw.y * 0.65)) * 0.5 + 0.5;
-
-    // Grime: the wall is never clean — faint vertical filth over everything
-    float grime = streak * 0.6 + fiber * 0.4;
-
-    // === Rust: blotches gathered along the run-down streaks, heavily
-    //     granulated like corroded metal ===
-    float rustShape = fbm4(pw * 1.3 + vec2(7.0, 3.0)) * 0.5 + 0.5;
-    float rustEmerge = fbm3(p * 0.45 + vec2(t * 0.8, -t * 0.5)) * 0.5 + 0.5;
-    float rustField = 0.5 + (rustShape - 0.5) * 1.5 + (rustEmerge - 0.5) * 1.0 + (streak - 0.5) * 0.3;
-
-    float rustWash = dens(rustField + (fiber - 0.5) * 0.36, 0.46, 3.5);
-    float rustCore = dens(rustField + (fiber - 0.5) * 0.16, 0.62, 6.0);
-    float rustGran = 0.45 + 0.55 * smoothstep(0.25, 0.85, fiber); // speckled corrosion
-    float rustHot = smoothstep(0.65, 0.95, fiber) * rustCore; // sparse burnt-orange peaks
-
-    // === Blood: long soaking halos, dense pools, and drips that run down
-    //     from the pools sitting higher on the wall ===
-    float bloodShape = fbm4(pw * 1.05 + vec2(2.4, 8.8)) * 0.5 + 0.5;
-    float bloodEmerge = fbm3(p * 0.4 + vec2(9.4 - t * 0.65, 4.1 + t * 0.95)) * 0.5 + 0.5;
-    float bloodField = 0.5 + (bloodShape - 0.5) * 1.5 + (bloodEmerge - 0.5) * 1.1;
-
-    float bloodSerum = dens(bloodField + (frontNoise - 0.5) * 0.40, 0.56, 3.0);
-    float bloodMid = dens(bloodField + (frontNoise - 0.5) * 0.24, 0.65, 4.5);
-    float bloodCore = dens(bloodField + (frontNoise - 0.5) * 0.10, 0.74, 8.0);
-
-    // gl_FragCoord's y axis points up, so sampling at +y asks "is there a
-    // blood pool above this pixel?" — its drips run down the streak lines
-    float bloodShapeAbove = fbm4((pw + vec2(0.0, 0.45)) * 1.05 + vec2(2.4, 8.8)) * 0.5 + 0.5;
-    float bloodAbove = 0.5 + (bloodShapeAbove - 0.5) * 1.5 + (bloodEmerge - 0.5) * 1.1;
-    float bloodDrip = dens(bloodAbove, 0.66, 6.0) * smoothstep(0.60, 0.72, streak);
-
-    // === Ink-drop blooms: like ink dropped into water, each drop opens as a
-    //     dense front ring with a thin interior wash. The radius follows a
-    //     diffusion curve (fast at first, then slowing), the front blurs and
-    //     feathers as it travels, then the drop fades and is reborn elsewhere ===
-    float bloodBloomWash = 0.0;
-    float bloodBloomRing = 0.0;
-    for (int i = 0; i < 3; i++) {
-      float fi = float(i);
-      float cycle = mix(12.0, 20.0, hash11(fi * 3.71 + 0.13));
-      float phase = u_time / cycle + hash11(fi * 7.93 + 2.7);
-      float age = fract(phase);
-      float gen = floor(phase);
-      vec2 center = vec2(hash11(fi * 13.17 + gen * 7.77 + 0.31) * aspect, hash11(fi * 29.31 + gen * 3.33 + 1.7));
-      float rmax = mix(0.16, 0.30, hash11(fi * 5.97 + gen * 11.13 + 0.77));
-      float radius = rmax * pow(age, 0.45);
-      float soft = 0.02 + 0.14 * age;
-      float feather = radius * (0.3 + 0.9 * age);
-      float d = length(uvA - center) + (frontNoise - 0.5) * feather;
-      float disk = 1.0 - smoothstep(radius - soft, radius + soft, d);
-      float inner = 1.0 - smoothstep(radius * 0.5 - soft, radius * 0.5 + soft, d);
-      float life = smoothstep(0.0, 0.06, age) * (1.0 - smoothstep(0.55, 1.0, age));
-      bloodBloomWash += inner * life;
-      bloodBloomRing += max(disk - inner, 0.0) * life;
-    }
-    float rustBloomWash = 0.0;
-    float rustBloomRing = 0.0;
-    for (int i = 0; i < 3; i++) {
-      float fi = float(i) + 100.0;
-      float cycle = mix(16.0, 26.0, hash11(fi * 3.71 + 0.13));
-      float phase = u_time / cycle + hash11(fi * 7.93 + 2.7);
-      float age = fract(phase);
-      float gen = floor(phase);
-      vec2 center = vec2(hash11(fi * 13.17 + gen * 7.77 + 0.31) * aspect, hash11(fi * 29.31 + gen * 3.33 + 1.7));
-      float rmax = mix(0.18, 0.34, hash11(fi * 5.97 + gen * 11.13 + 0.77));
-      float radius = rmax * pow(age, 0.45);
-      float soft = 0.02 + 0.16 * age;
-      float feather = radius * (0.35 + 1.0 * age);
-      float d = length(uvA - center) + (frontNoise - 0.5) * feather;
-      float disk = 1.0 - smoothstep(radius - soft, radius + soft, d);
-      float inner = 1.0 - smoothstep(radius * 0.5 - soft, radius * 0.5 + soft, d);
-      float life = smoothstep(0.0, 0.06, age) * (1.0 - smoothstep(0.55, 1.0, age));
-      rustBloomWash += inner * life;
-      rustBloomRing += max(disk - inner, 0.0) * life;
-    }
-
-    // === Composition: keep the reading column calm, push texture to the edges ===
+    // Keep the reading column calm, push texture to the edges
     vec2 c = uv - 0.5;
     float calm = smoothstep(0.16, 0.60, length(vec2(c.x * 1.15, c.y * 0.75)));
     float intensity = mix(0.30, 1.0, calm);
 
-    vec3 finalColor = darkness;
+    vec3 col = vec3(0.051, 0.039, 0.035); // #0d0a09 darkness
 
-    // Filth pass: everything sits on a dirty, streaked wall
-    finalColor = mix(finalColor, vec3(0.16, 0.13, 0.105), grime * 0.22 * intensity);
+    // === Wall filth: faint vertical grime, the wall is never clean ===
+    float grime = fbm3(vec2(p.x * 6.0, p.y * 0.7)) * 0.5 + 0.5;
+    col = mix(col, vec3(0.125, 0.105, 0.085), grime * 0.16 * intensity);
 
-    // Rust: granular wash, speckled corroded core, sparse burnt-orange peaks
-    finalColor = mix(finalColor, vec3(0.115, 0.06, 0.032), rustWash * rustGran * 0.55 * intensity);
-    finalColor = mix(finalColor, vec3(0.33, 0.16, 0.06), rustCore * rustGran * 0.75 * intensity);
-    finalColor = mix(finalColor, vec3(0.54, 0.29, 0.10), rustHot * 0.55 * intensity);
+    // === Rust patches ===
+    // Warp frequency is kept at/above the patch frequency with modest
+    // amplitude: crumpled blotch outlines, not laminar marble smears
+    vec2 wR = vec2(
+      fbm3(p * 1.7 + vec2(2.3, 9.1)),
+      fbm3(p * 1.7 + vec2(8.4, 3.2))
+    );
+    float gran = snoise(p * 48.0) * 0.6 + snoise(p * 96.0) * 0.4; // powdery mm-scale
+    float fR = fbm4(p * 1.35 + 0.5 * wR + vec2(5.1, 0.7)) * 0.5 + 0.5;
+    fR += 0.045 * gran; // rust creeps granularly: speckled patch edges
 
-    // Blood: pale serum edge, long red soak, dense pool, drips running down
-    finalColor = mix(finalColor, vec3(0.14, 0.095, 0.05), bloodSerum * 0.30 * intensity);
-    finalColor = mix(finalColor, vec3(0.23, 0.045, 0.035), bloodMid * 0.55 * intensity);
-    finalColor = mix(finalColor, vec3(0.35, 0.06, 0.045), bloodCore * 0.80 * intensity);
-    finalColor = mix(finalColor, vec3(0.30, 0.05, 0.04), bloodDrip * 0.45 * intensity);
+    float M = smoothstep(0.55, 0.62, fR); // hard-ish edge, per SH3 crushed tones
+    float rimR = smoothstep(0.51, 0.55, fR) * (1.0 - smoothstep(0.56, 0.64, fR));
+    float ageR = smoothstep(0.60, 0.88, fR); // deeper into the patch = older
 
-    // Rust blooms: thin interior wash under a denser spreading front
-    finalColor = mix(finalColor, vec3(0.12, 0.07, 0.045), min(rustBloomWash, 1.0) * 0.45 * intensity);
-    finalColor = mix(finalColor, vec3(0.28, 0.14, 0.06), min(rustBloomRing, 1.0) * 0.65 * intensity);
+    // Stratification: dark oxygen-starved core, red-brown body, fresh orange
+    // rim where the corrosion front is advancing under the paint
+    float tone = clamp(0.75 * rimR + (1.0 - ageR) * 0.42 + 0.26 * (gran * 0.5 + 0.5), 0.0, 1.0);
+    float rustA = max(M, rimR * 0.85) * (0.62 + 0.38 * (gran * 0.5 + 0.5));
+    col = mix(col, rustRamp(tone), rustA * 0.9 * intensity);
 
-    // Blood blooms open on top
-    finalColor = mix(finalColor, vec3(0.15, 0.03, 0.03), min(bloodBloomWash, 1.0) * 0.50 * intensity);
-    finalColor = mix(finalColor, vec3(0.30, 0.05, 0.045), min(bloodBloomRing, 1.0) * 0.75 * intensity);
+    // === Pitting corrosion: sparse dark pinholes with a faint rust halo ===
+    vec2 pitCell;
+    float wp = worleyF1(uvA * 46.0, pitCell);
+    float pit = 1.0 - smoothstep(0.05, 0.16, wp);
+    float halo = (1.0 - smoothstep(0.16, 0.40, wp)) - pit;
+    float pitStrength = step(0.62, hash12(pitCell + 7.3)) * (0.30 + 0.70 * M);
+    col = mix(col, rustRamp(0.62), clamp(halo, 0.0, 1.0) * 0.30 * pitStrength * intensity);
+    col = mix(col, vec3(0.030, 0.022, 0.019), clamp(pit, 0.0, 1.0) * 0.85 * pitStrength * intensity);
+
+    // Matte powdery grain, strongest on corroded areas
+    col *= 1.0 + 0.055 * gran * (0.25 + 0.75 * M);
+
+    // === Rust run-off: water carries oxide down from patches in narrow,
+    //     slightly meandering vertical bleeds ===
+    float xx = uvA.x + 0.012 * snoise(vec2(vY * 5.0, 31.7));
+    float srcY = 0.08 + 0.50 * (snoise(vec2(xx * 3.5, 9.2)) * 0.5 + 0.5);
+    float column = smoothstep(0.60, 0.88, clamp(snoise(vec2(xx * 70.0, 1.7)) * 0.5 + 0.5, 0.0, 1.0));
+    float lenS = mix(0.15, 0.70, snoise(vec2(xx * 11.0, 5.5)) * 0.5 + 0.5);
+    float fall = vY - srcY;
+    float streak = column * smoothstep(0.0, 0.03, fall) * (1.0 - smoothstep(lenS * 0.55, lenS, fall));
+    streak *= 0.65 + 0.35 * (snoise(vec2(xx * 85.0, vY * 6.0)) * 0.5 + 0.5);
+    // Only bleed below columns that actually hold rust at the source height
+    float fSrc = fbm4(vec2(xx, 1.0 - srcY) * 2.7 + vec2(5.1, 0.7)) * 0.5 + 0.5;
+    streak *= smoothstep(0.42, 0.52, fSrc);
+    // Semi-transparent oxide stain: darkens what it crosses and warms it,
+    // so bleeds stay visible over both bare wall and rust patches
+    col = mix(col, col * 0.5 + vec3(0.085, 0.038, 0.018), clamp(streak, 0.0, 1.0) * 0.75 * intensity);
+
+    // === Old dried blood: hard-edged dark maroon stains, no swirling ===
+    float driedF = fbm3(p * 0.8 + 0.2 * wR + vec2(4.7, 1.9)) * 0.5 + 0.5;
+    float dried = smoothstep(0.63, 0.70, driedF);
+    col = mix(col, vec3(0.102, 0.030, 0.026), dried * 0.55 * intensity);
+
+    // === Fresh blood as sumi ink on water ===
+    // A shared writhing field: time is injected into the phase via length(q)
+    // so the distortion swirls instead of translating
+    vec2 qi = uvA;
+    qi += 0.022 * sin(vec2(0.38, 0.33) * u_time + length(qi) * vec2(4.1, 4.3));
+    vec2 iw = vec2(
+      fbm3(qi * 2.6 + vec2(u_time * 0.09, -u_time * 0.065)),
+      fbm3(qi * 2.6 + vec2(3.1 + u_time * 0.07, 7.7 + u_time * 0.10))
+    );
+
+    // Fibrous nijimi texture: ink wicking into paper. Coupled to the flow
+    // field so the feathered fingers visibly crawl along the front
+    float fiber = fbm3(uvA * 14.0 - iw * 0.3 + vec2(0.0, u_time * 0.015)) * 0.5 + 0.5;
+
+    float inkWash = 0.0;
+    float inkRing = 0.0;
+    float inkFront = 0.0;
+    for (int i = 0; i < 4; i++) {
+      float fi = float(i);
+      vec2 Ci; float Ri; float rmaxI; float ageI;
+      dropParams(fi, aspect, Ci, Ri, rmaxI, ageI);
+
+      // Instability grows with age: young drops are clean rings, old ones writhe
+      vec2 P = uvA + iw * (rmaxI * (0.15 + 0.50 * ageI));
+
+      // Closed-form marbling: neighbouring drops shove this drop's rings
+      // aside area-preservingly (P mapped back to its pre-drop position)
+      for (int j = 0; j < 4; j++) {
+        if (j == i) continue;
+        vec2 Cj; float Rj; float rmaxJ; float ageJ;
+        dropParams(float(j), aspect, Cj, Rj, rmaxJ, ageJ);
+        vec2 v = P - Cj;
+        float L2 = max(dot(v, v), 0.000001);
+        P = Cj + v * sqrt(max(1.0 - (Rj * Rj * 0.55) / L2, 0.0));
+      }
+
+      vec2 dp = P - Ci;
+      float dist = length(dp);
+      float life = smoothstep(0.0, 0.05, ageI) * (1.0 - smoothstep(0.60, 0.98, ageI));
+
+      // Suminagashi ring lattice: bands at sqrt(k) * r0, thinner outward;
+      // the fiber jitter makes the year-rings bleed instead of staying crisp
+      float r0 = Ri / 3.0;
+      float ru = min(dot(dp, dp) / max(r0 * r0, 0.000001), 64.0);
+      float tri = abs(2.0 * fract(0.5 * (ru + (fiber - 0.5) * 0.9)) - 1.0);
+      float rings = smoothstep(0.45, 0.75, tri);
+      float inside = 1.0 - smoothstep(Ri * 0.92, Ri * 1.04, dist + (fiber - 0.5) * Ri * 0.35);
+      float core = 1.0 - smoothstep(0.25, 0.9, ru);
+
+      // Dense diffusion front: fiber noise breaks it into wicking fingers
+      // that creep as the flow field advects, and it blurs as it travels
+      float sd = dist - Ri + (fiber - 0.5) * Ri * 0.45;
+      float wRim = rmaxI * (0.015 + 0.09 * ageI);
+      float rim = exp(-sd * sd / (wRim * wRim)) * (1.0 - 0.45 * ageI) * (0.7 + 0.6 * fiber);
+
+      // Filaments licking outward: ridged noise, fine across the angle,
+      // stretched along the radius so the spikes point away from the drop
+      float theta = atan(dp.y, dp.x);
+      float fn = snoise(vec2(theta * 5.0, dist * 2.2 / rmaxI - ageI * 2.6) + hash11(fi * 91.7) * 19.0);
+      float fil = pow(max(1.0 - abs(fn) * 1.7, 0.0), 2.0);
+      float filWin = smoothstep(Ri * 0.8, Ri, dist) * (1.0 - smoothstep(Ri, Ri * 1.6, dist));
+
+      // Interior pooling drifts with the flow so old drops keep moving
+      float pool = 0.72 + 0.28 * (iw.x * 0.5 + 0.5);
+      inkWash += (core * 0.6 + inside * 0.22) * pool * life;
+      inkRing += rings * inside * 0.85 * life;
+      inkFront += (rim + fil * filWin * 0.8) * life;
+    }
+    col = mix(col, vec3(0.115, 0.030, 0.027), clamp(inkWash, 0.0, 1.0) * 0.75 * intensity);
+    col = mix(col, vec3(0.235, 0.042, 0.034), clamp(inkRing, 0.0, 1.0) * 0.85 * intensity);
+    col = mix(col, vec3(0.315, 0.058, 0.044), clamp(inkFront, 0.0, 1.0) * 0.9 * intensity);
 
     // Corner vignette
-    finalColor *= 1.0 - smoothstep(0.55, 0.95, length(c)) * 0.35;
+    col *= 1.0 - smoothstep(0.55, 0.95, length(c)) * 0.35;
 
-    // Film grain kills gradient banding on the dark ramps
-    finalColor += (hash12(gl_FragCoord.xy) - 0.5) * 0.02;
+    // Flickering film grain (static under reduced motion since u_time stays 0)
+    float grainT = floor(u_time * 8.0);
+    float grain = hash12(gl_FragCoord.xy + vec2(mod(grainT, 64.0), mod(grainT * 1.7, 64.0)));
+    col += (grain - 0.5) * 0.022;
 
     // Only visible in dark mode
-    float alpha = u_isDark;
-
-    gl_FragColor = vec4(finalColor, alpha);
+    gl_FragColor = vec4(col, u_isDark);
   }
 `;
 
