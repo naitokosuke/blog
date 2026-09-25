@@ -134,6 +134,7 @@ onBeforeUnmount(() => {
         type="text"
         class="tg-input"
         :maxlength="MAX_CHARS"
+        aria-label="文字を写す"
         placeholder="文字を写す"
         spellcheck="false"
         autocapitalize="off"
@@ -172,7 +173,7 @@ onBeforeUnmount(() => {
           class="tg-chip"
           :class="{ 'is-active': current === m.key }"
           :aria-pressed="current === m.key"
-          @click="selectMode(m.key)"
+          @click="() => selectMode(m.key)"
         >
           {{ m.jp }}
         </button>

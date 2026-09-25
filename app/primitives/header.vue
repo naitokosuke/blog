@@ -19,6 +19,7 @@ const isLight = computed(() => colorMode.value === "light");
         <ClientOnly>
           <button
             v-if="isLight"
+            type="button"
             :aria-label="fogEnabled ? 'Clear fog' : 'Show fog'"
             @click="toggleFog"
           >
@@ -26,6 +27,7 @@ const isLight = computed(() => colorMode.value === "light");
           </button>
           <button
             v-else
+            type="button"
             :aria-label="textureEnabled ? 'Hide texture' : 'Show texture'"
             @click="toggleTexture"
           >

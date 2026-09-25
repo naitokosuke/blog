@@ -18,6 +18,7 @@ defineProps<{
     <!-- Background image -->
     <img
       src="/og-background.png"
+      alt=""
       :style="{
         position: 'absolute',
         top: '0',

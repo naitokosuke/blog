@@ -37,14 +37,16 @@ defineOgImage("Default", {
 </script>
 
 <template>
-  <div v-if="page">
-    <Hero :title="page.title ?? ''" show-share />
-    <article class="prose">
-      <ContentRenderer :value="page" />
-    </article>
-    <div class="share-section">
-      <ShareButtons :title="page.title ?? ''" />
-    </div>
+  <div>
+    <template v-if="page">
+      <Hero :title="page.title ?? ''" show-share />
+      <article class="prose">
+        <ContentRenderer :value="page" />
+      </article>
+      <div class="share-section">
+        <ShareButtons :title="page.title ?? ''" />
+      </div>
+    </template>
   </div>
 </template>
 

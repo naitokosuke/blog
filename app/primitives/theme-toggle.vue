@@ -1,24 +1,24 @@
 <script setup lang="ts">
 const colorMode = useColorMode();
 
-const isDark = computed({
-  get: () => colorMode.value === "dark",
-  set: () => {
-    colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
-  },
-});
+const isDark = computed(() => colorMode.value === "dark");
+
+function toggleTheme(): void {
+  colorMode.preference = isDark.value ? "light" : "dark";
+}
 </script>
 
 <template>
   <ClientOnly>
     <button
+      type="button"
       :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-      @click="isDark = !isDark"
+      @click="toggleTheme"
     >
       {{ isDark ? "表" : "裏" }}
     </button>
     <template #fallback>
-      <button aria-label="Toggle theme">暗</button>
+      <button type="button" aria-label="Toggle theme">暗</button>
     </template>
   </ClientOnly>
 </template>

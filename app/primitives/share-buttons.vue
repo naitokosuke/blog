@@ -39,7 +39,7 @@ async function copyUrl() {
 <template>
   <div class="share-buttons">
     <a
-      :href="xShareUrl"
+      :href="safeUrl(xShareUrl)"
       target="_blank"
       rel="noopener noreferrer"
       class="share-button"

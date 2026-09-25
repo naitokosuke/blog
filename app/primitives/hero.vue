@@ -10,7 +10,7 @@ defineProps<{
     <img src="/og-background.png" :alt="title" />
     <figcaption>
       <span class="title">{{ title }}</span>
-      <ShareButtons v-if="showShare" :title="title" />
+      <ShareButtons v-if="showShare" :title />
     </figcaption>
   </figure>
 </template>
