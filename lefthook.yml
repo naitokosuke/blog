@@ -1,4 +1,4 @@
 pre-commit:
   jobs:
     - name: secretlint
-      run: pnpm exec secretlint {staged_files}
+      run: vp exec secretlint {staged_files}

@@ -7,10 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "lint": "oxlint && eslint . && vp lint && vp fmt --check",
-    "lint:vue": "vp lint",
-    "oxlint": "oxlint",
-    "fmt": "oxlint --fix && eslint . --fix && vp fmt",
+    "lint": "vp lint && eslint . && vp fmt --check",
+    "fmt": "eslint . --fix && vp fmt",
     "secretlint": "secretlint '**/*'"
   },
   "dependencies": {

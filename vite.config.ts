@@ -1,7 +1,7 @@
 // Vite+ only. Nuxt does not read this file — Vite options for the app live in
-// nuxt.config.ts under `vite`. This exists so `vp lint` / `vp fmt` have their
-// config blocks, which are the only Oxlint/Oxfmt config Vite+ reads (it ignores
-// .oxlintrc.json).
+// nuxt.config.ts under `vite`. The blocks below are the only Oxlint/Oxfmt
+// config Vite+ reads: `vp lint` and `vp fmt` ignore .oxlintrc.json and
+// .oxfmtrc.json, which is why this repo has neither.
 import { createVizeLintConfig } from "oxlint-plugin-vize";
 import { defineConfig } from "vite-plus";
 
