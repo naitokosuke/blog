@@ -1,6 +1,0 @@
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "rules": {
-    "unicorn/filename-case": ["error", { "case": "kebabCase" }]
-  }
-}

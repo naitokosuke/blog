@@ -8,53 +8,30 @@ const isLight = computed(() => colorMode.value === "light");
 <template>
   <header>
     <nav>
-      <NuxtLink
-        to="/"
-        class="logo"
-      >
-        blog.naito.dev
-      </NuxtLink>
+      <NuxtLink to="/" class="logo"> blog.naito.dev </NuxtLink>
       <div class="actions">
-        <NuxtLink
-          to="/feed.xml"
-          external
-          aria-label="RSS Feed"
-        >
-          <Icon
-            name="lucide:rss"
-            size="20"
-          />
+        <NuxtLink to="/feed.xml" external aria-label="RSS Feed">
+          <Icon name="lucide:rss" size="20" />
         </NuxtLink>
-        <NuxtLink
-          to="https://github.com/naitokosuke/blog"
-          target="_blank"
-          aria-label="GitHub"
-        >
-          <Icon
-            name="mdi:github"
-            size="20"
-          />
+        <NuxtLink to="https://github.com/naitokosuke/blog" target="_blank" aria-label="GitHub">
+          <Icon name="mdi:github" size="20" />
         </NuxtLink>
         <ClientOnly>
           <button
             v-if="isLight"
+            type="button"
             :aria-label="fogEnabled ? 'Clear fog' : 'Show fog'"
             @click="toggleFog"
           >
-            <Icon
-              :name="fogEnabled ? 'lucide:wind' : 'lucide:cloud-fog'"
-              size="20"
-            />
+            <Icon :name="fogEnabled ? 'lucide:wind' : 'lucide:cloud-fog'" size="20" />
           </button>
           <button
             v-else
+            type="button"
             :aria-label="textureEnabled ? 'Hide texture' : 'Show texture'"
             @click="toggleTexture"
           >
-            <Icon
-              :name="textureEnabled ? 'lucide:eye-off' : 'lucide:eye'"
-              size="20"
-            />
+            <Icon :name="textureEnabled ? 'lucide:eye-off' : 'lucide:eye'" size="20" />
           </button>
         </ClientOnly>
         <ThemeToggle />
@@ -108,7 +85,9 @@ header {
       border-radius: 8px;
       color: var(--color-text-secondary);
       cursor: pointer;
-      transition: background-color 0.2s, color 0.2s;
+      transition:
+        background-color 0.2s,
+        color 0.2s;
 
       &:hover {
         background-color: var(--color-bg-secondary);

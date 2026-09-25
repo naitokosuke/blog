@@ -4,14 +4,14 @@ naitokosuke のブログ。SILENT HILL にインスパイアされた「血と�
 
 ## Documentation
 
-| ドキュメント | 説明 |
-|-------------|------|
-| [Architecture](./architecture.md) | アーキテクチャと技術スタック |
-| [Components](./components.md) | コンポーネント設計と命名規則 |
-| [Content Authoring](./content-authoring.md) | 記事の書き方 |
-| [Deployment](./deployment.md) | デプロイと CI/CD |
-| [Typography](./typography.md) | タイポグラフィ設計 |
-| [Theme](./theme/index.md) | デザインシステム |
+| ドキュメント                                | 説明                         |
+| ------------------------------------------- | ---------------------------- |
+| [Architecture](./architecture.md)           | アーキテクチャと技術スタック |
+| [Components](./components.md)               | コンポーネント設計と命名規則 |
+| [Content Authoring](./content-authoring.md) | 記事の書き方                 |
+| [Deployment](./deployment.md)               | デプロイと CI/CD             |
+| [Typography](./typography.md)               | タイポグラフィ設計           |
+| [Theme](./theme/index.md)                   | デザインシステム             |
 
 ## Quick Start
 

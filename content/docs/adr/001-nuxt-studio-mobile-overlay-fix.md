@@ -88,6 +88,7 @@ export default defineNuxtPlugin(() => {
 ```
 
 **理由**:
+
 - `nuxt-studio` 要素は動的に DOM に追加されるため、MutationObserver で監視
 - CSS のみでは確実に適用されない場合があるため、JavaScript でも設定
 - z-index を CSS (9999) より高い値 (99999) に設定し、確実にオーバーレイより上に配置
@@ -99,6 +100,7 @@ export default defineNuxtPlugin(() => {
 Nuxt Studio が提供するボタンを使わず、独自の `StudioEditButton.vue` を実装する案。
 
 **却下理由**:
+
 - `usePreviewMode` composable は `enabled` (Ref) と `state` のみを提供し、編集モードの切り替えメソッドがない
 - Nuxt Studio の認証フローと密結合しており、独自実装では認証状態を適切に管理できない
 - 車輪の再発明を避ける
@@ -108,6 +110,7 @@ Nuxt Studio が提供するボタンを使わず、独自の `StudioEditButton.v
 `FogOverlay.vue` の z-index を 100 から 1 に下げる案。
 
 **却下理由**:
+
 - 試行した結果、ヘッダーの表示が壊れた
 - 他のコンポーネントとの z-index 関係を崩す可能性がある
 

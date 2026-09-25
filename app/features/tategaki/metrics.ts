@@ -20,8 +20,7 @@ const getCtx = (): CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D 
   if (ctx) return ctx;
   if (typeof OffscreenCanvas !== "undefined") {
     ctx = new OffscreenCanvas(1, 1).getContext("2d")!;
-  }
-  else {
+  } else {
     ctx = document.createElement("canvas").getContext("2d")!;
   }
   return ctx;
@@ -69,10 +68,7 @@ type PreparedKey = { text: string; font: string };
 let lastPreparedKey: PreparedKey | null = null;
 let lastPrepared: PreparedTextWithSegments | null = null;
 
-export const getPreparedHorizontal = (
-  text: string,
-  font: string,
-): PreparedTextWithSegments => {
+export const getPreparedHorizontal = (text: string, font: string): PreparedTextWithSegments => {
   if (lastPrepared && lastPreparedKey?.text === text && lastPreparedKey?.font === font) {
     return lastPrepared;
   }

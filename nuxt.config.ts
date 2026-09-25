@@ -3,7 +3,6 @@ export default defineNuxtConfig({
   modules: [
     "./modules/content-assets.ts",
     "@nuxt/content",
-    "@nuxt/eslint",
     "@nuxt/fonts",
     "@nuxt/hints",
     "@nuxt/icon",
@@ -88,15 +87,6 @@ export default defineNuxtConfig({
     },
     build: {
       cssMinify: "lightningcss",
-    },
-  },
-  eslint: {
-    config: {
-      stylistic: {
-        indent: 2,
-        quotes: "double",
-        semi: true,
-      },
     },
   },
   ogImage: {

@@ -26,10 +26,12 @@ useSeoMeta({
 </script>
 
 <template>
-  <div v-if="page">
-    <Hero :title="title" />
-    <article class="prose">
-      <ContentRenderer :value="page" />
-    </article>
+  <div>
+    <template v-if="page">
+      <Hero :title />
+      <article class="prose">
+        <ContentRenderer :value="page" />
+      </article>
+    </template>
   </div>
 </template>

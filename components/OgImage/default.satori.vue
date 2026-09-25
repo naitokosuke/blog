@@ -18,6 +18,7 @@ defineProps<{
     <!-- Background image -->
     <img
       src="/og-background.png"
+      alt=""
       :style="{
         position: 'absolute',
         top: '0',
@@ -26,7 +27,7 @@ defineProps<{
         height: '100%',
         objectFit: 'cover',
       }"
-    >
+    />
 
     <!-- Dark overlay for text readability -->
     <div
@@ -105,7 +106,7 @@ defineProps<{
             fontFamily: 'Zen Old Mincho, serif',
           }"
         >
-          {{ siteName || 'naitokosuke blog' }}
+          {{ siteName || "naitokosuke blog" }}
         </div>
       </div>
     </div>

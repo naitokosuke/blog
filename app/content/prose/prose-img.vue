@@ -8,10 +8,5 @@ defineProps<{
 </script>
 
 <template>
-  <img
-    :src="src"
-    :alt="alt"
-    :width="width"
-    :height="height"
-  >
+  <img :src="safeUrl(src)" :alt="alt" :width="width" :height="height" />
 </template>

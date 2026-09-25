@@ -54,9 +54,9 @@ nr preview
 
 ### Required Secrets
 
-| 名前 | 説明 |
-|------|------|
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API トークン |
+| 名前                    | 説明                     |
+| ----------------------- | ------------------------ |
+| `CLOUDFLARE_API_TOKEN`  | Cloudflare API トークン  |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare アカウント ID |
 
 ## Wrangler Configuration

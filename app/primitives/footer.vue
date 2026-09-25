@@ -1,9 +1,7 @@
 <template>
   <footer>
     <div>
-      <p>
-        &copy; {{ new Date().getFullYear() }} naitokosuke
-      </p>
+      <p>&copy; {{ new Date().getFullYear() }} naitokosuke</p>
     </div>
   </footer>
 </template>

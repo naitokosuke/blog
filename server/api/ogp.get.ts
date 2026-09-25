@@ -32,7 +32,7 @@ function findElements(node: { childNodes?: ChildNode[] }, tagName: string): Elem
 }
 
 function getAttr(el: Element, name: string): string | undefined {
-  return el.attrs.find(a => a.name === name)?.value;
+  return el.attrs.find((a) => a.name === name)?.value;
 }
 
 function getTextContent(el: Element): string {
@@ -41,8 +41,7 @@ function getTextContent(el: Element): string {
   for (const child of el.childNodes) {
     if (child.nodeName === "#text" && "value" in child) {
       text += child.value;
-    }
-    else if (isElement(child)) {
+    } else if (isElement(child)) {
       text += getTextContent(child);
     }
   }
@@ -53,8 +52,7 @@ function resolveUrl(base: string, relative: string): string {
   if (!relative) return "";
   try {
     return new URL(relative, base).href;
-  }
-  catch {
+  } catch {
     return relative;
   }
 }
@@ -70,8 +68,7 @@ export default defineEventHandler(async (event) => {
   let parsedUrl: URL;
   try {
     parsedUrl = new URL(url);
-  }
-  catch {
+  } catch {
     throw createError({ statusCode: 400, statusMessage: "Invalid URL" });
   }
 
@@ -80,13 +77,12 @@ export default defineEventHandler(async (event) => {
     html = await $fetch<string>(url, {
       headers: {
         "User-Agent": "bot",
-        "Accept": "text/html",
+        Accept: "text/html",
       },
       timeout: 5000,
       responseType: "text",
     });
-  }
-  catch {
+  } catch {
     throw createError({ statusCode: 502, statusMessage: "Failed to fetch the target URL" });
   }
 
