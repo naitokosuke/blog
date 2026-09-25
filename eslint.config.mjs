@@ -8,6 +8,9 @@ export default withNuxt(
   {
     rules: {
       "vue/multi-word-component-names": "off",
+      // oxfmt writes void elements self-closing (`<img />`) and vize's
+      // vue/html-self-closing agrees; this rule wants the opposite.
+      "vue/html-self-closing": "off",
     },
   },
   {

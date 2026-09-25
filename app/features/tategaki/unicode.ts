@@ -11,7 +11,9 @@
 export const isLatinOrDigit = (ch: string): boolean => {
   if (ch.length !== 1) return false;
   const c = ch.charCodeAt(0);
-  return (c >= 0x30 && c <= 0x39) // 0-9
-    || (c >= 0x41 && c <= 0x5a) // A-Z
-    || (c >= 0x61 && c <= 0x7a); // a-z
+  return (
+    (c >= 0x30 && c <= 0x39) || // 0-9
+    (c >= 0x41 && c <= 0x5a) || // A-Z
+    (c >= 0x61 && c <= 0x7a)
+  ); // a-z
 };

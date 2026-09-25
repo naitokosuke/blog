@@ -31,7 +31,7 @@ export function getCollectionByFilePath(path, collections) {
     const paths = path === "/" ? ["index.yml", "index.yaml", "index.md", "index.json"] : [path];
     return paths.some((p) => {
       matchedSource = collection2.source.find((source) => {
-        const include = minimatch(p, source.include, { dot: true });  // ← ここが問題
+        const include = minimatch(p, source.include, { dot: true }); // ← ここが問題
         const exclude = source.exclude?.some((exclude2) => minimatch(p, exclude2));
         return include && !exclude;
       });
@@ -75,7 +75,7 @@ const resolvedSource = {
   // ...
   ...source,
   include: source.include,
-  cwd: ""  // ← 最後に空文字列で上書きされる！
+  cwd: "", // ← 最後に空文字列で上書きされる！
 };
 ```
 
@@ -96,41 +96,44 @@ const resolvedSource = {
 ### 修正案
 
 ```typescript
-export function getCollectionByFilePath(path: string, collections: Record<string, CollectionInfo>): CollectionInfo | undefined {
-  let matchedSource: ResolvedCollectionSource | undefined
+export function getCollectionByFilePath(
+  path: string,
+  collections: Record<string, CollectionInfo>,
+): CollectionInfo | undefined {
+  let matchedSource: ResolvedCollectionSource | undefined;
   const sortedCollections = Object.values(collections).sort((a, b) => {
-    return (b.source[0]?.prefix?.length || 0) - (a.source[0]?.prefix?.length || 0)
-  })
+    return (b.source[0]?.prefix?.length || 0) - (a.source[0]?.prefix?.length || 0);
+  });
   const collection = sortedCollections.find((collection) => {
     if (!collection.source || collection.source.length === 0) {
-      return
+      return;
     }
 
-    const paths = path === '/' ? ['index.yml', 'index.yaml', 'index.md', 'index.json'] : [path]
+    const paths = path === "/" ? ["index.yml", "index.yaml", "index.md", "index.json"] : [path];
     return paths.some((p) => {
       matchedSource = collection.source.find((source) => {
         // prefix が "/" 以外の場合（例: "/docs"）、
         // そのソースは別のディレクトリのファイルを管理している。
         // content ディレクトリからの相対パス（fsPath）は
         // そのような collection にはマッチしないようにする。
-        const prefix = source.prefix || '/'
-        if (prefix !== '/') {
+        const prefix = source.prefix || "/";
+        if (prefix !== "/") {
           // この source は content 以外のディレクトリを参照している
           // fsPath は content からの相対パスなのでマッチしない
-          return false
+          return false;
         }
 
-        const include = minimatch(p, source.include, { dot: true })
-        const exclude = source.exclude?.some(exclude => minimatch(p, exclude))
+        const include = minimatch(p, source.include, { dot: true });
+        const exclude = source.exclude?.some((exclude) => minimatch(p, exclude));
 
-        return include && !exclude
-      })
+        return include && !exclude;
+      });
 
-      return matchedSource
-    })
-  })
+      return matchedSource;
+    });
+  });
 
-  return collection
+  return collection;
 }
 ```
 

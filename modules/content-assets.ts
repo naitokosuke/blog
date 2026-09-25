@@ -18,8 +18,7 @@ export default defineNuxtModule({
         if (entry === "images") {
           const baseURL = "/" + relative(contentDir, fullPath).replace(/\\/g, "/");
           results.push({ fullPath, baseURL });
-        }
-        else {
+        } else {
           results.push(...findImageDirs(fullPath));
         }
       }

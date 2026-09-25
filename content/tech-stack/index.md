@@ -122,7 +122,8 @@ JS Plugin 対応をやってくれているみたいでとてもありがたい�
 ::
 
 > Not supported yet:
-> * Language server (IDE) support + suggestions (so no in-editor diagnostics or quick-fixes yet).
+>
+> - Language server (IDE) support + suggestions (so no in-editor diagnostics or quick-fixes yet).
 
 それぞれの分担みたいなのがよくわかってない。\
 規模が小さいプロジェクトなので Oxlint のパワーを享受できているのかもよくわかってない。

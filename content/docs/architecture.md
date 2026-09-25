@@ -4,13 +4,13 @@
 
 ## Tech Stack
 
-| 技術 | 用途 |
-|------|------|
-| Nuxt 4 | フレームワーク |
-| Nuxt Content v3 | Markdown コンテンツ管理 |
-| Cloudflare Workers | ホスティング (Static) |
-| Valibot | スキーマバリデーション |
-| oxlint + ESLint | Lint |
+| 技術               | 用途                    |
+| ------------------ | ----------------------- |
+| Nuxt 4             | フレームワーク          |
+| Nuxt Content v3    | Markdown コンテンツ管理 |
+| Cloudflare Workers | ホスティング (Static)   |
+| Valibot            | スキーマバリデーション  |
+| oxlint + ESLint    | Lint                    |
 
 ## Directory Structure
 
@@ -55,6 +55,7 @@ const posts = defineCollection({
 ### @nuxtjs/seo
 
 SEO 関連モジュール群:
+
 - sitemap
 - robots
 - og-image (Zen Old Mincho フォント使用)
@@ -101,5 +102,6 @@ components: {
 ### Markdown Rendering
 
 Nuxt Content のデフォルト Prose コンポーネントをカスタマイズ:
+
 - 見出し (h2-h4) にアンカーリンクを追加
 - 画像を NuxtImg でラップして最適化

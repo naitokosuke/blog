@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  useTemplateRef,
-  watch,
-} from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import { measureGraphemes } from "./metrics";
 import { LAYOUTS } from "./layouts";
 
@@ -20,7 +13,7 @@ const MODES: readonly { key: ModeKey; jp: string }[] = [
 ] as const;
 
 const MAX_CHARS = 2000;
-const FONT_FAMILY = "\"Zen Old Mincho\", ui-serif, serif";
+const FONT_FAMILY = '"Zen Old Mincho", ui-serif, serif';
 const LINE_HEIGHT = 1.9;
 const STAGGER_MS = 12;
 
@@ -47,9 +40,12 @@ const current = ref<ModeKey>(initialMode);
 const seed = ref(0);
 const size = ref({ w: 800, h: 500 });
 
-watch(() => textProp, (v) => {
-  if (!slotText.value) text.value = v;
-});
+watch(
+  () => textProp,
+  (v) => {
+    if (!slotText.value) text.value = v;
+  },
+);
 
 function extractSlotText(host: HTMLElement): string {
   if (host.children.length === 0) return host.textContent?.trim() ?? "";
@@ -128,18 +124,11 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="tg-root">
-    <div
-      ref="slot-host"
-      class="tg-slot-host"
-      aria-hidden="true"
-    >
+    <div ref="slot-host" class="tg-slot-host" aria-hidden="true">
       <slot />
     </div>
 
-    <header
-      v-if="editable"
-      class="tg-topbar"
-    >
+    <header v-if="editable" class="tg-topbar">
       <input
         v-model="text"
         type="text"
@@ -149,14 +138,8 @@ onBeforeUnmount(() => {
         spellcheck="false"
         autocapitalize="off"
         autocorrect="off"
-      >
-      <button
-        v-if="text"
-        class="tg-clear"
-        type="button"
-        aria-label="消す"
-        @click="clearText"
-      >
+      />
+      <button v-if="text" class="tg-clear" type="button" aria-label="消す" @click="clearText">
         ×
       </button>
     </header>
@@ -176,15 +159,12 @@ onBeforeUnmount(() => {
           transform: `translate(${pos.x}px, ${pos.y}px) rotate(${pos.rotation}rad)`,
           transitionDelay: `${i * STAGGER_MS}ms`,
         }"
-      >{{ isBreak(graphemes[i]?.char ?? '') ? '' : graphemes[i]?.char }}</span>
+        >{{ isBreak(graphemes[i]?.char ?? "") ? "" : graphemes[i]?.char }}</span
+      >
     </main>
 
     <footer class="tg-bottombar">
-      <div
-        class="tg-modes"
-        role="group"
-        aria-label="字の配り方"
-      >
+      <div class="tg-modes" role="group" aria-label="字の配り方">
         <button
           v-for="m in MODES"
           :key="m.key"
@@ -199,10 +179,7 @@ onBeforeUnmount(() => {
       </div>
     </footer>
 
-    <p
-      v-if="text"
-      class="tg-sr-only"
-    >
+    <p v-if="text" class="tg-sr-only">
       {{ text }}
     </p>
   </div>
@@ -281,7 +258,7 @@ onBeforeUnmount(() => {
 }
 
 .tg-stage {
-  --tg-font-size: v-bind('`${fontSize}px`');
+  --tg-font-size: v-bind("`${fontSize}px`");
 
   position: relative;
   overflow: hidden;
@@ -347,7 +324,9 @@ onBeforeUnmount(() => {
   letter-spacing: 0.18em;
   line-height: 1;
   border-bottom: 1px solid transparent;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
 
   &:hover:not(:disabled) {
     color: var(--color-text);

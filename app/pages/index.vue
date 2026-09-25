@@ -39,19 +39,14 @@ defineOgImage("Default", {
   <div class="posts">
     <h1>Posts</h1>
     <ul v-if="posts?.length">
-      <li
-        v-for="post in posts"
-        :key="post.path"
-      >
+      <li v-for="post in posts" :key="post.path">
         <NuxtLink :to="post.path">
           <time v-if="post.date">{{ displayDate(post.date) }}</time>
           <span class="title">{{ post.title }}</span>
         </NuxtLink>
       </li>
     </ul>
-    <p v-else>
-      No posts yet.
-    </p>
+    <p v-else>No posts yet.</p>
   </div>
 </template>
 

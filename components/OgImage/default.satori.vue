@@ -26,7 +26,7 @@ defineProps<{
         height: '100%',
         objectFit: 'cover',
       }"
-    >
+    />
 
     <!-- Dark overlay for text readability -->
     <div
@@ -105,7 +105,7 @@ defineProps<{
             fontFamily: 'Zen Old Mincho, serif',
           }"
         >
-          {{ siteName || 'naitokosuke blog' }}
+          {{ siteName || "naitokosuke blog" }}
         </div>
       </div>
     </div>

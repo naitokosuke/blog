@@ -162,7 +162,11 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string): 
   return shader;
 }
 
-function createProgram(gl: WebGLRenderingContext, vs: WebGLShader, fs: WebGLShader): WebGLProgram | null {
+function createProgram(
+  gl: WebGLRenderingContext,
+  vs: WebGLShader,
+  fs: WebGLShader,
+): WebGLProgram | null {
   const prog = gl.createProgram();
   if (!prog) return null;
 
@@ -201,14 +205,7 @@ function initWebGL() {
   if (!program) return;
 
   // Create fullscreen quad
-  const positions = new Float32Array([
-    -1, -1,
-    1, -1,
-    -1, 1,
-    -1, 1,
-    1, -1,
-    1, 1,
-  ]);
+  const positions = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 
   const buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -312,8 +309,7 @@ onMounted(() => {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       cleanup();
-    }
-    else if (isLightMode.value) {
+    } else if (isLightMode.value) {
       startRender();
     }
   });
@@ -331,8 +327,7 @@ onMounted(() => {
       isLightMode.value = newIsLight;
       if (newIsLight) {
         startRender();
-      }
-      else {
+      } else {
         stopRender();
       }
     }
@@ -355,11 +350,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <canvas
-    ref="canvasRef"
-    width="1"
-    height="1"
-  />
+  <canvas ref="canvasRef" width="1" height="1" />
 </template>
 
 <style scoped>

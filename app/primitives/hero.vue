@@ -7,16 +7,10 @@ defineProps<{
 
 <template>
   <figure>
-    <img
-      src="/og-background.png"
-      :alt="title"
-    >
+    <img src="/og-background.png" :alt="title" />
     <figcaption>
       <span class="title">{{ title }}</span>
-      <ShareButtons
-        v-if="showShare"
-        :title="title"
-      />
+      <ShareButtons v-if="showShare" :title="title" />
     </figcaption>
   </figure>
 </template>

@@ -25,11 +25,7 @@ export type LayoutOpts = {
   seed?: number;
 };
 
-export type LayoutFn = (
-  _graphemes: Grapheme[],
-  _bounds: Bounds,
-  _opts: LayoutOpts,
-) => Position[];
+export type LayoutFn = (_graphemes: Grapheme[], _bounds: Bounds, _opts: LayoutOpts) => Position[];
 
 // -------------------------------------------------------------------------
 // Implementations
@@ -76,10 +72,11 @@ export const vertical: LayoutFn = (graphemes, { w, h }, { fontSize, lineHeight }
 
   // Second pass — emit positions. CSS handles glyph orientation; layout
   // only concerns itself with cell placement.
-  const positions: Position[] = Array.from(
-    { length: graphemes.length },
-    () => ({ x: 0, y: 0, rotation: 0 }),
-  );
+  const positions: Position[] = Array.from({ length: graphemes.length }, () => ({
+    x: 0,
+    y: 0,
+    rotation: 0,
+  }));
   let col = 0;
   let y = padY;
 
@@ -121,21 +118,21 @@ export const horizontal: LayoutFn = (graphemes, { w }, { fontSize, lineHeight, f
   const lh = fontSize * lineHeight;
   const maxWidth = Math.max(fontSize, w - padX * 2);
 
-  const text = graphemes.map(g => g.char).join("");
+  const text = graphemes.map((g) => g.char).join("");
   const font = `${fontSize}px ${fontFamily}`;
 
   let lines: { text: string }[];
   try {
     lines = layoutWithLines(getPreparedHorizontal(text, font), maxWidth, lh).lines;
-  }
-  catch {
+  } catch {
     lines = [{ text }];
   }
 
-  const positions: Position[] = Array.from(
-    { length: graphemes.length },
-    () => ({ x: 0, y: 0, rotation: 0 }),
-  );
+  const positions: Position[] = Array.from({ length: graphemes.length }, () => ({
+    x: 0,
+    y: 0,
+    rotation: 0,
+  }));
   let gi = 0;
   let y = padY;
 

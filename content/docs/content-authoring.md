@@ -29,18 +29,18 @@ draft: false
 
 ### Required Fields
 
-| フィールド | 型 | 説明 |
-|-----------|-----|------|
-| `title` | string | 記事タイトル |
+| フィールド | 型     | 説明         |
+| ---------- | ------ | ------------ |
+| `title`    | string | 記事タイトル |
 
 ### Optional Fields
 
-| フィールド | 型 | デフォルト | 説明 |
-|-----------|-----|-----------|------|
-| `description` | string | - | 記事の説明 |
-| `date` | ISO 8601 | - | 公開日 |
-| `tags` | string[] | `[]` | タグ |
-| `draft` | boolean | `false` | 下書きフラグ |
+| フィールド    | 型       | デフォルト | 説明         |
+| ------------- | -------- | ---------- | ------------ |
+| `description` | string   | -          | 記事の説明   |
+| `date`        | ISO 8601 | -          | 公開日       |
+| `tags`        | string[] | `[]`       | タグ         |
+| `draft`       | boolean  | `false`    | 下書きフラグ |
 
 ## Images
 

@@ -18,9 +18,7 @@ const isDark = computed({
       {{ isDark ? "表" : "裏" }}
     </button>
     <template #fallback>
-      <button aria-label="Toggle theme">
-        暗
-      </button>
+      <button aria-label="Toggle theme">暗</button>
     </template>
   </ClientOnly>
 </template>
@@ -36,7 +34,9 @@ button {
   border-radius: 8px;
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
   font-family: "Noto Serif JP", serif;
   font-size: 18px;
   font-weight: 500;

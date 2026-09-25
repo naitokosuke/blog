@@ -92,11 +92,8 @@ export default defineNuxtConfig({
   },
   eslint: {
     config: {
-      stylistic: {
-        indent: 2,
-        quotes: "double",
-        semi: true,
-      },
+      // Formatting belongs to oxfmt (`vp fmt`); ESLint only checks correctness.
+      stylistic: false,
     },
   },
   ogImage: {

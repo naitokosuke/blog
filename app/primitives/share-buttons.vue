@@ -45,10 +45,7 @@ async function copyUrl() {
       class="share-button"
       aria-label="X(Twitter)でシェア"
     >
-      <Icon
-        name="mdi:twitter"
-        size="20"
-      />
+      <Icon name="mdi:twitter" size="20" />
     </a>
     <button
       type="button"
@@ -56,16 +53,8 @@ async function copyUrl() {
       :aria-label="copied ? 'コピーしました' : 'URLをコピー'"
       @click="copyUrl"
     >
-      <Icon
-        v-if="copied"
-        name="mdi:check"
-        size="20"
-      />
-      <Icon
-        v-else
-        name="mdi:link-variant"
-        size="20"
-      />
+      <Icon v-if="copied" name="mdi:check" size="20" />
+      <Icon v-else name="mdi:link-variant" size="20" />
     </button>
   </div>
 </template>
@@ -87,7 +76,9 @@ async function copyUrl() {
   border: 1px solid var(--color-border);
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 
   &:hover {
     background-color: var(--color-accent);

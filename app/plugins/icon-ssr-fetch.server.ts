@@ -11,12 +11,7 @@ export default defineNuxtPlugin(() => {
   const requestFetch = useRequestFetch();
 
   _api.setFetch(async (input, init) => {
-    const url
-      = typeof input === "string"
-        ? input
-        : input instanceof URL
-          ? input.href
-          : input.url;
+    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
     if (!url.startsWith("/")) {
       return globalThis.fetch(input, init);
     }
@@ -26,8 +21,7 @@ export default defineNuxtPlugin(() => {
         status: 200,
         headers: { "content-type": "application/json" },
       });
-    }
-    catch {
+    } catch {
       return new Response(null, { status: 404 });
     }
   });

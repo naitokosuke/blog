@@ -2,19 +2,15 @@
   "name": "blog",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@11.7.0",
-  "engines": {
-    "node": ">=24.13"
-  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "lint": "oxlint && eslint . && vp lint",
+    "lint": "oxlint && eslint . && vp lint && vp fmt --check",
     "lint:vue": "vp lint",
     "oxlint": "oxlint",
-    "fmt": "oxlint --fix && eslint . --fix",
+    "fmt": "oxlint --fix && eslint . --fix && vp fmt",
     "secretlint": "secretlint '**/*'"
   },
   "dependencies": {
@@ -60,5 +56,9 @@
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0",
     "vite-plus": "1.0.0-rc.0"
-  }
+  },
+  "engines": {
+    "node": ">=24.13"
+  },
+  "packageManager": "pnpm@11.7.0"
 }

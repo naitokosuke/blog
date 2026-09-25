@@ -38,10 +38,7 @@ defineOgImage("Default", {
 
 <template>
   <div v-if="page">
-    <Hero
-      :title="page.title ?? ''"
-      show-share
-    />
+    <Hero :title="page.title ?? ''" show-share />
     <article class="prose">
       <ContentRenderer :value="page" />
     </article>

@@ -1,12 +1,7 @@
 {
   "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
+    "source.fixAll.eslint": "explicit"
   },
-  "eslint.validate": [
-    "typescript",
-    "vue",
-    "json",
-    "css",
-  ],
+  "eslint.validate": ["typescript", "vue", "json", "css"]
 }

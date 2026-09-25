@@ -11,22 +11,24 @@ export default defineEventHandler(async (event) => {
     .order("date", "DESC")
     .all();
 
-  const lastBuildDate = posts.length > 0 && posts[0]?.date
-    ? new Date(posts[0].date).toUTCString()
-    : new Date().toUTCString();
+  const lastBuildDate =
+    posts.length > 0 && posts[0]?.date
+      ? new Date(posts[0].date).toUTCString()
+      : new Date().toUTCString();
 
-  const items = (await Promise.all(
-    posts
-      .filter(post => !post.draft)
-      .map(async (post) => {
-        const pubDate = post.date ? new Date(post.date).toUTCString() : "";
-        const link = `${siteUrl}${post.path}`;
+  const items = (
+    await Promise.all(
+      posts
+        .filter((post) => !post.draft)
+        .map(async (post) => {
+          const pubDate = post.date ? new Date(post.date).toUTCString() : "";
+          const link = `${siteUrl}${post.path}`;
 
-        const html = await $fetch<string>(post.path, { responseType: "text" }).catch(() => "");
-        const ogImage = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/)?.[1];
-        const ogImageUrl = ogImage || `${siteUrl}/og-background.png`;
+          const html = await $fetch<string>(post.path, { responseType: "text" }).catch(() => "");
+          const ogImage = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/)?.[1];
+          const ogImageUrl = ogImage || `${siteUrl}/og-background.png`;
 
-        return `    <item>
+          return `    <item>
       <title><![CDATA[${post.title || "Untitled"}]]></title>
       <link>${link}</link>
       <guid isPermaLink="true">${link}</guid>
@@ -34,8 +36,9 @@ export default defineEventHandler(async (event) => {
       <pubDate>${pubDate}</pubDate>
       <enclosure url="${ogImageUrl}" type="image/png" length="0"/>
     </item>`;
-      }),
-  )).join("\n");
+        }),
+    )
+  ).join("\n");
 
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">

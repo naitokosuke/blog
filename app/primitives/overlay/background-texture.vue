@@ -341,7 +341,11 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string): 
   return shader;
 }
 
-function createProgram(gl: WebGLRenderingContext, vs: WebGLShader, fs: WebGLShader): WebGLProgram | null {
+function createProgram(
+  gl: WebGLRenderingContext,
+  vs: WebGLShader,
+  fs: WebGLShader,
+): WebGLProgram | null {
   const prog = gl.createProgram();
   if (!prog) return null;
 
@@ -378,14 +382,7 @@ function initWebGL() {
   program = createProgram(gl, vs, fs);
   if (!program) return;
 
-  const positions = new Float32Array([
-    -1, -1,
-    1, -1,
-    -1, 1,
-    -1, 1,
-    1, -1,
-    1, 1,
-  ]);
+  const positions = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 
   const buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -488,8 +485,7 @@ onMounted(() => {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       cleanup();
-    }
-    else if (isDarkMode.value) {
+    } else if (isDarkMode.value) {
       startRender();
     }
   });
@@ -507,8 +503,7 @@ onMounted(() => {
       isDarkMode.value = newIsDark;
       if (newIsDark) {
         startRender();
-      }
-      else {
+      } else {
         stopRender();
       }
     }
@@ -531,11 +526,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <canvas
-    ref="canvasRef"
-    width="1"
-    height="1"
-  />
+  <canvas ref="canvasRef" width="1" height="1" />
 </template>
 
 <style scoped>

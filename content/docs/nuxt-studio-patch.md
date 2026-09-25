@@ -35,8 +35,8 @@ PR #242 がマージされたが、Issue #235 は2026年1月12日に再オープ
 
 ```javascript
 // ufo ライブラリの動作
-withoutLeadingSlash("/")  // => "/" (変更なし)
-withoutLeadingSlash("")   // => "/" (空文字を "/" に変換)
+withoutLeadingSlash("/"); // => "/" (変更なし)
+withoutLeadingSlash(""); // => "/" (空文字を "/" に変換)
 ```
 
 この動作により、`prefix: "/"` の場合に比較ロジックが期待通りに動作しないケースがある。
@@ -68,9 +68,9 @@ withoutLeadingSlash("")   // => "/" (空文字を "/" に変換)
 
 ```javascript
 // test-patch.mjs
-import { withoutTrailingSlash, withoutLeadingSlash, withLeadingSlash } from 'ufo';
-import { join } from 'pathe';
-import { minimatch } from 'minimatch';
+import { withoutTrailingSlash, withoutLeadingSlash, withLeadingSlash } from "ufo";
+import { join } from "pathe";
+import { minimatch } from "minimatch";
 
 // パッチ適用後の getCollectionSourceById
 function getCollectionSourceById(id, sources) {
@@ -85,7 +85,9 @@ function getCollectionSourceById(id, sources) {
       return false;
     }
     let fsPath;
-    const [fixPart] = source.include.includes("*") ? source.include.split("*") : ["", source.include];
+    const [fixPart] = source.include.includes("*")
+      ? source.include.split("*")
+      : ["", source.include];
     const fixed = withoutTrailingSlash(fixPart || "/");
     // パッチ: 空文字列へのフォールバック
     const normalizedFixed = withoutLeadingSlash(fixed) || "";
@@ -104,12 +106,14 @@ function getCollectionSourceById(id, sources) {
 }
 
 // テストケース
-const sources = [{
-  _resolved: true,
-  prefix: "/",
-  include: "**/*.{md,yml,json}",
-  cwd: "/path/to/content"
-}];
+const sources = [
+  {
+    _resolved: true,
+    prefix: "/",
+    include: "**/*.{md,yml,json}",
+    cwd: "/path/to/content",
+  },
+];
 
 const id = "content/dev-env-2026/index.md";
 
@@ -122,21 +126,21 @@ console.log("Result:", result ? "FOUND" : "NOT FOUND");
 
 ```javascript
 // test-ufo.mjs
-import { withoutTrailingSlash, withoutLeadingSlash } from 'ufo';
+import { withoutTrailingSlash, withoutLeadingSlash } from "ufo";
 
-console.log('withoutTrailingSlash("/"):', JSON.stringify(withoutTrailingSlash('/')));
+console.log('withoutTrailingSlash("/"):', JSON.stringify(withoutTrailingSlash("/")));
 // => "/"
 
-console.log('withoutLeadingSlash("/"):', JSON.stringify(withoutLeadingSlash('/')));
+console.log('withoutLeadingSlash("/"):', JSON.stringify(withoutLeadingSlash("/")));
 // => "/"
 
-console.log('withoutLeadingSlash(""):', JSON.stringify(withoutLeadingSlash('')));
+console.log('withoutLeadingSlash(""):', JSON.stringify(withoutLeadingSlash("")));
 // => "/"
 
 // パッチでの対応
 const fixed = "/";
 const normalizedFixed = withoutLeadingSlash(fixed) || "";
-console.log('normalizedFixed:', JSON.stringify(normalizedFixed));
+console.log("normalizedFixed:", JSON.stringify(normalizedFixed));
 // => ""
 ```
 
@@ -144,7 +148,7 @@ console.log('normalizedFixed:', JSON.stringify(normalizedFixed));
 
 ```javascript
 // test-id-generation.mjs
-import { join } from 'pathe';
+import { join } from "pathe";
 
 function parseSourceBase(source) {
   const [fixPart, ...rest] = source.include.includes("*")
@@ -152,7 +156,7 @@ function parseSourceBase(source) {
     : ["", source.include];
   return {
     fixed: fixPart || "",
-    dynamic: "*" + rest.join("*")
+    dynamic: "*" + rest.join("*"),
   };
 }
 
@@ -164,10 +168,12 @@ function generateIdFromFsPath(path, collectionInfo) {
 
 const collectionInfo = {
   name: "content",
-  source: [{
-    prefix: "/",
-    include: "**/*.{md,yml,json}",
-  }]
+  source: [
+    {
+      prefix: "/",
+      include: "**/*.{md,yml,json}",
+    },
+  ],
 };
 
 const fsPath = "dev-env-2026/index.md";
