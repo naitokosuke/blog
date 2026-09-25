@@ -11,7 +11,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "lint": "oxlint && eslint .",
+    "lint": "oxlint && eslint . && vp lint",
+    "lint:vue": "vp lint",
     "oxlint": "oxlint",
     "fmt": "oxlint --fix && eslint . --fix",
     "secretlint": "secretlint '**/*'"
@@ -48,6 +49,7 @@
     "lefthook": "^2.1.14",
     "lightningcss": "^1.33.0",
     "oxlint": "^1.85.0",
+    "oxlint-plugin-vize": "^0.426.1",
     "parse5": "^8.0.1",
     "rehype-raw": "^7.0.0",
     "remark-emoji": "^5.0.2",
@@ -56,6 +58,7 @@
     "remark-rehype": "^11.1.2",
     "secretlint": "^13.0.5",
     "unified": "^11.0.5",
-    "unist-util-visit": "^5.1.0"
+    "unist-util-visit": "^5.1.0",
+    "vite-plus": "1.0.0-rc.0"
   }
 }
