@@ -3,7 +3,6 @@ export default defineNuxtConfig({
   modules: [
     "./modules/content-assets.ts",
     "@nuxt/content",
-    "@nuxt/eslint",
     "@nuxt/fonts",
     "@nuxt/hints",
     "@nuxt/icon",
@@ -88,12 +87,6 @@ export default defineNuxtConfig({
     },
     build: {
       cssMinify: "lightningcss",
-    },
-  },
-  eslint: {
-    config: {
-      // Formatting belongs to oxfmt (`vp fmt`); ESLint only checks correctness.
-      stylistic: false,
     },
   },
   ogImage: {

@@ -6,10 +6,12 @@ import { createVizeLintConfig } from "oxlint-plugin-vize";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  // This is the whole linter. ESLint is gone, so `import` joins the plugin
+  // list to keep the `import/*` rules @nuxt/eslint used to contribute.
   lint: {
     ...createVizeLintConfig({
       preset: "nuxt",
-      plugins: ["unicorn", "oxc", "typescript"],
+      plugins: ["unicorn", "oxc", "typescript", "import"],
       rules: {
         "unicorn/filename-case": ["error", { case: "kebabCase" }],
       },
@@ -43,8 +45,8 @@ export default defineConfig({
     ],
   },
 
-  // Oxfmt defaults already match the style this repo had under eslint-stylistic
-  // (2 spaces, double quotes, semicolons), so only the ignores are spelled out.
+  // Oxfmt's defaults are the style this repo already used (2 spaces, double
+  // quotes, semicolons), so only the ignores are spelled out.
   fmt: {
     ignorePatterns: [".nuxt/**", ".output/**", "dist/**", "node_modules/**"],
   },
