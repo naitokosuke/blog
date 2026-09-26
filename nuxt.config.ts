@@ -91,6 +91,30 @@ export default defineNuxtConfig({
       cssMinify: "lightningcss",
     },
   },
+  hooks: {
+    // nuxt-studio's editing host is 745 KB (201 KB gzipped) and is imported
+    // only after the session endpoint confirms an editor, but Nuxt still emits
+    // a <link rel="prefetch"> for it, so every reader downloads it in the
+    // background. Drop the hint; the chunk is still there when Studio asks.
+    // The bundler sometimes emits the host as a shared chunk, and a shared
+    // chunk keeps no source path - only the "host" name survives, so match on
+    // that too. If a future version renames the file the prefetch comes back,
+    // which costs bandwidth but breaks nothing.
+    "build:manifest"(manifest) {
+      for (const [key, entry] of Object.entries(manifest)) {
+        const studio =
+          key.includes("nuxt-studio") ||
+          entry.src?.includes("nuxt-studio") ||
+          entry.name === "host" ||
+          entry.name === "host.dev";
+        if (studio) {
+          entry.prefetch = false;
+          entry.preload = false;
+        }
+      }
+    },
+  },
+
   ogImage: {
     zeroRuntime: true,
   },
