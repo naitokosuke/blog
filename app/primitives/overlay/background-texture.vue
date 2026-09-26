@@ -229,10 +229,20 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
 
   // Ink-drop lifecycle: each drop is reborn elsewhere every cycle; the radius
   // follows the physical diffusion curve (fast at first, then slowing)
-  void dropParams(float fi, float aspect, out vec2 center, out float R, out float rmax, out float age) {
-    // One shared ~30s clock with quarter-cycle offsets: a fresh bloom is always
-    // opening somewhere, so the fast-spreading phase never leaves the screen
-    float phase = u_time * 0.033 + fi * 0.25 + hash11(fi * 7.93 + 2.7) * 0.05;
+  void dropParams(
+    float fi,
+    float aspect,
+    out vec2 center,
+    out float R,
+    out float rmax,
+    out float age,
+    out float life
+  ) {
+    // Quarter-cycle offsets keep a fresh bloom always opening somewhere, and
+    // each drop runs its own ~21-37s cycle: four periods that never line up, so
+    // the births stop landing on a metronome beat the eye can follow
+    float rate = 0.033 * mix(0.82, 1.42, hash11(fi * 3.11 + 0.9));
+    float phase = u_time * rate + fi * 0.25 + hash11(fi * 7.93 + 2.7) * 0.05;
     age = fract(phase);
     float gen = floor(phase);
     center = vec2(
@@ -241,6 +251,7 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
     );
     rmax = mix(0.26, 0.46, hash11(fi * 5.97 + gen * 11.13 + 0.77));
     R = max(rmax * (1.0 - exp(-4.0 * age)), 0.0001);
+    life = smoothstep(0.0, 0.05, age) * (1.0 - smoothstep(0.60, 0.98, age));
   }
 
   void main() {
@@ -274,13 +285,15 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
     float dropR[4];
     float dropRmax[4];
     float dropAge[4];
+    float dropLife[4];
     for (int i = 0; i < 4; i++) {
-      vec2 Ci; float Ri; float rmaxI; float ageI;
-      dropParams(float(i), aspect, Ci, Ri, rmaxI, ageI);
+      vec2 Ci; float Ri; float rmaxI; float ageI; float lifeI;
+      dropParams(float(i), aspect, Ci, Ri, rmaxI, ageI, lifeI);
       dropC[i] = Ci;
       dropR[i] = Ri;
       dropRmax[i] = rmaxI;
       dropAge[i] = ageI;
+      dropLife[i] = lifeI;
     }
 
     float inkWash = 0.0;
@@ -292,6 +305,7 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
       float Ri = dropR[i];
       float rmaxI = dropRmax[i];
       float ageI = dropAge[i];
+      float life = dropLife[i];
 
       // Instability grows with age: young drops are clean rings, old ones writhe
       vec2 P = uvA + iw * (rmaxI * (0.15 + 0.50 * ageI));
@@ -301,7 +315,10 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
       for (int j = 0; j < 4; j++) {
         if (j == i) continue;
         vec2 Cj = dropC[j];
-        float Rj = dropR[j];
+        // A drop nobody can see must not shove anything: its center and radius
+        // jump the instant it is reborn, and an unfaded warp field turned that
+        // jump into every other drop's rings snapping once a cycle
+        float Rj = dropR[j] * sqrt(dropLife[j]);
         vec2 v = P - Cj;
         float L2 = max(dot(v, v), 0.000001);
         P = Cj + v * sqrt(max(1.0 - (Rj * Rj * 0.55) / L2, 0.0));
@@ -309,7 +326,6 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
 
       vec2 dp = P - Ci;
       float dist = length(dp);
-      float life = smoothstep(0.0, 0.05, ageI) * (1.0 - smoothstep(0.60, 0.98, ageI));
 
       // Suminagashi ring lattice: bands at sqrt(k) * r0, thinner outward;
       // the fiber jitter makes the year-rings bleed instead of staying crisp
@@ -364,6 +380,10 @@ let wallFramebuffer: WebGLFramebuffer | null = null;
 let animationId: number | null = null;
 let resizeId: number | null = null;
 let startTime = 0;
+// The animation clock, frozen while the canvas is not rendering. Restarting it
+// at zero on a theme flip or a tab switch snapped the whole field back to its
+// first frame, which read as the effect looping
+let clockMs = 0;
 let lastFrameTime = 0;
 const TARGET_FPS = 30;
 const FRAME_INTERVAL = 1000 / TARGET_FPS;
@@ -572,7 +592,8 @@ function render() {
 
   gl.useProgram(program);
 
-  const time = prefersReducedMotion.value ? 0 : (now - startTime) / 1000;
+  clockMs = now - startTime;
+  const time = prefersReducedMotion.value ? 0 : clockMs / 1000;
   gl.uniform1f(uTimeLoc, time);
   gl.uniform2f(uResolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
   gl.uniform1f(uIsDarkLoc, colorMode.value === "dark" ? 1.0 : 0.0);
@@ -600,7 +621,8 @@ function startRender() {
   if (!gl) return;
   // The wall is only re-baked when the drawing buffer changed
   resizeCanvas();
-  startTime = performance.now();
+  // Resume the clock where it stopped instead of rewinding it
+  startTime = performance.now() - clockMs;
   render();
 }
 

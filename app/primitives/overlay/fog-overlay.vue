@@ -135,6 +135,10 @@ let program: WebGLProgram | null = null;
 let animationId: number | null = null;
 let resizeId: number | null = null;
 let startTime = 0;
+// The animation clock, frozen while the canvas is not rendering. Restarting it
+// at zero on a theme flip or a tab switch snapped the fog back to its first
+// frame, which read as the effect looping
+let clockMs = 0;
 let lastFrameTime = 0;
 let sizedWidth = 0;
 let sizedHeight = 0;
@@ -282,7 +286,8 @@ function render() {
 
   gl.useProgram(program);
 
-  const time = prefersReducedMotion.value ? 0 : (now - startTime) / 1000;
+  clockMs = now - startTime;
+  const time = prefersReducedMotion.value ? 0 : clockMs / 1000;
   gl.uniform1f(uTimeLoc, time);
   gl.uniform2f(uResolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
   gl.uniform1f(uIsLightLoc, colorMode.value === "light" ? 1.0 : 0.0);
@@ -306,7 +311,8 @@ function startRender() {
   initWebGL();
   if (!gl) return;
   resizeCanvas();
-  startTime = performance.now();
+  // Resume the clock where it stopped instead of rewinding it
+  startTime = performance.now() - clockMs;
   render();
 }
 
