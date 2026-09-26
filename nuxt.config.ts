@@ -39,7 +39,9 @@ export default defineNuxtConfig({
       ],
     },
   },
-  css: ["~/assets/css/main.css"],
+  // font-subset.css must stay last: its @font-face rules override the Google
+  // subsets @nuxt/fonts injects into main.css, and a later rule wins
+  css: ["~/assets/css/main.css", "~/assets/css/font-subset.css"],
 
   site: {
     url: "https://blog.naito.dev",

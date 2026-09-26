@@ -59,4 +59,20 @@ export default defineConfig({
   fmt: {
     ignorePatterns: [".nuxt/**", ".output/**", "dist/**", "node_modules/**"],
   },
+
+  run: {
+    tasks: {
+      // Rebuilds the Zen Old Mincho subset from the text the site renders,
+      // into public/fonts + app/assets/css/font-subset.css. Run it after
+      // adding content; forgetting only costs a fetch, never a wrong glyph.
+      //
+      // Uncached on purpose: it calls the Google Fonts API, and the source
+      // directories it scans are listed inside the script, so an `input` glob
+      // here would be a second copy of that list waiting to drift.
+      "font:subset": {
+        command: "node scripts/build-font-subset.mjs",
+        cache: false,
+      },
+    },
+  },
 });
