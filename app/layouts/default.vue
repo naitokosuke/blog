@@ -1,8 +1,10 @@
 <template>
   <div>
     <ClientOnly>
-      <BackgroundTexture />
-      <FogOverlay />
+      <!-- Decorative full-screen canvases: they can only start after
+           hydration anyway, so keep their shaders out of the entry chunk -->
+      <LazyBackgroundTexture />
+      <LazyFogOverlay />
     </ClientOnly>
     <div class="layout">
       <Header />
