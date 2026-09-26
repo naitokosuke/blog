@@ -7,7 +7,16 @@ defineProps<{
 
 <template>
   <figure>
-    <img src="/og-background.png" :alt="title" />
+    <!-- JPEG copy of /og-background.png (that PNG stays for the build-time OG
+         image, where the file is never shipped to a reader). -->
+    <img
+      src="/hero-background.jpg"
+      :alt="title"
+      width="1536"
+      height="1024"
+      fetchpriority="high"
+      decoding="async"
+    />
     <figcaption>
       <span class="title">{{ title }}</span>
       <ShareButtons v-if="showShare" :title />
