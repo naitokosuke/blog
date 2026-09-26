@@ -11,10 +11,10 @@ const isLight = computed(() => colorMode.value === "light");
       <NuxtLink to="/" class="logo"> blog.naito.dev </NuxtLink>
       <div class="actions">
         <NuxtLink to="/feed.xml" external aria-label="RSS Feed">
-          <Icon name="lucide:rss" size="20" />
+          <AppIcon name="rss" size="20" />
         </NuxtLink>
         <NuxtLink to="https://github.com/naitokosuke/blog" target="_blank" aria-label="GitHub">
-          <Icon name="mdi:github" size="20" />
+          <AppIcon name="github" size="20" />
         </NuxtLink>
         <ClientOnly>
           <button
@@ -23,7 +23,7 @@ const isLight = computed(() => colorMode.value === "light");
             :aria-label="fogEnabled ? 'Clear fog' : 'Show fog'"
             @click="toggleFog"
           >
-            <Icon :name="fogEnabled ? 'lucide:wind' : 'lucide:cloud-fog'" size="20" />
+            <AppIcon :name="fogEnabled ? 'wind' : 'cloud-fog'" size="20" />
           </button>
           <button
             v-else
@@ -31,7 +31,7 @@ const isLight = computed(() => colorMode.value === "light");
             :aria-label="textureEnabled ? 'Hide texture' : 'Show texture'"
             @click="toggleTexture"
           >
-            <Icon :name="textureEnabled ? 'lucide:eye-off' : 'lucide:eye'" size="20" />
+            <AppIcon :name="textureEnabled ? 'eye-off' : 'eye'" size="20" />
           </button>
         </ClientOnly>
         <ThemeToggle />
