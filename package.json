@@ -38,7 +38,7 @@
     "extend": "^3.0.2",
     "lefthook": "^2.1.14",
     "lightningcss": "^1.33.0",
-    "oxlint-plugin-vize": "^0.426.1",
+    "oxlint-plugin-vize": "^0.428.0",
     "parse5": "^8.0.1",
     "rehype-raw": "^7.0.0",
     "remark-emoji": "^5.0.2",
