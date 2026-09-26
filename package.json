@@ -15,7 +15,6 @@
     "@chenglou/pretext": "^0.0.9",
     "@nuxt/content": "3.16.1",
     "@nuxt/fonts": "0.14.0",
-    "@nuxt/icon": "2.5.1",
     "@nuxtjs/color-mode": "^4.0.1",
     "@nuxtjs/seo": "^5.3.16",
     "@resvg/resvg-js": "^2.6.2",
@@ -27,9 +26,6 @@
     "valibot": "^1.5.0"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "^1.2.136",
-    "@iconify-json/mdi": "^1.2.3",
-    "@iconify/vue": "^5.0.3",
     "@nuxt/hints": "1.1.4",
     "@nuxt/kit": "^4.5.2",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.5",

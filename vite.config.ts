@@ -34,6 +34,15 @@ export default defineConfig({
         },
       },
       {
+        // The icon bodies are string literals in the same file, copied from
+        // Iconify's own sets. v-html is how they reach the <svg>, and no
+        // untrusted value can reach it.
+        files: ["app/primitives/app-icon.vue"],
+        rules: {
+          "vize/vue/no-v-html": "off",
+        },
+      },
+      {
         // The stage renders one absolutely-positioned cell per grapheme. The
         // index is the cell's identity, and reusing the node by index is what
         // lets the transition animate from its previous position.
