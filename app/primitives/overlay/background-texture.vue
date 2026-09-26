@@ -3,27 +3,23 @@ const { textureOpacity } = useOverlay();
 const canvasRef = useTemplateRef<HTMLCanvasElement>("canvasRef");
 const colorMode = useColorMode();
 
-const vertexShaderSource = `
+const vertexShaderSource = /* glsl */ `
   attribute vec2 a_position;
   void main() {
     gl_Position = vec4(a_position, 0.0, 1.0);
   }
 `;
 
-// SILENT HILL 3 Otherworld wall: rust built from real iron-oxide strata
-// (magnetite core -> hematite -> fresh goethite rim), blood spreading like
-// sumi ink dropped on a water surface (closed-form marbling rings + a dense
-// diffusion front + radial filaments).
-const fragmentShaderSource = `
+// Everything both passes need: noise, hashes, and the shared framing of the
+// wall (aspect-corrected uv, the calm reading column).
+const commonSource = /* glsl */ `
   #ifdef GL_FRAGMENT_PRECISION_HIGH
   precision highp float;
   #else
   precision mediump float;
   #endif
 
-  uniform float u_time;
   uniform vec2 u_resolution;
-  uniform float u_isDark;
 
   // Simplex noise
   vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -76,15 +72,6 @@ const fragmentShaderSource = `
     return f / 0.875;
   }
 
-  float fbm4(vec2 p) {
-    float f = 0.0;
-    f += 0.5000 * snoise(p); p = m2 * p * 2.02;
-    f += 0.2500 * snoise(p); p = m2 * p * 2.03;
-    f += 0.1250 * snoise(p); p = m2 * p * 2.01;
-    f += 0.0625 * snoise(p);
-    return f / 0.9375;
-  }
-
   // Cheap hashes for grain, pit cells, and per-drop lifecycle randomness
   float hash12(vec2 p) {
     vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -92,8 +79,26 @@ const fragmentShaderSource = `
     return fract((p3.x + p3.y) * p3.z);
   }
 
-  float hash11(float n) {
-    return fract(sin(n * 12.9898) * 43758.5453);
+  // Keep the reading column calm, push texture to the edges
+  float calmIntensity(vec2 uv) {
+    vec2 c = uv - 0.5;
+    float calm = smoothstep(0.16, 0.60, length(vec2(c.x * 1.15, c.y * 0.75)));
+    return mix(0.30, 1.0, calm);
+  }
+`;
+
+// SILENT HILL 3 Otherworld wall: rust built from real iron-oxide strata
+// (magnetite core -> hematite -> fresh goethite rim). None of it moves, so it
+// is baked into a texture once per size instead of per frame.
+const wallFragmentShaderSource = /* glsl */ `${commonSource}
+
+  float fbm4(vec2 p) {
+    float f = 0.0;
+    f += 0.5000 * snoise(p); p = m2 * p * 2.02;
+    f += 0.2500 * snoise(p); p = m2 * p * 2.03;
+    f += 0.1250 * snoise(p); p = m2 * p * 2.01;
+    f += 0.0625 * snoise(p);
+    return f / 0.9375;
   }
 
   vec2 hash22(vec2 p) {
@@ -136,22 +141,6 @@ const fragmentShaderSource = `
     return c;
   }
 
-  // Ink-drop lifecycle: each drop is reborn elsewhere every cycle; the radius
-  // follows the physical diffusion curve (fast at first, then slowing)
-  void dropParams(float fi, float aspect, out vec2 center, out float R, out float rmax, out float age) {
-    // One shared ~30s clock with quarter-cycle offsets: a fresh bloom is always
-    // opening somewhere, so the fast-spreading phase never leaves the screen
-    float phase = u_time * 0.033 + fi * 0.25 + hash11(fi * 7.93 + 2.7) * 0.05;
-    age = fract(phase);
-    float gen = floor(phase);
-    center = vec2(
-      hash11(fi * 13.17 + gen * 7.77 + 0.31) * aspect,
-      hash11(fi * 29.31 + gen * 3.33 + 1.7)
-    );
-    rmax = mix(0.26, 0.46, hash11(fi * 5.97 + gen * 11.13 + 0.77));
-    R = max(rmax * (1.0 - exp(-4.0 * age)), 0.0001);
-  }
-
   void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float aspect = u_resolution.x / u_resolution.y;
@@ -159,10 +148,7 @@ const fragmentShaderSource = `
     vec2 p = uvA * 2.0;
     float vY = 1.0 - uv.y; // 0 at top, grows downward: gravity for run-off
 
-    // Keep the reading column calm, push texture to the edges
-    vec2 c = uv - 0.5;
-    float calm = smoothstep(0.16, 0.60, length(vec2(c.x * 1.15, c.y * 0.75)));
-    float intensity = mix(0.30, 1.0, calm);
+    float intensity = calmIntensity(uv);
 
     vec3 col = vec3(0.051, 0.039, 0.035); // #0d0a09 darkness
 
@@ -224,6 +210,50 @@ const fragmentShaderSource = `
     float dried = smoothstep(0.63, 0.70, driedF);
     col = mix(col, vec3(0.102, 0.030, 0.026), dried * 0.55 * intensity);
 
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+// The animated half: blood spreading like sumi ink dropped on a water surface
+// (closed-form marbling rings + a dense diffusion front + radial filaments),
+// composited over the baked wall.
+const fragmentShaderSource = /* glsl */ `${commonSource}
+
+  uniform sampler2D u_wall;
+  uniform float u_time;
+  uniform float u_isDark;
+
+  float hash11(float n) {
+    return fract(sin(n * 12.9898) * 43758.5453);
+  }
+
+  // Ink-drop lifecycle: each drop is reborn elsewhere every cycle; the radius
+  // follows the physical diffusion curve (fast at first, then slowing)
+  void dropParams(float fi, float aspect, out vec2 center, out float R, out float rmax, out float age) {
+    // One shared ~30s clock with quarter-cycle offsets: a fresh bloom is always
+    // opening somewhere, so the fast-spreading phase never leaves the screen
+    float phase = u_time * 0.033 + fi * 0.25 + hash11(fi * 7.93 + 2.7) * 0.05;
+    age = fract(phase);
+    float gen = floor(phase);
+    center = vec2(
+      hash11(fi * 13.17 + gen * 7.77 + 0.31) * aspect,
+      hash11(fi * 29.31 + gen * 3.33 + 1.7)
+    );
+    rmax = mix(0.26, 0.46, hash11(fi * 5.97 + gen * 11.13 + 0.77));
+    R = max(rmax * (1.0 - exp(-4.0 * age)), 0.0001);
+  }
+
+  void main() {
+    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+    float aspect = u_resolution.x / u_resolution.y;
+    vec2 uvA = vec2(uv.x * aspect, uv.y);
+    vec2 c = uv - 0.5;
+
+    float intensity = calmIntensity(uv);
+
+    // The wall: rust, pits, run-off and dried blood, baked once per size
+    vec3 col = texture2D(u_wall, uv).rgb;
+
     // === Fresh blood as sumi ink on water ===
     // A shared writhing field: time is injected into the phase via length(q)
     // so the distortion swirls instead of translating
@@ -238,13 +268,30 @@ const fragmentShaderSource = `
     // field so the feathered fingers visibly crawl along the front
     float fiber = fbm3(uvA * 14.0 - iw * 0.3 + vec2(0.0, u_time * 0.015)) * 0.5 + 0.5;
 
+    // Every drop is read four times by the marbling loop below, so solve the
+    // lifecycle once per drop instead of 4x4 times per pixel
+    vec2 dropC[4];
+    float dropR[4];
+    float dropRmax[4];
+    float dropAge[4];
+    for (int i = 0; i < 4; i++) {
+      vec2 Ci; float Ri; float rmaxI; float ageI;
+      dropParams(float(i), aspect, Ci, Ri, rmaxI, ageI);
+      dropC[i] = Ci;
+      dropR[i] = Ri;
+      dropRmax[i] = rmaxI;
+      dropAge[i] = ageI;
+    }
+
     float inkWash = 0.0;
     float inkRing = 0.0;
     float inkFront = 0.0;
     for (int i = 0; i < 4; i++) {
       float fi = float(i);
-      vec2 Ci; float Ri; float rmaxI; float ageI;
-      dropParams(fi, aspect, Ci, Ri, rmaxI, ageI);
+      vec2 Ci = dropC[i];
+      float Ri = dropR[i];
+      float rmaxI = dropRmax[i];
+      float ageI = dropAge[i];
 
       // Instability grows with age: young drops are clean rings, old ones writhe
       vec2 P = uvA + iw * (rmaxI * (0.15 + 0.50 * ageI));
@@ -253,8 +300,8 @@ const fragmentShaderSource = `
       // aside area-preservingly (P mapped back to its pre-drop position)
       for (int j = 0; j < 4; j++) {
         if (j == i) continue;
-        vec2 Cj; float Rj; float rmaxJ; float ageJ;
-        dropParams(float(j), aspect, Cj, Rj, rmaxJ, ageJ);
+        vec2 Cj = dropC[j];
+        float Rj = dropR[j];
         vec2 v = P - Cj;
         float L2 = max(dot(v, v), 0.000001);
         P = Cj + v * sqrt(max(1.0 - (Rj * Rj * 0.55) / L2, 0.0));
@@ -311,7 +358,11 @@ const fragmentShaderSource = `
 
 let gl: WebGLRenderingContext | null = null;
 let program: WebGLProgram | null = null;
+let wallProgram: WebGLProgram | null = null;
+let wallTexture: WebGLTexture | null = null;
+let wallFramebuffer: WebGLFramebuffer | null = null;
 let animationId: number | null = null;
+let resizeId: number | null = null;
 let startTime = 0;
 let lastFrameTime = 0;
 const TARGET_FPS = 30;
@@ -321,6 +372,16 @@ const FRAME_INTERVAL = 1000 / TARGET_FPS;
 let uTimeLoc: WebGLUniformLocation | null = null;
 let uResolutionLoc: WebGLUniformLocation | null = null;
 let uIsDarkLoc: WebGLUniformLocation | null = null;
+let uWallLoc: WebGLUniformLocation | null = null;
+let uWallResolutionLoc: WebGLUniformLocation | null = null;
+
+// Canvas size the baked wall was rendered at, so a resize that does not change
+// the drawing buffer (mobile URL bar) does not re-bake it
+let bakedWidth = 0;
+let bakedHeight = 0;
+let sizedWidth = 0;
+let sizedHeight = 0;
+let sizedDpr = 0;
 
 const prefersReducedMotion = ref(false);
 const isDarkMode = ref(false);
@@ -351,6 +412,9 @@ function createProgram(
 
   gl.attachShader(prog, vs);
   gl.attachShader(prog, fs);
+  // Both programs share one quad, so pin the attribute instead of re-binding
+  // the buffer whenever the active program changes
+  gl.bindAttribLocation(prog, 0, "a_position");
   gl.linkProgram(prog);
 
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
@@ -364,7 +428,7 @@ function createProgram(
 
 function initWebGL() {
   const canvas = canvasRef.value;
-  if (!canvas) return;
+  if (!canvas || gl) return;
 
   gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: false });
   if (!gl) {
@@ -377,10 +441,12 @@ function initWebGL() {
 
   const vs = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
   const fs = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-  if (!vs || !fs) return;
+  const wallFs = createShader(gl, gl.FRAGMENT_SHADER, wallFragmentShaderSource);
+  if (!vs || !fs || !wallFs) return;
 
   program = createProgram(gl, vs, fs);
-  if (!program) return;
+  wallProgram = createProgram(gl, vs, wallFs);
+  if (!program || !wallProgram) return;
 
   const positions = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 
@@ -388,17 +454,69 @@ function initWebGL() {
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 
-  const positionLoc = gl.getAttribLocation(program, "a_position");
-  gl.enableVertexAttribArray(positionLoc);
-  gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
   // Cache uniform locations
   uTimeLoc = gl.getUniformLocation(program, "u_time");
   uResolutionLoc = gl.getUniformLocation(program, "u_resolution");
   uIsDarkLoc = gl.getUniformLocation(program, "u_isDark");
+  uWallLoc = gl.getUniformLocation(program, "u_wall");
+  uWallResolutionLoc = gl.getUniformLocation(wallProgram, "u_resolution");
 
-  startTime = performance.now();
+  // Offscreen target for the baked wall. NEAREST + CLAMP_TO_EDGE keeps it
+  // legal at non-power-of-two sizes, and every fragment samples the texel it
+  // was rendered from, so the composite is identical to computing it inline.
+  wallTexture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, wallTexture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  wallFramebuffer = gl.createFramebuffer();
+
   resizeCanvas();
+}
+
+function bakeWall() {
+  const canvas = canvasRef.value;
+  if (!gl || !wallProgram || !canvas) return;
+  if (canvas.width === bakedWidth && canvas.height === bakedHeight) return;
+
+  gl.bindTexture(gl.TEXTURE_2D, wallTexture);
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    canvas.width,
+    canvas.height,
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    null,
+  );
+  // Drop the sampler binding before drawing into the same texture
+  gl.bindTexture(gl.TEXTURE_2D, null);
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, wallFramebuffer);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, wallTexture, 0);
+
+  if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+    console.error("Wall framebuffer incomplete");
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    return;
+  }
+
+  gl.disable(gl.BLEND);
+  gl.useProgram(wallProgram);
+  gl.uniform2f(uWallResolutionLoc, canvas.width, canvas.height);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  gl.enable(gl.BLEND);
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+  bakedWidth = canvas.width;
+  bakedHeight = canvas.height;
 }
 
 function resizeCanvas() {
@@ -409,12 +527,31 @@ function resizeCanvas() {
   const width = window.innerWidth;
   const height = window.innerHeight;
 
+  // Mobile browsers fire resize for every URL-bar nudge; reallocating the
+  // drawing buffer and re-baking the wall for an unchanged size is pure waste
+  if (width === sizedWidth && height === sizedHeight && dpr === sizedDpr) return;
+  sizedWidth = width;
+  sizedHeight = height;
+  sizedDpr = dpr;
+
   canvas.width = width * dpr;
   canvas.height = height * dpr;
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
 
   gl.viewport(0, 0, canvas.width, canvas.height);
+  bakeWall();
+}
+
+// Resize fires in bursts (and on every mobile URL-bar nudge); collapse each
+// burst into one reallocation. While the canvas is not rendering (light mode,
+// hidden tab, faded out) the new size is picked up by startRender instead.
+function scheduleResize() {
+  if (resizeId !== null || !gl || animationId === null) return;
+  resizeId = requestAnimationFrame(() => {
+    resizeId = null;
+    resizeCanvas();
+  });
 }
 
 function render() {
@@ -439,6 +576,9 @@ function render() {
   gl.uniform1f(uTimeLoc, time);
   gl.uniform2f(uResolutionLoc, canvasRef.value!.width, canvasRef.value!.height);
   gl.uniform1f(uIsDarkLoc, colorMode.value === "dark" ? 1.0 : 0.0);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, wallTexture);
+  gl.uniform1i(uWallLoc, 0);
 
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -454,7 +594,13 @@ function cleanup() {
 
 function startRender() {
   if (animationId !== null) return;
+  // Faded out by the header toggle: nothing to draw, so do not burn frames
+  if (textureOpacity.value <= 0) return;
   initWebGL();
+  if (!gl) return;
+  // The wall is only re-baked when the drawing buffer changed
+  resizeCanvas();
+  startTime = performance.now();
   render();
 }
 
@@ -479,7 +625,7 @@ onMounted(() => {
     prefersReducedMotion.value = e.matches;
   });
 
-  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("resize", scheduleResize);
 
   // Watch tab visibility changes (pause rendering when inactive)
   document.addEventListener("visibilitychange", () => {
@@ -488,6 +634,13 @@ onMounted(() => {
     } else if (isDarkMode.value) {
       startRender();
     }
+  });
+
+  // The fade the header toggle runs ends at opacity 0: an invisible canvas
+  // does not need to keep rendering
+  watch(textureOpacity, (opacity) => {
+    if (opacity <= 0) stopRender();
+    else if (isDarkMode.value && !document.hidden) startRender();
   });
 
   // Check initial state
@@ -521,7 +674,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   cleanup();
-  window.removeEventListener("resize", resizeCanvas);
+  if (resizeId !== null) cancelAnimationFrame(resizeId);
+  window.removeEventListener("resize", scheduleResize);
 });
 </script>
 

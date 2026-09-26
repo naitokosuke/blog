@@ -4,14 +4,14 @@ const canvasRef = useTemplateRef<HTMLCanvasElement>("canvasRef");
 const colorMode = useColorMode();
 
 // Shader code
-const vertexShaderSource = `
+const vertexShaderSource = /* glsl */ `
   attribute vec2 a_position;
   void main() {
     gl_Position = vec4(a_position, 0.0, 1.0);
   }
 `;
 
-const fragmentShaderSource = `
+const fragmentShaderSource = /* glsl */ `
   precision mediump float;
 
   uniform float u_time;
@@ -133,8 +133,12 @@ const fragmentShaderSource = `
 let gl: WebGLRenderingContext | null = null;
 let program: WebGLProgram | null = null;
 let animationId: number | null = null;
+let resizeId: number | null = null;
 let startTime = 0;
 let lastFrameTime = 0;
+let sizedWidth = 0;
+let sizedHeight = 0;
+let sizedDpr = 0;
 const TARGET_FPS = 30;
 const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
@@ -185,7 +189,9 @@ function createProgram(
 
 function initWebGL() {
   const canvas = canvasRef.value;
-  if (!canvas) return;
+  // Compile once: theme flips and tab switches re-enter this through
+  // startRender(), and recompiling the shader there stalls the first frame
+  if (!canvas || gl) return;
 
   gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: false });
   if (!gl) {
@@ -220,7 +226,6 @@ function initWebGL() {
   uResolutionLoc = gl.getUniformLocation(program, "u_resolution");
   uIsLightLoc = gl.getUniformLocation(program, "u_isLight");
 
-  startTime = performance.now();
   resizeCanvas();
 }
 
@@ -232,12 +237,30 @@ function resizeCanvas() {
   const width = window.innerWidth;
   const height = window.innerHeight;
 
+  // Mobile browsers fire resize for every URL-bar nudge; reallocating the
+  // drawing buffer for an unchanged size is pure waste
+  if (width === sizedWidth && height === sizedHeight && dpr === sizedDpr) return;
+  sizedWidth = width;
+  sizedHeight = height;
+  sizedDpr = dpr;
+
   canvas.width = width * dpr;
   canvas.height = height * dpr;
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
 
   gl.viewport(0, 0, canvas.width, canvas.height);
+}
+
+// Resize fires in bursts; collapse each burst into one reallocation. While the
+// canvas is not rendering (dark mode, hidden tab, faded out) the new size is
+// picked up by startRender instead.
+function scheduleResize() {
+  if (resizeId !== null || !gl || animationId === null) return;
+  resizeId = requestAnimationFrame(() => {
+    resizeId = null;
+    resizeCanvas();
+  });
 }
 
 function render() {
@@ -278,7 +301,12 @@ function cleanup() {
 
 function startRender() {
   if (animationId !== null) return;
+  // Faded out by the header toggle: nothing to draw, so do not burn frames
+  if (fogOpacity.value <= 0) return;
   initWebGL();
+  if (!gl) return;
+  resizeCanvas();
+  startTime = performance.now();
   render();
 }
 
@@ -303,7 +331,7 @@ onMounted(() => {
     prefersReducedMotion.value = e.matches;
   });
 
-  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("resize", scheduleResize);
 
   // Watch tab visibility changes (pause rendering when inactive)
   document.addEventListener("visibilitychange", () => {
@@ -312,6 +340,13 @@ onMounted(() => {
     } else if (isLightMode.value) {
       startRender();
     }
+  });
+
+  // The fade the header toggle runs ends at opacity 0: an invisible canvas
+  // does not need to keep rendering
+  watch(fogOpacity, (opacity) => {
+    if (opacity <= 0) stopRender();
+    else if (isLightMode.value && !document.hidden) startRender();
   });
 
   // Check initial state
@@ -345,7 +380,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   cleanup();
-  window.removeEventListener("resize", resizeCanvas);
+  if (resizeId !== null) cancelAnimationFrame(resizeId);
+  window.removeEventListener("resize", scheduleResize);
 });
 </script>
 

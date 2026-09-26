@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   modules: [
     "./modules/content-assets.ts",
+    "./modules/glsl-minify.ts",
     "@nuxt/content",
     "@nuxt/fonts",
     "@nuxt/hints",
