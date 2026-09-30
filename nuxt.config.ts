@@ -46,6 +46,7 @@ export default defineNuxtConfig({
   site: {
     url: "https://blog.naito.dev",
     name: "naitokosuke blog",
+    defaultLocale: "ja",
   },
   colorMode: {
     classSuffix: "",
