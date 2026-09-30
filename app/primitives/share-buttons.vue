@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { computed, ref } from "vue";
+import { useRoute, useSiteConfig } from "#imports";
+import { safeUrl } from "~/utils/safe-url";
+
 const props = defineProps<{
   title: string;
   url?: string;

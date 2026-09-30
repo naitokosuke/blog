@@ -5,6 +5,16 @@ function displayDate(date: string | undefined): string {
 </script>
 
 <script setup lang="ts">
+import {
+  defineOgImage,
+  defineWebPage,
+  defineWebSite,
+  queryCollection,
+  useAsyncData,
+  useSchemaOrg,
+  useSeoMeta,
+} from "#imports";
+
 const { data: posts } = await useAsyncData("posts", () =>
   queryCollection("content")
     .where("path", "NOT LIKE", "/")

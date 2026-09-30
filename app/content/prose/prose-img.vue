@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { safeUrl } from "~/utils/safe-url";
+
 defineProps<{
   src: string;
   alt?: string;

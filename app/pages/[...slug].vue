@@ -1,4 +1,15 @@
 <script setup lang="ts">
+import {
+  createError,
+  defineArticle,
+  defineOgImage,
+  queryCollection,
+  useAsyncData,
+  useRoute,
+  useSchemaOrg,
+  useSeoMeta,
+} from "#imports";
+
 const route = useRoute();
 
 const { data: page } = await useAsyncData(route.path, () =>

@@ -1,3 +1,5 @@
+import { useState } from "#imports";
+
 let fogAnimationId: number | null = null;
 let textureAnimationId: number | null = null;
 

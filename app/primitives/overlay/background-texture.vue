@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
+import { useColorMode } from "#imports";
+import { useOverlay } from "./use-overlay";
+
 const { textureOpacity } = useOverlay();
 const canvasRef = useTemplateRef<HTMLCanvasElement>("canvasRef");
 const colorMode = useColorMode();

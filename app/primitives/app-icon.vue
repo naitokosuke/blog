@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 // The ten glyphs this site draws, inlined.
 //
 // @nuxt/icon shipped ~27 KB of @iconify runtime (@iconify/vue, @iconify/utils,

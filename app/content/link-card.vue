@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { useFetch } from "#imports";
+import { safeUrl } from "~/utils/safe-url";
+
 const props = defineProps<{
   url: string;
 }>();

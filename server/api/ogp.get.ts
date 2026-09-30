@@ -1,3 +1,4 @@
+import { createError, defineEventHandler, getQuery } from "#imports";
 import type { DefaultTreeAdapterMap } from "parse5";
 import { parse } from "parse5";
 

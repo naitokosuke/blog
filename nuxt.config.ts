@@ -21,8 +21,11 @@ export default defineNuxtConfig({
     ],
   },
 
+  // Composables, Vue APIs and utils are imported explicitly. Auto-imports let a
+  // helper used only in a template compile to a bare `_ctx.x` lookup with no
+  // import behind it, which the Vize SFC compiler turns into a prerender 500.
   imports: {
-    dirs: ["primitives/overlay"],
+    autoImport: false,
   },
   devtools: { enabled: true },
 

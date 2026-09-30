@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { useColorMode } from "#imports";
+import { useOverlay } from "~/primitives/overlay/use-overlay";
+
 const colorMode = useColorMode();
 const { fogEnabled, toggleFog, textureEnabled, toggleTexture } = useOverlay();
 
