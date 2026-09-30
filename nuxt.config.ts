@@ -46,6 +46,10 @@ export default defineNuxtConfig({
   site: {
     url: "https://blog.naito.dev",
     name: "naitokosuke blog",
+    // @nuxtjs/seo reads the document language from here, not from
+    // app.head.htmlAttrs, and overrides the head value with it - without this
+    // every page shipped lang="en" and Schema.org inLanguage "en".
+    defaultLocale: "ja",
   },
   colorMode: {
     classSuffix: "",
