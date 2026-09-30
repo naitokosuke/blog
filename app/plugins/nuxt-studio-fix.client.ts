@@ -1,3 +1,5 @@
+import { defineNuxtPlugin } from "#imports";
+
 export default defineNuxtPlugin(() => {
   if (!import.meta.client) return;
 

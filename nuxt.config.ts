@@ -22,7 +22,7 @@ export default defineNuxtConfig({
   },
 
   imports: {
-    dirs: ["primitives/overlay"],
+    autoImport: false,
   },
   devtools: { enabled: true },
 

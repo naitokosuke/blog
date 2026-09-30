@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { createError, queryCollection, useAsyncData, useRoute, useSeoMeta } from "#imports";
+
 const route = useRoute();
 
 const { data: page } = await useAsyncData(route.path, () =>
