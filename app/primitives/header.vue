@@ -51,24 +51,26 @@ header {
   z-index: 50;
   height: var(--header-height);
   background-color: var(--color-header-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-text) 8%, transparent);
 
   nav {
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
-    max-width: var(--max-width);
+    max-width: calc(var(--content-width) + var(--gutter) * 2);
     height: 100%;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 var(--gutter);
   }
 
   .logo {
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: 1.0625rem;
+    letter-spacing: 0.08em;
     color: var(--color-text);
 
     &:hover {
-      color: var(--color-accent);
+      color: var(--color-accent-hover);
     }
   }
 
@@ -76,25 +78,22 @@ header {
     display: grid;
     grid-auto-flow: column;
     align-items: center;
-    gap: 0.25rem;
+    /* Pull the last button's padding out so its glyph sits on the column edge */
+    margin-right: -9px;
 
     a,
     button {
       display: grid;
       place-items: center;
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       background: none;
       border: none;
-      border-radius: 8px;
       color: var(--color-text-secondary);
       cursor: pointer;
-      transition:
-        background-color 0.2s,
-        color 0.2s;
+      transition: color 0.2s;
 
       &:hover {
-        background-color: var(--color-bg-secondary);
         color: var(--color-text);
       }
     }

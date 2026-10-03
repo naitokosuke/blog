@@ -1,63 +1,52 @@
 <script setup lang="ts">
+import { formatDate, isoDate } from "~/utils/format-date";
+
 defineProps<{
   title: string;
-  showShare?: boolean;
+  date?: string;
 }>();
 </script>
 
 <template>
-  <figure>
-    <!-- JPEG copy of /og-background.png (that PNG stays for the build-time OG
-         image, where the file is never shipped to a reader). -->
-    <img
-      src="/hero-background.jpg"
-      :alt="title"
-      width="1536"
-      height="1024"
-      fetchpriority="high"
-      decoding="async"
-    />
-    <figcaption>
-      <span class="title">{{ title }}</span>
-      <ShareButtons v-if="showShare" :title />
-    </figcaption>
-  </figure>
+  <!-- The page's title block. The background already carries the mood, so
+       this stays typographic: a log-style date and the title on a ruled line. -->
+  <header class="hero">
+    <p v-if="date" class="meta">
+      <time :datetime="isoDate(date)">{{ formatDate(date) }}</time>
+    </p>
+    <h1>{{ title }}</h1>
+  </header>
 </template>
 
 <style scoped>
-figure {
+.hero {
   position: relative;
-  width: 100%;
   max-width: var(--content-width);
-  height: 300px;
-  margin-block: 0 2rem;
   margin-inline: auto;
-  overflow: hidden;
-  border-radius: 8px;
+  padding-block: clamp(3rem, 8vw, 6rem) 2rem;
+  margin-bottom: 3rem;
+  border-bottom: 1px solid var(--color-rule);
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 2.5rem;
+    height: 1px;
+    background-color: var(--color-blood);
   }
 
-  figcaption {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: 0;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    color: var(--color-text);
-    background: linear-gradient(transparent, var(--color-bg));
+  .meta {
+    margin-bottom: 1rem;
+  }
 
-    .title {
-      font-size: 2rem;
-      font-weight: 700;
-    }
+  h1 {
+    font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+    line-height: 1.5;
+    letter-spacing: 0.06em;
+    font-feature-settings: "palt";
+    text-wrap: balance;
   }
 }
 </style>

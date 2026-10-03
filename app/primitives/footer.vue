@@ -1,25 +1,38 @@
 <template>
   <footer>
     <div>
-      <p>&copy; {{ new Date().getFullYear() }} naitokosuke</p>
+      <NuxtLink to="/" class="home">blog.naito.dev</NuxtLink>
+      <p class="meta">&copy; {{ new Date().getFullYear() }} naitokosuke</p>
     </div>
   </footer>
 </template>
 
 <style scoped>
 footer {
-  background-color: transparent;
+  margin-top: 6rem;
+  /* The column edge lives on the div, so the gutter goes on the footer */
+  padding-inline: var(--gutter);
 
   div {
-    max-width: var(--max-width);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem 1.5rem;
+    max-width: var(--content-width);
     margin: 0 auto;
-    padding: 1rem;
-    text-align: center;
+    padding-block: 2rem 3rem;
+    border-top: 1px solid var(--color-rule);
   }
 
-  p {
+  .home {
+    font-size: 0.9375rem;
+    letter-spacing: 0.08em;
     color: var(--color-text-secondary);
-    font-size: 0.875rem;
+
+    &:hover {
+      color: var(--color-text);
+    }
   }
 }
 </style>

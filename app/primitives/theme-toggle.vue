@@ -72,22 +72,18 @@ function toggleTheme(): void {
 button {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   background: none;
   border: none;
-  border-radius: 8px;
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition:
-    background-color 0.2s,
-    color 0.2s;
+  transition: color 0.2s;
   font-family: "Noto Serif JP", serif;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 17px;
+  font-weight: 400;
 
   &:hover {
-    background-color: var(--color-bg-secondary);
     color: var(--color-text);
   }
 }

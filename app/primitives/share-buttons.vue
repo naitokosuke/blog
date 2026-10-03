@@ -73,20 +73,19 @@ async function copyUrl() {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  background: none;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-rule);
   cursor: pointer;
   transition:
-    background-color 0.2s,
+    border-color 0.2s,
     color 0.2s;
 
   &:hover {
-    background-color: var(--color-accent);
-    color: var(--color-bg);
+    border-color: var(--color-text-secondary);
+    color: var(--color-text);
   }
 }
 </style>
