@@ -90,37 +90,37 @@ const domain = computed(() => {
 </template>
 
 <style scoped>
+/* A citation set between two hairlines, not a box: the column has no boxes.
+   The page's own colours win over the linked site's - its OG image is pulled
+   into the ink and rust of the current world and only warms on hover. */
 .card {
   display: grid;
   grid-template-columns: 1fr auto;
+  gap: 1.25rem;
+  align-items: center;
   margin-block: 2rem;
-  border: 1px solid var(--color-rule);
-  background-color: color-mix(in oklab, var(--color-bg) 55%, transparent);
-  overflow: hidden;
+  padding-block: 1rem;
+  border-block: 1px solid var(--color-rule);
   text-decoration: none;
   letter-spacing: 0.03em;
   color: var(--color-text);
-  transition: border-color 0.2s;
 
-  &:hover {
-    border-color: var(--color-text-secondary);
+  &:hover strong {
+    color: var(--color-accent-hover);
   }
 
   &[role="status"] {
     pointer-events: none;
 
     .thumbnail {
-      background-color: var(--color-border);
-      opacity: 0.2;
-      animation: skeleton-pulse 1.5s ease-in-out infinite;
+      background-color: var(--color-bg-secondary);
     }
   }
 
   > div:first-of-type {
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
-    padding: 1rem 1.25rem;
+    gap: 0.25rem;
     min-width: 0;
   }
 
@@ -129,6 +129,7 @@ const domain = computed(() => {
     background-image: none;
     font-size: 1rem;
     line-height: 1.6;
+    transition: color 0.2s;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -138,7 +139,7 @@ const domain = computed(() => {
 
   p {
     font-size: 0.8125rem;
-    line-height: 1.5;
+    line-height: 1.6;
     margin: 0;
     color: var(--color-text-secondary);
     display: -webkit-box;
@@ -151,17 +152,19 @@ const domain = computed(() => {
   small {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    margin-top: auto;
-    font-size: 0.75rem;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
     color: var(--color-text-secondary);
 
     img {
-      width: 16px;
-      height: 16px;
-      border-radius: 2px;
+      width: 14px;
+      height: 14px;
       border: none;
       margin: 0;
+      filter: grayscale(1);
+      opacity: 0.8;
     }
 
     span {
@@ -173,11 +176,10 @@ const domain = computed(() => {
 
   .thumbnail {
     position: relative;
-    width: 230px;
-    /* Keep the card height driven by the text content, not the image's
-       aspect ratio: the image is absolutely positioned so a square/portrait
-       OG image can't stretch the whole card. */
-    align-self: stretch;
+    width: 168px;
+    aspect-ratio: 1.91;
+    overflow: hidden;
+    background-color: var(--color-bg-secondary);
 
     img {
       position: absolute;
@@ -188,18 +190,50 @@ const domain = computed(() => {
       border: none;
       border-radius: 0;
       margin: 0;
+      /* Ink on paper: the image keeps its shapes, the paper keeps its colour */
+      filter: grayscale(1) sepia(0.35) contrast(0.95);
+      mix-blend-mode: multiply;
+      opacity: 0.85;
+      transition:
+        filter 0.5s,
+        opacity 0.5s;
     }
+  }
+
+  &:hover .thumbnail img {
+    filter: grayscale(0.35) sepia(0.2) contrast(1);
+    opacity: 1;
   }
 
   @media (width <= 768px) {
-    grid-template-columns: 1fr;
+    gap: 1rem;
 
     .thumbnail {
-      grid-row: 1;
-      width: 100%;
-      height: 160px;
+      width: 96px;
+    }
+
+    p {
+      display: none;
     }
   }
+}
+
+/* 裏: the image is printed onto a rusted plate. Multiplied over the oxide, an
+   OG image's white paper becomes the rust and only its dark strokes remain,
+   so a bright thumbnail can no longer be the loudest thing in the column. */
+:global(.dark .card .thumbnail) {
+  background-color: color-mix(in oklab, var(--color-rust) 42%, var(--color-bg));
+}
+
+:global(.dark .card .thumbnail img) {
+  filter: grayscale(1) contrast(1.2);
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+:global(.dark .card:hover .thumbnail img) {
+  filter: grayscale(0.5) contrast(1.1);
+  opacity: 1;
 }
 
 .fallback {
@@ -219,17 +253,17 @@ const domain = computed(() => {
   border-width: 0;
 }
 
+/* Still lines where the text will land; no pulse - the role="status" already
+   says it is loading */
 .placeholder {
-  height: 1em;
+  height: 0.875em;
   width: 90%;
-  background-color: var(--color-border);
-  border-radius: 0;
-  opacity: 0.2;
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  margin-block: 0.25em;
+  background-color: var(--color-bg-secondary);
 
   &:nth-child(1) {
     width: 70%;
-    height: 1.125em;
+    height: 1em;
   }
 
   &:nth-child(3) {
@@ -239,18 +273,6 @@ const domain = computed(() => {
   &:nth-child(4) {
     width: 30%;
     height: 0.75em;
-    margin-top: auto;
-  }
-}
-
-@keyframes skeleton-pulse {
-  0%,
-  100% {
-    opacity: 0.2;
-  }
-
-  50% {
-    opacity: 0.4;
   }
 }
 </style>

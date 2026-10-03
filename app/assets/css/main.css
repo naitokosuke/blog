@@ -31,8 +31,22 @@
   --font-sans: "Zen Old Mincho", ui-serif, serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Spacing */
-  --max-width: 1200px;
+  /*
+   * The bleed: the site's one mark. Every rule that opens something (a year,
+   * an article, a section) starts with a stroke of blood soaked into the
+   * hairline, ragged at the edges and thinning out along it. The ragged edge
+   * is fractal noise stretched along the rule so it reads as fibre, not dots.
+   * In 裏 the stroke runs longer and goes to rust before it dies.
+   */
+  --bleed-length: 9rem;
+  --bleed-height: 3px;
+  --bleed-paint: linear-gradient(
+    90deg,
+    var(--color-blood) 0 18%,
+    color-mix(in oklab, var(--color-blood) 55%, transparent) 55%,
+    transparent
+  );
+  --bleed-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='8'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.035 0.9' numOctaves='3' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.2 0 0 0 -0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
 
   /* The single reading column. Header, index, article and footer all share
      its left edge so the page does not shift between routes. */
@@ -58,6 +72,17 @@
   --color-rust: #9a6440;
 
   --color-header-bg: color-mix(in oklab, var(--color-bg) 62%, transparent);
+
+  /* 裏: the blood has had longer to spread, and the metal under it has rusted */
+  --bleed-length: 12rem;
+  --bleed-height: 4px;
+  --bleed-paint: linear-gradient(
+    90deg,
+    #9a3328 0 14%,
+    var(--color-blood) 34%,
+    color-mix(in oklab, var(--color-rust) 70%, transparent) 62%,
+    transparent
+  );
 }
 
 /* Reset */
@@ -90,7 +115,8 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  scrollbar-color: var(--color-rule) transparent;
+  scrollbar-color: color-mix(in oklab, var(--color-text-secondary) 55%, transparent) transparent;
+  caret-color: var(--color-blood);
 }
 
 body {
@@ -124,8 +150,76 @@ a {
 
 /* Focus states - Accessibility */
 :focus-visible {
-  outline: 1px solid var(--color-accent-hover);
+  outline: 2px solid var(--color-accent-hover);
   outline-offset: 3px;
+}
+
+/* The bleed (see the tokens above). A host opts in with .bleed and gets the
+   stroke on its bottom hairline; prose h2 carries it on its top one. */
+.bleed {
+  position: relative;
+}
+
+.bleed::after,
+.prose h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: calc((var(--bleed-height) - 1px) / -2 - 1px);
+  width: var(--bleed-length);
+  max-width: 100%;
+  height: var(--bleed-height);
+  background-image: var(--bleed-paint);
+  mask-image: var(--bleed-fibre);
+  mask-size: 320px 100%;
+  pointer-events: none;
+  animation: bleed-in 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* It is already there when the page paints and only spreads the rest of the
+   way, so nothing waits on the animation */
+@keyframes bleed-in {
+  from {
+    clip-path: inset(0 55% 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bleed::after,
+  .prose h2::before {
+    animation: none;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-rule);
+  translate: 0 calc(-100% - 1rem);
+
+  &:focus-visible {
+    translate: 0;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 code {
@@ -143,7 +237,7 @@ pre {
   line-height: 1.75;
   letter-spacing: 0;
   background-color: color-mix(in oklab, var(--color-bg) 70%, var(--color-text) 6%);
-  border-left: 2px solid var(--color-rust);
+  border-block: 1px solid var(--color-rule);
   padding: 1.25rem 1.5rem;
   overflow-x: auto;
 
@@ -199,8 +293,8 @@ img {
     margin-block: 0 1.5rem;
   }
 
-  /* A hairline across the column with a short stroke of blood at its start:
-     the section break of a case file. */
+  /* A hairline across the column with the bleed at its start: the section
+     break of a case file. */
   h2 {
     position: relative;
     font-size: 1.5rem;
@@ -209,13 +303,8 @@ img {
     border-top: 1px solid var(--color-rule);
 
     &::before {
-      content: "";
-      position: absolute;
-      top: -1px;
-      left: 0;
-      width: 2.5rem;
-      height: 1px;
-      background-color: var(--color-blood);
+      top: calc((var(--bleed-height) - 1px) / -2 - 1px);
+      bottom: auto;
     }
   }
 
@@ -264,10 +353,11 @@ img {
     }
   }
 
+  /* Quoted words are set in from the column, as a citation is in print */
   blockquote {
     margin-block: 2rem;
-    padding: 0.25rem 0 0.25rem 1.25rem;
-    border-left: 2px solid var(--color-blood);
+    padding: 0.25rem 0 0.25rem 1.5rem;
+    border-left: 1px solid var(--color-rule);
     color: var(--color-text-secondary);
 
     p:last-child {
@@ -304,8 +394,16 @@ img {
     color: var(--color-text-secondary);
   }
 
-  :is(h1, h2, h3, h4):hover .heading-anchor-icon {
+  :is(h1, h2, h3, h4):hover .heading-anchor-icon,
+  :is(h1, h2, h3, h4) a:focus-visible .heading-anchor-icon {
     opacity: 1;
+  }
+
+  /* No hover on touch: leave the anchor faintly in view */
+  @media (hover: none) {
+    :is(h1, h2, h3, h4) .heading-anchor-icon {
+      opacity: 0.5;
+    }
   }
 
   img {

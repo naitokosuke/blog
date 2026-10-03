@@ -14,28 +14,28 @@ const isLight = computed(() => colorMode.value === "light");
     <nav>
       <NuxtLink to="/" class="logo"> blog.naito.dev </NuxtLink>
       <div class="actions">
-        <NuxtLink to="/feed.xml" external aria-label="RSS Feed">
-          <AppIcon name="rss" size="20" />
-        </NuxtLink>
-        <NuxtLink to="https://github.com/naitokosuke/blog" target="_blank" aria-label="GitHub">
-          <AppIcon name="github" size="20" />
-        </NuxtLink>
+        <!-- Both buttons say what pressing them does, in words as well as the
+             glyph, since neither icon is one a reader already knows -->
         <ClientOnly>
           <button
             v-if="isLight"
             type="button"
-            :aria-label="fogEnabled ? 'Clear fog' : 'Show fog'"
+            :aria-pressed="!fogEnabled"
+            :title="fogEnabled ? '霧を晴らす' : '霧を戻す'"
             @click="toggleFog"
           >
             <AppIcon :name="fogEnabled ? 'wind' : 'cloud-fog'" size="20" />
+            <span class="visually-hidden">霧を晴らす</span>
           </button>
           <button
             v-else
             type="button"
-            :aria-label="textureEnabled ? 'Hide texture' : 'Show texture'"
+            :aria-pressed="!textureEnabled"
+            :title="textureEnabled ? '壁を隠す' : '壁を戻す'"
             @click="toggleTexture"
           >
             <AppIcon :name="textureEnabled ? 'eye-off' : 'eye'" size="20" />
+            <span class="visually-hidden">背景の壁を隠す</span>
           </button>
         </ClientOnly>
         <ThemeToggle />
@@ -78,15 +78,15 @@ header {
     display: grid;
     grid-auto-flow: column;
     align-items: center;
-    /* Pull the last button's padding out so its glyph sits on the column edge */
-    margin-right: -9px;
+    gap: 0.25rem;
+    /* Pull the last control's padding out so its glyph sits on the column edge */
+    margin-right: -0.5rem;
 
-    a,
     button {
       display: grid;
       place-items: center;
-      width: 38px;
-      height: 38px;
+      width: 44px;
+      height: 44px;
       background: none;
       border: none;
       color: var(--color-text-secondary);
