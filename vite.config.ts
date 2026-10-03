@@ -57,7 +57,16 @@ export default defineConfig({
   // Oxfmt's defaults are the style this repo already used (2 spaces, double
   // quotes, semicolons), so only the ignores are spelled out.
   fmt: {
-    ignorePatterns: [".nuxt/**", ".output/**", "dist/**", "node_modules/**"],
+    ignorePatterns: [
+      ".nuxt/**",
+      ".output/**",
+      "dist/**",
+      "node_modules/**",
+      // Vendored from pbakaus/impeccable; kept byte-identical so upstream
+      // updates diff cleanly. See .claude/skills/impeccable/VENDORED.md.
+      ".claude/skills/impeccable/**",
+      ".claude/agents/impeccable-*.md",
+    ],
   },
 
   run: {
