@@ -40,7 +40,7 @@
   src:
     local("Zen Old Mincho Regular"),
     local("Zen Old Mincho"),
-    url("/fonts/zen-old-mincho-core-3.33cfcec2.woff2") format("woff2");
+    url("/fonts/zen-old-mincho-core-3.e5531935.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -55,9 +55,9 @@
     U+5143, U+5148, U+5165, U+5168, U+516C, U+5185-5186, U+518D, U+5199, U+51FA, U+5206-5207,
     U+5217, U+521D, U+5225, U+5229, U+5236-5237, U+524D, U+5272, U+529B, U+529F-52A0, U+52C9,
     U+52D5, U+52D9, U+5316, U+533A, U+5341, U+534A, U+5370, U+539F, U+53C2, U+53CD, U+53D6-53D7,
-    U+5408, U+540C-540D, U+5411, U+542B, U+5468, U+5473, U+547D, U+54C1, U+554F, U+558B, U+56DE,
-    U+56E0, U+56F2, U+571F, U+5728, U+5730, U+578B, U+57FA, U+5831, U+5834, U+5883, U+5897, U+58C7,
-    U+58CA, U+5909, U+5916, U+591A, U+591C, U+5927, U+592A, U+5973, U+597D;
+    U+53E4, U+5408, U+540C-540D, U+5411, U+542B, U+5468, U+5473, U+547D, U+54C1, U+554F, U+558B,
+    U+56DE, U+56E0, U+56F2, U+571F, U+5728, U+5730, U+578B, U+57FA, U+5831, U+5834, U+5883, U+5897,
+    U+58C7, U+58CA, U+5909, U+5916, U+591A, U+591C, U+5927, U+592A, U+5973;
 }
 
 @font-face {
@@ -65,32 +65,32 @@
   src:
     local("Zen Old Mincho Regular"),
     local("Zen Old Mincho"),
-    url("/fonts/zen-old-mincho-core-4.edc79756.woff2") format("woff2");
+    url("/fonts/zen-old-mincho-core-4.f870046d.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
   unicode-range:
-    U+59CB, U+5ACC, U+5B09, U+5B50, U+5B57-5B58, U+5B66, U+5B89, U+5B8C, U+5B9A, U+5B9F, U+5BB6,
-    U+5BB9, U+5BFE, U+5C0F, U+5C11, U+5C45, U+5C4B, U+5DE5-5DE6, U+5E30, U+5E38, U+5E74, U+5E83,
-    U+5EA6, U+5F0F, U+5F15, U+5F35, U+5F37, U+5F53, U+5F62, U+5F71, U+5F85, U+5F8C, U+5F97, U+5FA1,
-    U+5FC3, U+5FC5, U+5FDC, U+5FF5, U+601D, U+6025, U+602A, U+60C5, U+60F3, U+610F, U+611B, U+611F,
-    U+614B, U+61B6, U+6210, U+6240, U+624B, U+6280, U+629E, U+62E1, U+6301, U+6307, U+63A1-63A2,
-    U+63A5, U+63D0, U+63FA, U+64CD, U+652F, U+6539, U+6559, U+6563, U+6570, U+6587, U+6599, U+65B0,
-    U+65B9, U+65CB, U+65E2, U+65E5, U+660E, U+6620, U+663C, U+6642, U+666F, U+6674, U+6691, U+6697,
-    U+66F2, U+66F4, U+66F8, U+66FF-6700, U+6708, U+671F, U+672B-672C, U+6765, U+6771, U+679C,
-    U+683C, U+696D, U+6975, U+697D, U+69CB, U+69D8, U+6A19, U+6A2A, U+6A5F, U+6B21, U+6B63, U+6B69,
-    U+6B73, U+6B8B, U+6BCE, U+6BD4, U+6C17, U+6C34, U+6C7A, U+6CD5, U+6CE8, U+6D3B, U+6D88, U+6E05,
-    U+6E08, U+6E1B, U+6E80, U+6E96, U+70B9, U+7121, U+7136, U+7167, U+7269, U+7279, U+72B6, U+72EC,
-    U+73CD, U+73FE, U+7406, U+74B0, U+751F, U+7528, U+7531, U+7533, U+753B, U+756A, U+767A-767B,
-    U+767D, U+7684, U+76EE, U+76F4, U+771F, U+77E5, U+77ED, U+78BA, U+793A, U+793E, U+79C1, U+7A7A,
-    U+7ACB, U+7B87, U+7BA1, U+7CFB, U+7D14, U+7D20, U+7D42, U+7D4C, U+7D50, U+7D76, U+7D9A, U+7DE8,
-    U+7E26, U+7F6E, U+7FD2, U+8003, U+8005, U+8010, U+805E, U+80CC, U+80FD, U+81EA, U+826F, U+8272,
-    U+82E6, U+82F1, U+8349, U+8449, U+845B, U+87BA, U+8840, U+884C, U+8853, U+8868, U+88C5, U+88CF,
-    U+8981, U+898B, U+898F, U+899A, U+89AA, U+89B3, U+89E3, U+8A00, U+8A18, U+8A2D, U+8A66, U+8A71,
-    U+8A8C-8A8D, U+8A9E, U+8AAC-8AAD, U+8ABF, U+8B1B, U+8B1D, U+8B58, U+8CB7, U+8CC7, U+8D64,
-    U+8D77, U+8D85, U+8D8A, U+8DB3, U+8ECA, U+8EFD, U+8F03, U+8F09, U+8FBA, U+8FBC, U+8FCE, U+8FD1,
-    U+8FD4, U+8FFD, U+901A, U+9020, U+9023, U+9032, U+904A-904B, U+9055, U+9078, U+907F, U+90E8,
-    U+914D, U+9152, U+9154, U+91CD, U+91CF, U+9306, U+9332, U+9577, U+958B, U+9593;
+    U+597D, U+59CB, U+5ACC, U+5B09, U+5B50, U+5B57-5B58, U+5B66, U+5B89, U+5B8C, U+5B9A, U+5B9F,
+    U+5BB6, U+5BB9, U+5BFE, U+5C0F, U+5C11, U+5C45, U+5C4B, U+5DE5-5DE6, U+5E30, U+5E38, U+5E74,
+    U+5E83, U+5EA6, U+5F0F, U+5F15, U+5F35, U+5F37, U+5F53, U+5F62, U+5F71, U+5F85, U+5F8C, U+5F97,
+    U+5FA1, U+5FC3, U+5FC5, U+5FDC, U+5FF5, U+601D, U+6025, U+602A, U+60C5, U+60F3, U+610F, U+611B,
+    U+611F, U+614B, U+61B6, U+6210, U+6240, U+624B, U+6280, U+629E, U+62E1, U+6301, U+6307,
+    U+63A1-63A2, U+63A5, U+63D0, U+63FA, U+64CD, U+652F, U+6539, U+6559, U+6563, U+6570, U+6587,
+    U+6599, U+65B0, U+65B9, U+65CB, U+65E2, U+65E5, U+660E, U+6620, U+663C, U+6642, U+666F, U+6674,
+    U+6691, U+6697, U+66F2, U+66F4, U+66F8, U+66FF-6700, U+6708, U+671F, U+672B-672C, U+6765,
+    U+6771, U+679C, U+683C, U+696D, U+6975, U+697D, U+69CB, U+69D8, U+6A19, U+6A2A, U+6A5F, U+6B21,
+    U+6B63, U+6B69, U+6B73, U+6B8B, U+6BCE, U+6BD4, U+6C17, U+6C34, U+6C7A, U+6CD5, U+6CE8, U+6D3B,
+    U+6D88, U+6E05, U+6E08, U+6E1B, U+6E80, U+6E96, U+70B9, U+7121, U+7136, U+7167, U+7269, U+7279,
+    U+72B6, U+72EC, U+73CD, U+73FE, U+7406, U+74B0, U+751F, U+7528, U+7531, U+7533, U+753B, U+756A,
+    U+767A-767B, U+767D, U+7684, U+76EE, U+76F4, U+771F, U+77E5, U+77ED, U+78BA, U+793A, U+793E,
+    U+7981, U+79C1, U+7A7A, U+7ACB, U+7B87, U+7BA1, U+7CFB, U+7D14, U+7D20, U+7D42, U+7D4C, U+7D50,
+    U+7D76, U+7D9A, U+7DE8, U+7E26, U+7F6E, U+7FD2, U+8003, U+8005, U+8010, U+805E, U+80CC, U+80FD,
+    U+81EA, U+826F, U+8272, U+82E6, U+82F1, U+8349, U+8449, U+845B, U+87BA, U+8840, U+884C, U+8853,
+    U+8868, U+88C5, U+88CF, U+8981, U+898B, U+898F, U+899A, U+89AA, U+89B3, U+89E3, U+8A00, U+8A18,
+    U+8A2D, U+8A66, U+8A71, U+8A8C-8A8D, U+8A9E, U+8AAC-8AAD, U+8ABF, U+8B1B, U+8B1D, U+8B58,
+    U+8CB7, U+8CC7, U+8D64, U+8D77, U+8D85, U+8D8A, U+8DB3, U+8ECA, U+8EFD, U+8F03, U+8F09, U+8FBA,
+    U+8FBC, U+8FCE, U+8FD1, U+8FD4, U+8FFD, U+901A, U+9020, U+9023, U+9032, U+904A-904B, U+9055,
+    U+9078, U+907D, U+907F, U+90E8, U+914D, U+9152, U+9154, U+91CD, U+91CF, U+9306, U+9332;
 }
 
 @font-face {
@@ -98,14 +98,14 @@
   src:
     local("Zen Old Mincho Regular"),
     local("Zen Old Mincho"),
-    url("/fonts/zen-old-mincho-core-5.cde15e43.woff2") format("woff2");
+    url("/fonts/zen-old-mincho-core-5.cdf63ca1.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
   unicode-range:
-    U+95A2, U+95C7, U+9650, U+9664, U+969B, U+96C6, U+9727, U+975E, U+9762, U+97F3, U+97FF, U+9803,
-    U+9806, U+983C, U+984C, U+9858, U+98DF, U+98F2, U+9A13, U+9AD8, U+9F62, U+FF01, U+FF08-FF09,
-    U+FF1A, U+FF1F;
+    U+9577, U+958B, U+9593, U+95A2, U+95C7, U+9650, U+9664, U+969B, U+96C6, U+9727, U+975E, U+9762,
+    U+97F3, U+97FF, U+9803, U+9806, U+983C, U+984C, U+9858, U+98DF, U+98EF, U+98F2, U+9A13, U+9AD8,
+    U+9F62, U+FF01, U+FF08-FF09, U+FF1A, U+FF1F;
 }
 
 @font-face {
@@ -201,27 +201,15 @@
   src:
     local("Zen Old Mincho Regular"),
     local("Zen Old Mincho"),
-    url("/fonts/zen-old-mincho-hello-project-songs-2026.7e5f51bd.woff2") format("woff2");
+    url("/fonts/zen-old-mincho-hello-project-songs-2026.e9671270.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
   unicode-range:
     U+3072, U+4E9C, U+5354, U+5360, U+5404, U+541B, U+590F, U+594F, U+5A18, U+5F25, U+5F7C, U+604B,
-    U+6075, U+611A, U+623F, U+66DC, U+677E, U+68D2, U+6CE5, U+6D66, U+731B, U+732A, U+7403, U+7981,
-    U+7A81, U+7B2C, U+821E, U+83DC, U+88DC, U+8DEF, U+8FF7, U+907D, U+90FD, U+91CC, U+91CE, U+967D,
-    U+984D, U+9999, U+9EC4;
-}
-
-@font-face {
-  font-family: "Zen Old Mincho";
-  src:
-    local("Zen Old Mincho Regular"),
-    local("Zen Old Mincho"),
-    url("/fonts/zen-old-mincho-i-lied-this-morning.073427e2.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+98EF;
+    U+6075, U+611A, U+623F, U+66DC, U+677E, U+68D2, U+6CE5, U+6D66, U+731B, U+732A, U+7403, U+7A81,
+    U+7B2C, U+821E, U+83DC, U+88DC, U+8DEF, U+8FF7, U+90FD, U+91CC, U+91CE, U+967D, U+984D, U+9999,
+    U+9EC4;
 }
 
 @font-face {
@@ -274,16 +262,16 @@
   src:
     local("Zen Old Mincho Regular"),
     local("Zen Old Mincho"),
-    url("/fonts/zen-old-mincho-what-i-like.6198bd87.woff2") format("woff2");
+    url("/fonts/zen-old-mincho-what-i-like.90fc566e.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
   unicode-range:
-    U+3006, U+30BE, U+30C2, U+501F, U+5075, U+5150, U+516D, U+52E4, U+53B3, U+53E4, U+5531, U+56DB,
-    U+56F3, U+587E, U+58F0, U+5BA4, U+5BE1, U+5C40, U+5E2B, U+5E7C, U+5EF6, U+5F31, U+5F92, U+5FAE,
-    U+5FD8, U+6020, U+6069, U+60F0, U+61F8, U+6625, U+6821, U+6B4C, U+6BCD, U+6CF3, U+70BA, U+713C,
-    U+71B1, U+7530, U+79D1, U+7AE5, U+7B11, U+7BC4, U+7DBE, U+7DD2, U+8074, U+80B2, U+8208, U+83D3,
-    U+8A5E, U+8CE2, U+8EE2, U+8FBB, U+8FEB, U+91DD, U+982D, U+98A8, U+98FD, U+99C4, U+9A19, U+9BAE;
+    U+3006, U+30BE, U+30C2, U+501F, U+5075, U+5150, U+516D, U+52E4, U+53B3, U+5531, U+56DB, U+56F3,
+    U+587E, U+58F0, U+5BA4, U+5BE1, U+5C40, U+5E2B, U+5E7C, U+5EF6, U+5F31, U+5F92, U+5FAE, U+5FD8,
+    U+6020, U+6069, U+60F0, U+61F8, U+6625, U+6821, U+6B4C, U+6BCD, U+6CF3, U+70BA, U+713C, U+71B1,
+    U+7530, U+79D1, U+7AE5, U+7B11, U+7BC4, U+7DBE, U+7DD2, U+8074, U+80B2, U+8208, U+83D3, U+8A5E,
+    U+8CE2, U+8EE2, U+8FBB, U+8FEB, U+91DD, U+982D, U+98A8, U+98FD, U+99C4, U+9A19, U+9BAE;
 }
 
 @font-face {
