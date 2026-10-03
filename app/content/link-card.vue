@@ -93,17 +93,17 @@ const domain = computed(() => {
 .card {
   display: grid;
   grid-template-columns: 1fr auto;
-  margin-block: 1.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background-color: var(--color-bg-secondary);
+  margin-block: 2rem;
+  border: 1px solid var(--color-rule);
+  background-color: color-mix(in oklab, var(--color-bg) 55%, transparent);
   overflow: hidden;
   text-decoration: none;
+  letter-spacing: 0.03em;
   color: var(--color-text);
   transition: border-color 0.2s;
 
   &:hover {
-    border-color: var(--color-accent-hover);
+    border-color: var(--color-text-secondary);
   }
 
   &[role="status"] {
@@ -125,8 +125,10 @@ const domain = computed(() => {
   }
 
   strong {
+    /* A card title, not prose emphasis: no highlighter wash */
+    background-image: none;
     font-size: 1rem;
-    line-height: 1.4;
+    line-height: 1.6;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -221,7 +223,7 @@ const domain = computed(() => {
   height: 1em;
   width: 90%;
   background-color: var(--color-border);
-  border-radius: 4px;
+  border-radius: 0;
   opacity: 0.2;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 
