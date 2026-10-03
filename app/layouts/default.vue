@@ -6,9 +6,10 @@
       <LazyBackgroundTexture />
       <LazyFogOverlay />
     </ClientOnly>
+    <a href="#main" class="skip-link">本文へ移動</a>
     <div class="layout">
       <Header />
-      <main>
+      <main id="main" tabindex="-1">
         <slot />
       </main>
       <Footer />
@@ -25,6 +26,7 @@
   z-index: 1;
 
   main {
+    outline: none;
     width: 100%;
     max-width: calc(var(--content-width) + var(--gutter) * 2);
     margin: 0 auto;
@@ -33,10 +35,11 @@
 }
 
 /* The texture is loudest exactly where the reading column sits on a wide
-   screen. A soft band of darkness under the column keeps the words on calm
-   ground while the edges stay fully visible. The whole selector sits inside
-   :global() - Vue drops whatever follows a partial `:global(.dark)`, which
-   would land these rules on <html> itself. */
+   screen. Darkness pooled under the column keeps the words on calm ground.
+   It is an ellipse that only ever fades, never a strip with edges, so it
+   reads as the room being darker there rather than as a panel behind the
+   text. The whole selector sits inside :global() - Vue drops whatever follows
+   a partial `:global(.dark)`, which would land these rules on <html> itself. */
 :global(.dark .layout::before) {
   content: "";
   position: fixed;
@@ -44,12 +47,20 @@
   z-index: -1;
   pointer-events: none;
   --band: calc(var(--content-width) / 2 + var(--gutter));
-  background: linear-gradient(
-    90deg,
-    transparent calc(50% - var(--band) - 14rem),
-    color-mix(in oklab, var(--color-bg) 58%, transparent) calc(50% - var(--band)),
-    color-mix(in oklab, var(--color-bg) 58%, transparent) calc(50% + var(--band)),
-    transparent calc(50% + var(--band) + 14rem)
+  --pool: color-mix(in oklab, var(--color-bg) 60%, transparent);
+  background: radial-gradient(
+    calc(var(--band) + 12rem) 120% at 50% 45%,
+    var(--pool) 0,
+    var(--pool) 62%,
+    transparent 100%
   );
+}
+
+/* On a phone the column is the whole screen; pooling darkness under all of it
+   would put out the wall entirely. Lighter, so the wall still shows through. */
+@media (width <= 768px) {
+  :global(.dark .layout::before) {
+    --pool: color-mix(in oklab, var(--color-bg) 42%, transparent);
+  }
 }
 </style>

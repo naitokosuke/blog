@@ -40,52 +40,52 @@ async function copyUrl() {
 }
 </script>
 
+<!-- A quiet line of words under the article, not a row of bordered glyphs -->
 <template>
   <div class="share-buttons">
-    <a
-      :href="safeUrl(xShareUrl)"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="share-button"
-      aria-label="X(Twitter)でシェア"
-    >
-      <AppIcon name="twitter" size="20" />
-    </a>
-    <button
-      type="button"
-      class="share-button"
-      :aria-label="copied ? 'コピーしました' : 'URLをコピー'"
-      @click="copyUrl"
-    >
-      <AppIcon v-if="copied" name="check" size="20" />
-      <AppIcon v-else name="link-variant" size="20" />
-    </button>
+    <a :href="safeUrl(xShareUrl)" target="_blank" rel="noopener noreferrer">X で共有</a>
+    <button type="button" @click="copyUrl">URL をコピー</button>
+    <span class="status" role="status">{{ copied ? "コピーしました" : "" }}</span>
   </div>
 </template>
 
 <style scoped>
 .share-buttons {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 1.5rem;
+  font-size: 0.9375rem;
 }
 
-.share-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
+a,
+button {
+  /* The words stay small; the hit area does not */
+  display: inline-block;
+  min-height: 44px;
+  padding-block: 0.625rem;
   background: none;
+  border: none;
+  font: inherit;
+  letter-spacing: inherit;
   color: var(--color-text-secondary);
-  border: 1px solid var(--color-rule);
   cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in oklab, currentcolor 35%, transparent);
+  text-underline-offset: 0.35em;
   transition:
-    border-color 0.2s,
-    color 0.2s;
+    color 0.2s,
+    text-decoration-color 0.2s;
 
   &:hover {
-    border-color: var(--color-text-secondary);
-    color: var(--color-text);
+    color: var(--color-accent-hover);
+    text-decoration-color: currentcolor;
   }
+}
+
+.status {
+  font-size: 0.8125rem;
+  color: var(--color-accent-hover);
 }
 </style>
