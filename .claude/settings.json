@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(npx impeccable:*)",
+      "Bash(pnpm dlx impeccable:*)",
+      "Bash(bunx impeccable:*)",
+      "Bash(vp dlx impeccable:*)"
+    ]
+  }
+}
