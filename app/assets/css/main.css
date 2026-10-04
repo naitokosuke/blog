@@ -51,9 +51,6 @@
 
   /* Dates hang in the margin left of the column when there is room for them */
   --hang: 6.5rem;
-
-  /* Header */
-  --color-header-bg: color-mix(in oklab, var(--color-bg) 78%, transparent);
 }
 
 .dark {
@@ -70,8 +67,6 @@
   --color-accent-hover: #c46a5e;
   --color-blood: #7e2b23;
   --color-rust: #9a6440;
-
-  --color-header-bg: color-mix(in oklab, var(--color-bg) 62%, transparent);
 }
 
 /* Reset */
@@ -106,6 +101,9 @@ html {
   text-rendering: optimizeLegibility;
   scrollbar-color: color-mix(in oklab, var(--color-text-secondary) 55%, transparent) transparent;
   caret-color: var(--color-blood);
+  /* No rubber-band past the top: the bounce would pull the sticky header down
+     and show the fixed background canvases above it */
+  overscroll-behavior-y: none;
 }
 
 body {
