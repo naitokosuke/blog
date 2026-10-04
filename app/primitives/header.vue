@@ -49,15 +49,20 @@ const isLight = computed(() => colorMode.value === "light");
 </template>
 
 <style scoped>
-/* Opaque, and above the fog canvas (z-index 100): the header is a solid
-   band, so however far the page scrolls nothing of the background shows
-   through or around it */
+/* Mostly opaque, with the wall (or the fog) showing faintly through so the
+   header belongs to the same world as the page instead of being cut off
+   from it. The blur keeps text scrolling underneath from reading through.
+   It sits above the fog canvas (z-index 100), so the fog is seen through it
+   rather than painted over it. */
 header {
   position: sticky;
   top: 0;
   z-index: 110;
   height: var(--header-height);
-  background-color: var(--color-bg);
+  /* The dark wall is dim to begin with, so 裏 can let more of it through */
+  --veil: 72%;
+  background-color: color-mix(in oklab, var(--color-bg) var(--veil), transparent);
+  backdrop-filter: blur(14px);
 
   nav {
     display: grid;
@@ -112,5 +117,11 @@ header {
       }
     }
   }
+}
+
+/* The whole selector sits inside :global() - Vue drops whatever follows a
+   partial `:global(.dark)` */
+:global(.dark header) {
+  --veil: 58%;
 }
 </style>
