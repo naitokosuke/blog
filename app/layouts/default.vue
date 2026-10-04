@@ -22,8 +22,11 @@
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
+  /* No z-index here on purpose: a stacking context would trap the sticky
+     header below the fog canvas (z-index 100). Without one, the header's own
+     z-index competes at the root and stays on top, and the content still
+     paints over the texture canvas, which sits at z-index -1. */
   position: relative;
-  z-index: 1;
 
   main {
     outline: none;
