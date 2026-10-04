@@ -14,28 +14,33 @@ const isLight = computed(() => colorMode.value === "light");
     <nav>
       <NuxtLink to="/" class="logo"> blog.naito.dev </NuxtLink>
       <div class="actions">
-        <!-- Both buttons say what pressing them does, in words as well as the
-             glyph, since neither icon is one a reader already knows -->
+        <!-- What is behind the page, named in one character and lit while it
+             is there - the same reading as 表|裏 beside it, which lights the
+             world you are in -->
         <ClientOnly>
           <button
             v-if="isLight"
             type="button"
-            :aria-pressed="!fogEnabled"
+            class="layer"
+            :class="{ on: fogEnabled }"
+            :aria-pressed="fogEnabled"
             :title="fogEnabled ? '霧を晴らす' : '霧を戻す'"
             @click="toggleFog"
           >
-            <AppIcon :name="fogEnabled ? 'wind' : 'cloud-fog'" size="20" />
-            <span class="visually-hidden">霧を晴らす</span>
+            <span aria-hidden="true">霧</span>
+            <span class="visually-hidden">背景の霧</span>
           </button>
           <button
             v-else
             type="button"
-            :aria-pressed="!textureEnabled"
+            class="layer"
+            :class="{ on: textureEnabled }"
+            :aria-pressed="textureEnabled"
             :title="textureEnabled ? '壁を隠す' : '壁を戻す'"
             @click="toggleTexture"
           >
-            <AppIcon :name="textureEnabled ? 'eye-off' : 'eye'" size="20" />
-            <span class="visually-hidden">背景の壁を隠す</span>
+            <span aria-hidden="true">壁</span>
+            <span class="visually-hidden">背景の壁</span>
           </button>
         </ClientOnly>
         <ThemeToggle />
@@ -52,7 +57,6 @@ header {
   height: var(--header-height);
   background-color: var(--color-header-bg);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid color-mix(in oklab, var(--color-text) 8%, transparent);
 
   nav {
     display: grid;
@@ -65,6 +69,10 @@ header {
   }
 
   .logo {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-size: 1.0625rem;
     letter-spacing: 0.08em;
     color: var(--color-text);
@@ -95,6 +103,20 @@ header {
 
       &:hover {
         color: var(--color-text);
+      }
+    }
+
+    /* Lit while the layer is there, like the current world in 表|裏 */
+    .layer {
+      font-size: 1.0625rem;
+      line-height: 1;
+
+      &.on {
+        color: var(--color-text);
+      }
+
+      &:hover {
+        color: var(--color-accent-hover);
       }
     }
   }

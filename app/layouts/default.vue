@@ -35,11 +35,13 @@
 }
 
 /* The texture is loudest exactly where the reading column sits on a wide
-   screen. Darkness pooled under the column keeps the words on calm ground.
-   It is an ellipse that only ever fades, never a strip with edges, so it
-   reads as the room being darker there rather than as a panel behind the
-   text. The whole selector sits inside :global() - Vue drops whatever follows
-   a partial `:global(.dark)`, which would land these rules on <html> itself. */
+   screen. Darkness pooled under the column keeps the words on calm ground,
+   and only there: it fades out within a few rem of the column's edge, so the
+   margins on either side show the wall at full strength. It is an ellipse
+   that only ever fades, never a strip with edges, so it reads as the room
+   being darker there rather than as a panel behind the text. The whole
+   selector sits inside :global() - Vue drops whatever follows a partial
+   `:global(.dark)`, which would land these rules on <html> itself. */
 :global(.dark .layout::before) {
   content: "";
   position: fixed;
@@ -47,11 +49,11 @@
   z-index: -1;
   pointer-events: none;
   --band: calc(var(--content-width) / 2 + var(--gutter));
-  --pool: color-mix(in oklab, var(--color-bg) 60%, transparent);
+  --pool: color-mix(in oklab, var(--color-bg) 58%, transparent);
   background: radial-gradient(
-    calc(var(--band) + 12rem) 120% at 50% 45%,
+    calc(var(--band) + 5rem) 130% at 50% 45%,
     var(--pool) 0,
-    var(--pool) 62%,
+    var(--pool) 78%,
     transparent 100%
   );
 }

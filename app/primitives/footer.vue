@@ -1,11 +1,10 @@
 <template>
-  <!-- The header already names the site; the foot of the page names who wrote
-       it and where else to follow. Text links, since there is room for words
-       here and none of these needs a glyph to be found. -->
+  <!-- One quiet line at the foot of the column: who wrote it and where else to
+       follow. Space above sets it apart; there is no rule. -->
   <footer>
-    <div class="bleed">
-      <p class="author">
-        <span class="meta">書いた人</span>
+    <div>
+      <p class="meta">
+        &copy; {{ new Date().getFullYear() }}
         <a href="https://x.com/naitokosuke" target="_blank" rel="noopener">ナイトウコウスケ</a>
       </p>
       <ul>
@@ -16,43 +15,25 @@
           </a>
         </li>
       </ul>
-      <p class="meta copyright">&copy; {{ new Date().getFullYear() }} naitokosuke</p>
     </div>
   </footer>
 </template>
 
 <style scoped>
 footer {
-  margin-top: 6rem;
+  margin-top: 8rem;
   /* The column edge lives on the div, so the gutter goes on the footer */
   padding-inline: var(--gutter);
 
   div {
-    display: grid;
-    grid-template-columns: 1fr auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     align-items: baseline;
-    gap: 0.25rem 1.5rem;
+    gap: 0 1.5rem;
     max-width: var(--content-width);
     margin: 0 auto;
-    padding-block: 2rem 3rem;
-    border-top: 1px solid var(--color-rule);
-
-    /* The bleed sits on this rule, which is the div's top edge */
-    &::after {
-      top: calc((var(--bleed-height) - 1px) / -2 - 1px);
-      bottom: auto;
-    }
-  }
-
-  .author {
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    font-size: 1rem;
-
-    a {
-      color: var(--color-text);
-    }
+    padding-bottom: 2.5rem;
   }
 
   ul {
@@ -60,27 +41,23 @@ footer {
     gap: 1.5rem;
     padding: 0;
     list-style: none;
-    font-size: 0.9375rem;
+  }
 
-    a {
-      display: inline-block;
-      padding-block: 0.5rem;
-      color: var(--color-text-secondary);
+  a {
+    display: inline-block;
+    min-height: 44px;
+    padding-block: 0.75rem;
+    color: var(--color-text-secondary);
 
-      &:hover {
-        color: var(--color-accent-hover);
-      }
+    &:hover {
+      color: var(--color-accent-hover);
     }
   }
 
-  .copyright {
-    grid-column: 1 / -1;
-  }
-
-  @media (width <= 768px) {
-    div {
-      grid-template-columns: 1fr;
-    }
+  ul a {
+    min-width: 44px;
+    font-size: var(--text-meta);
+    letter-spacing: 0.12em;
   }
 }
 </style>

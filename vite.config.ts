@@ -66,6 +66,8 @@ export default defineConfig({
       // updates diff cleanly. See .claude/skills/impeccable/VENDORED.md.
       ".claude/skills/impeccable/**",
       ".claude/agents/impeccable-*.md",
+      // Written by `vp run font:subset`; regenerated, never edited by hand.
+      "app/assets/css/font-subset.css",
     ],
   },
 
