@@ -20,14 +20,16 @@
 // resolves through the Google subsets that @nuxt/fonts injects. That fallback
 // is why a stale subset renders correctly, it only costs the extra fetch.
 //
-// Run it after adding content: build, then `vp run font:subset`, then build
-// again so the new files are hashed into the output. Skipping the first build
-// only widens the split, it does not break anything.
+// It runs on its own at the start of every build (modules/font-subset.ts), so
+// the output is never committed. `vp run font:subset` still runs it by hand.
+// When a previous build's .output is around, its rendered pages give a
+// tighter split; without one (a fresh CI checkout) the split is only wider,
+// nothing breaks.
 
 import { createHash } from "node:crypto";
 import { mkdir, readdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { dirname, extname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const FAMILY = "Zen Old Mincho";
@@ -319,7 +321,8 @@ function renderCss(files) {
  * @nuxt/fonts injects there; a
  * character outside this subset (a link card's remote title, a post added
  * since the last run) still resolves through those, so a stale file renders
- * correctly and only costs the extra fetch. Regenerate with:
+ * correctly and only costs the extra fetch. Every build regenerates it
+ * (modules/font-subset.ts); by hand:
  *
  *   vp run font:subset
  */
@@ -338,7 +341,11 @@ async function removeStaleFonts(keep) {
   return removed;
 }
 
-async function main() {
+/**
+ * Write the subset fonts and font-subset.css. `log` receives the report lines
+ * (console.log when run by hand, Nuxt's logger during a build).
+ */
+export async function buildFontSubset(log = console.log) {
   const { owners, files, pages } = await collectOwners();
   const coverage = await fetchCoverage();
   const buckets = bucketByOwner(owners, coverage);
@@ -360,17 +367,46 @@ async function main() {
   const removed = await removeStaleFonts(new Set(written.map((file) => file.name)));
 
   const total = written.reduce((sum, file) => sum + file.bytes, 0);
-  console.log(
+  log(
     `scanned ${files} files${pages > 0 ? ` and ${pages} prerendered pages` : " (no build output; run a build first for a tighter split)"}, ${owners.size} distinct characters`,
   );
-  console.log(`${wanted} in the family (${owners.size - wanted} outside it, left to the fallback)`);
+  log(`${wanted} in the family (${owners.size - wanted} outside it, left to the fallback)`);
   for (const file of written) {
-    console.log(
+    log(
       `  ${file.name.padEnd(48)} ${String(file.codepoints.length).padStart(4)} glyphs  ${String(Math.round(file.bytes / 1024)).padStart(3)} KB`,
     );
   }
-  console.log(`total ${Math.round(total / 1024)} KB in ${written.length} file(s)`);
-  if (removed > 0) console.log(`removed ${removed} stale file(s)`);
+  log(`total ${Math.round(total / 1024)} KB in ${written.length} file(s)`);
+  if (removed > 0) log(`removed ${removed} stale file(s)`);
 }
 
-await main();
+const PLACEHOLDER =
+  "/* Placeholder: scripts/build-font-subset.mjs has not produced a subset yet. */\n";
+
+/** Whether a real subset (not the placeholder) is already on disk. */
+export async function hasFontSubset() {
+  try {
+    return (await readFile(CSS_OUT, "utf8")) !== PLACEHOLDER;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Make sure font-subset.css exists, empty if need be. nuxt.config lists it in
+ * `css`, so the build cannot start without it; an empty file just means every
+ * glyph comes from the Google subsets @nuxt/fonts injects.
+ */
+export async function ensureFontSubsetCss() {
+  await mkdir(dirname(CSS_OUT), { recursive: true });
+  try {
+    await readFile(CSS_OUT);
+  } catch {
+    await writeFile(CSS_OUT, PLACEHOLDER);
+  }
+}
+
+// Run by hand: `vp run font:subset`
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  await buildFontSubset();
+}

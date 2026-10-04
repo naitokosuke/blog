@@ -57,3 +57,7 @@ content/**/.navigation.yml
 **/.impeccable/questions/
 **/.impeccable/live/
 # impeccable-ignore-end
+
+# Zen Old Mincho subset, generated at build time (modules/font-subset.ts)
+app/assets/css/font-subset.css
+public/fonts/zen-old-mincho-*.woff2
