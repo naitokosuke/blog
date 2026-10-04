@@ -7,11 +7,14 @@
    * Rust: muted brown to orange, decayed metal
    * Blood: subdued dark red, used sparingly
    *
-   * The page itself reads as an archive: hairline rules, square corners, no
-   * boxes. Everything is set in Zen Old Mincho 400 - it is the only weight
-   * this site ships, so anything bolder would be synthesized by the browser.
-   * Hierarchy comes from size, spacing and color instead.
+   * The page is set like print without rules: no hairlines, no boxes. Things
+   * are told apart by the size of the type and the space around it, so the
+   * world behind the column is not cut into strips. Everything is set in Zen
+   * Old Mincho 400 - it is the only weight this site ships, so anything bolder
+   * would be synthesized by the browser. Hierarchy comes from size alone, and
+   * the steps below are far enough apart to carry it.
    */
+  color-scheme: light;
 
   /* Colors - Light Mode */
   --color-bg: #f2ede6;
@@ -23,7 +26,7 @@
   --color-accent: var(--color-text);
   --color-accent-hover: #8a2f25;
 
-  /* Blood as a mark (rules, bars, highlights), never as body text */
+  /* Blood as a mark (highlights, the selection), never as body text */
   --color-blood: #8a2f25;
   --color-rust: #8a5a3a;
 
@@ -31,22 +34,14 @@
   --font-sans: "Zen Old Mincho", ui-serif, serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  /*
-   * The bleed: the site's one mark. Every rule that opens something (a year,
-   * an article, a section) starts with a stroke of blood soaked into the
-   * hairline, ragged at the edges and thinning out along it. The ragged edge
-   * is fractal noise stretched along the rule so it reads as fibre, not dots.
-   * In 裏 the stroke runs longer and goes to rust before it dies.
-   */
-  --bleed-length: 9rem;
-  --bleed-height: 3px;
-  --bleed-paint: linear-gradient(
-    90deg,
-    var(--color-blood) 0 18%,
-    color-mix(in oklab, var(--color-blood) 55%, transparent) 55%,
-    transparent
-  );
-  --bleed-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='8'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.035 0.9' numOctaves='3' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.2 0 0 0 -0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  /* Type scale. One weight, so each step is at least ~1.25x the one below. */
+  --text-meta: 0.8125rem;
+  --text-small: 0.9375rem;
+  --text-body: 1.1875rem;
+  --text-h3: 1.4375rem;
+  --text-h2: 1.875rem;
+  --text-entry: 1.875rem;
+  --text-title: clamp(2.25rem, 1.3rem + 3.2vw, 3.75rem);
 
   /* The single reading column. Header, index, article and footer all share
      its left edge so the page does not shift between routes. */
@@ -54,11 +49,16 @@
   --gutter: 1.5rem;
   --header-height: 64px;
 
+  /* Dates hang in the margin left of the column when there is room for them */
+  --hang: 6.5rem;
+
   /* Header */
   --color-header-bg: color-mix(in oklab, var(--color-bg) 78%, transparent);
 }
 
 .dark {
+  color-scheme: dark;
+
   /* Darkness: damp dark brown */
   --color-bg: #0d0a09;
 
@@ -72,17 +72,6 @@
   --color-rust: #9a6440;
 
   --color-header-bg: color-mix(in oklab, var(--color-bg) 62%, transparent);
-
-  /* 裏: the blood has had longer to spread, and the metal under it has rusted */
-  --bleed-length: 12rem;
-  --bleed-height: 4px;
-  --bleed-paint: linear-gradient(
-    90deg,
-    #9a3328 0 14%,
-    var(--color-blood) 34%,
-    color-mix(in oklab, var(--color-rust) 70%, transparent) 62%,
-    transparent
-  );
 }
 
 /* Reset */
@@ -154,47 +143,6 @@ a {
   outline-offset: 3px;
 }
 
-/* The bleed (see the tokens above). A host opts in with .bleed and gets the
-   stroke on its bottom hairline; prose h2 carries it on its top one. */
-.bleed {
-  position: relative;
-}
-
-.bleed::after,
-.prose h2::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: calc((var(--bleed-height) - 1px) / -2 - 1px);
-  width: var(--bleed-length);
-  max-width: 100%;
-  height: var(--bleed-height);
-  background-image: var(--bleed-paint);
-  mask-image: var(--bleed-fibre);
-  mask-size: 320px 100%;
-  pointer-events: none;
-  animation: bleed-in 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* It is already there when the page paints and only spreads the rest of the
-   way, so nothing waits on the animation */
-@keyframes bleed-in {
-  from {
-    clip-path: inset(0 55% 0 0);
-  }
-
-  to {
-    clip-path: inset(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bleed::after,
-  .prose h2::before {
-    animation: none;
-  }
-}
-
 .skip-link {
   position: fixed;
   top: 0.75rem;
@@ -237,7 +185,6 @@ pre {
   line-height: 1.75;
   letter-spacing: 0;
   background-color: color-mix(in oklab, var(--color-bg) 70%, var(--color-text) 6%);
-  border-block: 1px solid var(--color-rule);
   padding: 1.25rem 1.5rem;
   overflow-x: auto;
 
@@ -253,9 +200,9 @@ img {
   height: auto;
 }
 
-/* Meta text set like a log line: small, spaced, quiet */
+/* Dates and other small print: quiet, with numerals that line up */
 .meta {
-  font-size: 0.8125rem;
+  font-size: var(--text-meta);
   letter-spacing: 0.12em;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-secondary);
@@ -281,42 +228,35 @@ img {
   }
 
   :is(h1, h2, h3, h4) {
-    line-height: 1.5;
-    letter-spacing: 0.06em;
+    line-height: 1.45;
+    letter-spacing: 0.04em;
     font-feature-settings: "palt";
     text-wrap: balance;
     scroll-margin-top: calc(var(--header-height) + 1rem);
   }
 
   h1 {
-    font-size: 2rem;
+    font-size: var(--text-h2);
     margin-block: 0 1.5rem;
   }
 
-  /* A hairline across the column with the bleed at its start: the section
-     break of a case file. */
+  /* A section opens with space, not a line: a wide gap above and a large
+     step in size is all it takes to start something new */
   h2 {
-    position: relative;
-    font-size: 1.5rem;
-    margin-block: 4rem 1.25rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--color-rule);
-
-    &::before {
-      top: calc((var(--bleed-height) - 1px) / -2 - 1px);
-      bottom: auto;
-    }
+    font-size: var(--text-h2);
+    margin-block: 5.5rem 1.5rem;
   }
 
   h3 {
-    font-size: 1.25rem;
-    margin-block: 2.75rem 0.75rem;
+    font-size: var(--text-h3);
+    margin-block: 3.5rem 1rem;
   }
 
   h4 {
-    font-size: 1.0625rem;
+    font-size: var(--text-body);
+    letter-spacing: 0.08em;
     color: var(--color-text-secondary);
-    margin-block: 2rem 0.5rem;
+    margin-block: 2.5rem 0.5rem;
   }
 
   p {
@@ -356,8 +296,7 @@ img {
   /* Quoted words are set in from the column, as a citation is in print */
   blockquote {
     margin-block: 2rem;
-    padding: 0.25rem 0 0.25rem 1.5rem;
-    border-left: 1px solid var(--color-rule);
+    padding-left: 2em;
     color: var(--color-text-secondary);
 
     p:last-child {
@@ -427,12 +366,17 @@ img {
     margin-block: 2rem;
   }
 
+  /* A scene break as a book sets one: a mark in the middle of the space */
   hr {
-    width: 3rem;
-    height: 1px;
     border: none;
-    background-color: var(--color-blood);
-    margin: 3.5rem auto;
+    margin-block: 4rem;
+    text-align: center;
+    line-height: 1;
+
+    &::after {
+      content: "＊";
+      color: var(--color-text-secondary);
+    }
   }
 
   table {
@@ -472,21 +416,22 @@ img {
   }
 
   @media (width <= 768px) {
-    h1 {
-      font-size: 1.625rem;
+    h1,
+    h2 {
+      font-size: 1.5rem;
     }
 
     h2 {
-      font-size: 1.3125rem;
-      margin-top: 3rem;
+      margin-top: 4rem;
     }
 
     h3 {
-      font-size: 1.125rem;
+      font-size: 1.25rem;
+      margin-top: 2.75rem;
     }
 
     h4 {
-      font-size: 1rem;
+      font-size: 1.0625rem;
     }
 
     table {

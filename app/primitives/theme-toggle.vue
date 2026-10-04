@@ -82,27 +82,17 @@ button {
   line-height: 1;
 }
 
+/* Both glyphs stay readable; the current world is in full ink */
 .world {
-  opacity: 0.45;
-  transition:
-    opacity 0.3s,
-    color 0.3s;
+  transition: color 0.3s;
 
   &.current {
-    opacity: 1;
     color: var(--color-text);
   }
 }
 
 /* The glyph you would cross to is the one that answers the pointer */
 button:hover .world:not(.current) {
-  opacity: 1;
   color: var(--color-accent-hover);
-}
-
-/* A hairline between the two worlds */
-.world + .world {
-  padding-left: 0.375rem;
-  border-left: 1px solid var(--color-rule);
 }
 </style>

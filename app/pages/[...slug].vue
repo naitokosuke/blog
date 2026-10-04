@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import {
   createError,
   defineArticle,
@@ -12,7 +12,6 @@ import {
 } from "#imports";
 import { usePostList } from "~/composables/use-post-list";
 import { formatDate, isoDate } from "~/utils/format-date";
-import { recordNumberAt } from "~/utils/record-number";
 
 const route = useRoute();
 
@@ -25,14 +24,10 @@ if (page.value == null) {
   throw createError({ statusCode: 404, statusMessage: "Page not found", fatal: true });
 }
 
-const postIndex = computed(() => (posts.value ?? []).findIndex((post) => post.path === route.path));
-
-const recordNumber = computed(() => recordNumberAt(postIndex.value, posts.value?.length ?? 0));
-
 // The list is newest first, so the entry before this one is the newer post
 const neighbours = computed(() => {
   const list = posts.value ?? [];
-  const index = postIndex.value;
+  const index = list.findIndex((post) => post.path === route.path);
   if (index === -1) return { newer: undefined, older: undefined };
   return { newer: list[index - 1], older: list[index + 1] };
 });
@@ -42,6 +37,51 @@ const contents = computed(() => {
   const links = page.value?.body?.toc?.links ?? [];
   return links.length >= 4 ? links : [];
 });
+
+// On a wide screen the contents stand open in the right margin and follow the
+// reader down the page, marking the section being read. On a narrow one they
+// stay a closed list under the title.
+const WIDE = "(width >= 1280px)";
+const contentsOpen = ref(false);
+const activeId = ref<string>();
+
+let wide: MediaQueryList | undefined;
+let observer: IntersectionObserver | undefined;
+
+function syncOpen(): void {
+  contentsOpen.value = wide?.matches ?? false;
+}
+
+onMounted(() => {
+  if (!contents.value.length) return;
+  wide = window.matchMedia(WIDE);
+  syncOpen();
+  wide.addEventListener("change", syncOpen);
+
+  // A section counts as being read once its heading has passed the upper
+  // third of the viewport
+  observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) activeId.value = entry.target.id;
+      }
+    },
+    { rootMargin: "0px 0px -66% 0px" },
+  );
+  for (const link of contents.value) {
+    const heading = document.getElementById(link.id);
+    if (heading) observer.observe(heading);
+  }
+});
+
+onBeforeUnmount(() => {
+  wide?.removeEventListener("change", syncOpen);
+  observer?.disconnect();
+});
+
+function onToggle(event: Event): void {
+  contentsOpen.value = (event.target as HTMLDetailsElement).open;
+}
 
 useSeoMeta({
   title: page.value.title,
@@ -73,16 +113,14 @@ defineOgImage("Default", {
 <template>
   <div>
     <template v-if="page">
-      <Hero id="top" :title="page.title ?? ''" :date="page.date" :number="recordNumber" />
-      <!-- Closed by default: on a long post it is a map to open, not a wall of
-           links standing between the title and the first paragraph -->
-      <details v-if="contents.length" class="contents">
-        <summary>
-          目次<span class="meta">{{ contents.length }} 節</span>
-        </summary>
+      <Hero id="top" :title="page.title ?? ''" :date="page.date" />
+      <details v-if="contents.length" class="contents" :open="contentsOpen" @toggle="onToggle">
+        <summary>目次</summary>
         <ol>
           <li v-for="link in contents" :key="link.id">
-            <a :href="`#${link.id}`">{{ link.text }}</a>
+            <a :href="`#${link.id}`" :aria-current="activeId === link.id ? 'location' : undefined">
+              {{ link.text }}
+            </a>
           </li>
         </ol>
       </details>
@@ -94,8 +132,9 @@ defineOgImage("Default", {
           <ShareButtons :title="page.title ?? ''" />
           <a href="#top" class="to-top">先頭へ戻る</a>
         </div>
+        <!-- The way on is set like the index: the next title, large -->
         <nav v-if="neighbours.newer || neighbours.older" aria-label="前後の記事">
-          <NuxtLink v-if="neighbours.newer" :to="neighbours.newer.path" class="newer">
+          <NuxtLink v-if="neighbours.newer" :to="neighbours.newer.path">
             <span class="meta">
               新しい記事
               <time v-if="neighbours.newer.date" :datetime="isoDate(neighbours.newer.date)">
@@ -104,7 +143,7 @@ defineOgImage("Default", {
             </span>
             <span class="title">{{ neighbours.newer.title }}</span>
           </NuxtLink>
-          <NuxtLink v-if="neighbours.older" :to="neighbours.older.path" class="older">
+          <NuxtLink v-if="neighbours.older" :to="neighbours.older.path">
             <span class="meta">
               古い記事
               <time v-if="neighbours.older.date" :datetime="isoDate(neighbours.older.date)">
@@ -126,16 +165,15 @@ defineOgImage("Default", {
 
 .contents {
   max-width: var(--content-width);
-  margin: -1.5rem auto 3.5rem;
-  border-bottom: 1px solid var(--color-rule);
+  margin: calc(clamp(3rem, 7vw, 5rem) * -0.5) auto clamp(3rem, 7vw, 4.5rem);
 
   summary {
     display: flex;
-    align-items: baseline;
-    gap: 1rem;
+    align-items: center;
+    gap: 0.75rem;
     min-height: 44px;
-    padding-block: 0.625rem;
-    font-size: 1rem;
+    font-size: var(--text-small);
+    letter-spacing: 0.12em;
     color: var(--color-text-secondary);
     cursor: pointer;
     list-style: none;
@@ -148,7 +186,6 @@ defineOgImage("Default", {
     /* A hairline chevron that turns down when the list is open */
     &::before {
       content: "";
-      align-self: center;
       width: 0.4rem;
       height: 0.4rem;
       margin-inline: 0.15rem 0.1rem;
@@ -168,31 +205,15 @@ defineOgImage("Default", {
   }
 
   ol {
-    padding: 0 0 1.5rem 1.75rem;
+    padding: 0.25rem 0 0 1.5rem;
     list-style: none;
-    counter-reset: section;
-  }
-
-  li {
-    counter-increment: section;
-    display: grid;
-    grid-template-columns: 2rem 1fr;
-    align-items: baseline;
-
-    /* The section's place in the post, which the reader needs to judge length */
-    &::before {
-      content: counter(section);
-      font-size: 0.8125rem;
-      font-variant-numeric: tabular-nums;
-      color: var(--color-text-secondary);
-    }
   }
 
   a {
     display: block;
-    padding-block: 0.3rem;
-    font-size: 0.9375rem;
-    line-height: 1.7;
+    padding-block: 0.5rem;
+    font-size: var(--text-small);
+    line-height: 1.6;
     color: var(--color-text);
 
     &:hover {
@@ -201,10 +222,57 @@ defineOgImage("Default", {
   }
 }
 
+/* Wide: the contents leave the column and stand in the right margin, level
+   with the start of the text, and stay there as the reader scrolls */
+@media (width >= 1280px) {
+  .contents {
+    position: fixed;
+    top: calc(var(--header-height) + 3rem);
+    left: calc(50% + var(--content-width) / 2 + 3.5rem);
+    width: min(15rem, calc(50% - var(--content-width) / 2 - 5rem));
+    max-height: calc(100dvh - var(--header-height) - 6rem);
+    margin: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    /* Out here the wall is at full strength, so each line carries a little of
+       the page's darkness (or paper) around it to stay legible */
+    text-shadow:
+      0 0 0.35em var(--color-bg),
+      0 0 0.8em var(--color-bg);
+
+    /* Always open here, so the toggle has nothing to do */
+    summary {
+      pointer-events: none;
+      min-height: 0;
+      margin-bottom: 0.5rem;
+
+      &::before {
+        display: none;
+      }
+    }
+
+    ol {
+      padding: 0;
+    }
+
+    a {
+      padding-block: 0.3rem;
+      font-size: var(--text-meta);
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+
+      /* The section being read */
+      &[aria-current] {
+        color: var(--color-text);
+      }
+    }
+  }
+}
+
 .article-end {
   max-width: var(--content-width);
   margin-inline: auto;
-  margin-top: 5rem;
+  margin-top: 6rem;
 
   .actions {
     display: flex;
@@ -218,7 +286,7 @@ defineOgImage("Default", {
     display: inline-block;
     min-height: 44px;
     padding-block: 0.625rem;
-    font-size: 0.9375rem;
+    font-size: var(--text-small);
     color: var(--color-text-secondary);
 
     &:hover {
@@ -228,16 +296,13 @@ defineOgImage("Default", {
 
   nav {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin-top: 1.5rem;
-    border-top: 1px solid var(--color-rule);
+    gap: 2.5rem;
+    margin-top: 4rem;
   }
 
   nav a {
     display: grid;
-    gap: 0.25rem;
-    align-content: start;
-    padding-block: 1.5rem;
+    gap: 0.375rem;
     color: var(--color-text);
 
     .meta {
@@ -247,9 +312,12 @@ defineOgImage("Default", {
     }
 
     .title {
-      font-size: 1.0625rem;
-      line-height: 1.7;
-      transition: color 0.2s;
+      font-size: var(--text-h2);
+      line-height: 1.35;
+      letter-spacing: 0.03em;
+      font-feature-settings: "palt";
+      text-wrap: balance;
+      transition: color 0.25s;
     }
 
     &:hover .title {
@@ -257,44 +325,9 @@ defineOgImage("Default", {
     }
   }
 
-  .newer {
-    padding-right: 1.5rem;
-  }
-
-  /* An older post on its own still sits in the right-hand column */
-  .older {
-    grid-column: 2;
-    padding-left: 1.5rem;
-    border-left: 1px solid var(--color-rule);
-    text-align: right;
-
-    .meta {
-      justify-content: end;
-    }
-  }
-
   @media (width <= 768px) {
-    nav {
-      grid-template-columns: 1fr;
-    }
-
-    .newer {
-      padding-right: 0;
-    }
-
-    .older {
-      grid-column: 1;
-      padding-left: 0;
-      border-left: none;
-      text-align: left;
-
-      .meta {
-        justify-content: start;
-      }
-    }
-
-    .newer + .older {
-      border-top: 1px solid var(--color-rule);
+    nav a .title {
+      font-size: 1.4375rem;
     }
   }
 }

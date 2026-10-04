@@ -90,22 +90,21 @@ const domain = computed(() => {
 </template>
 
 <style scoped>
-/* A citation set between two hairlines, not a box: the column has no boxes.
-   The page's own colours win over the linked site's - its OG image is pulled
-   into the ink and rust of the current world and only warms on hover. */
+/* A citation set apart by space and smaller type, not a box: the column has
+   no boxes and no rules. The page's own colours win over the linked site's -
+   its OG image is pulled into the ink and rust of the current world and only
+   warms on hover or focus. */
 .card {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 1.25rem;
   align-items: center;
-  margin-block: 2rem;
-  padding-block: 1rem;
-  border-block: 1px solid var(--color-rule);
+  margin-block: 2.5rem;
   text-decoration: none;
   letter-spacing: 0.03em;
   color: var(--color-text);
 
-  &:hover strong {
+  &:is(:hover, :focus-visible) strong {
     color: var(--color-accent-hover);
   }
 
@@ -200,7 +199,7 @@ const domain = computed(() => {
     }
   }
 
-  &:hover .thumbnail img {
+  &:is(:hover, :focus-visible) .thumbnail img {
     filter: grayscale(0.35) sepia(0.2) contrast(1);
     opacity: 1;
   }
@@ -231,7 +230,7 @@ const domain = computed(() => {
   opacity: 0.9;
 }
 
-:global(.dark .card:hover .thumbnail img) {
+:global(.dark .card:is(:hover, :focus-visible) .thumbnail img) {
   filter: grayscale(0.5) contrast(1.1);
   opacity: 1;
 }
