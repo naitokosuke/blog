@@ -53,9 +53,11 @@ defineOgImage("Default", {
         <ol>
           <li v-for="post in group.posts" :key="post.path">
             <NuxtLink :to="post.path">
+              <!-- Every entry is the same height: one line of title, one line
+                   of description, kept even when the post has none -->
               <span class="title">{{ post.title }}</span>
-              <span v-if="post.description && post.description !== post.title" class="description">
-                {{ post.description }}
+              <span class="description">
+                {{ post.description && post.description !== post.title ? post.description : "" }}
               </span>
             </NuxtLink>
             <time v-if="post.date" class="meta" :datetime="isoDate(post.date)">
@@ -125,17 +127,27 @@ time {
   margin-bottom: 0.25rem;
 }
 
+/* Title and description are each held to exactly one line, cut with an
+   ellipsis, so every entry in the list has the same height */
+.title,
+.description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .title {
   font-size: var(--text-entry);
   line-height: 1.35;
   letter-spacing: 0.03em;
   font-feature-settings: "palt";
-  text-wrap: balance;
   transition: color 0.25s;
 }
 
 .description {
   max-width: 38em;
+  /* An empty line still takes its height */
+  min-height: 1lh;
   font-size: var(--text-small);
   line-height: 1.7;
   color: var(--color-text-secondary);
