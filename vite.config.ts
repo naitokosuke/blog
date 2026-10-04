@@ -66,7 +66,7 @@ export default defineConfig({
       // updates diff cleanly. See .claude/skills/impeccable/VENDORED.md.
       ".claude/skills/impeccable/**",
       ".claude/agents/impeccable-*.md",
-      // Written by `vp run font:subset`; regenerated, never edited by hand.
+      // Generated at build time and gitignored; see modules/font-subset.ts.
       "app/assets/css/font-subset.css",
     ],
   },
@@ -74,8 +74,9 @@ export default defineConfig({
   run: {
     tasks: {
       // Rebuilds the Zen Old Mincho subset from the text the site renders,
-      // into public/fonts + app/assets/css/font-subset.css. Run it after
-      // adding content; forgetting only costs a fetch, never a wrong glyph.
+      // into public/fonts + app/assets/css/font-subset.css. Every build
+      // already does this (modules/font-subset.ts); this is the manual
+      // trigger, e.g. to refresh it in a running `nuxt dev`.
       //
       // Uncached on purpose: it calls the Google Fonts API, and the source
       // directories it scans are listed inside the script, so an `input` glob
