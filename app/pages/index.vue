@@ -88,6 +88,13 @@ section {
   margin-top: clamp(2.5rem, 6vw, 4rem);
 }
 
+/* Where the year turns, a hairline across the column (and, on a wide screen,
+   across the margin the dates hang in) marks the break */
+section + section {
+  padding-top: clamp(2.5rem, 6vw, 4rem);
+  border-top: 1px solid var(--color-rule);
+}
+
 .year {
   font-size: var(--text-meta);
   letter-spacing: 0.2em;
@@ -161,8 +168,15 @@ time {
    left margin and sit on the first line of the title */
 @media (width >= 1040px) {
   .year,
-  li {
+  li,
+  section + section {
     margin-left: calc(var(--hang) * -1);
+  }
+
+  /* The section itself now starts in the margin, so its children are already
+     out there */
+  section + section :is(.year, li) {
+    margin-left: 0;
   }
 
   .year {
