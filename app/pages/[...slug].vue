@@ -104,7 +104,10 @@ useSchemaOrg([
   }),
 ]);
 
-defineOgImage("Default", {
+// The full registered name, not "Default": nuxt-og-image only puts the
+// template hash in the image URL when the name matches exactly, and the images
+// are cached as immutable, so without it a redesign never reaches link previews.
+defineOgImage("DefaultTakumi", {
   title: page.value.title,
   description: page.value.description,
 });
