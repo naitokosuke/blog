@@ -47,7 +47,7 @@
     "vite-plus": "1.0.0-rc.0"
   },
   "engines": {
-    "node": ">=24.13"
+    "node": ">=26.12"
   },
   "packageManager": "pnpm@11.7.0"
 }

@@ -5,7 +5,7 @@
 
   languages.javascript = {
     enable = true;
-    package = pkgs.nodejs_24;
+    package = pkgs.nodejs_26;
     pnpm.enable = true;
   };
 }
