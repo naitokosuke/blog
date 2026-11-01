@@ -26,9 +26,9 @@ export default defineConfig({
     // live here.
     overrides: [
       {
-        // nuxt-og-image resolves OG components by the `<Name>.satori.vue`
+        // nuxt-og-image resolves OG components by the `<Name>.takumi.vue`
         // filename, so this one cannot be renamed.
-        files: ["components/OgImage/*.satori.vue"],
+        files: ["components/OgImage/*.takumi.vue"],
         rules: {
           "vize/vue/component-definition-name-casing": "off",
         },

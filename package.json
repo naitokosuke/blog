@@ -17,12 +17,11 @@
     "@nuxt/fonts": "0.14.0",
     "@nuxtjs/color-mode": "^4.0.1",
     "@nuxtjs/seo": "^5.3.16",
-    "@resvg/resvg-js": "^2.6.2",
+    "@takumi-rs/core": "^2.19.0",
     "@valibot/to-json-schema": "^1.8.0",
     "nuxt": "^4.5.2",
     "nuxt-studio": "^1.7.0",
     "pg": "^8.23.0",
-    "satori": "^0.33.5",
     "valibot": "^1.5.0"
   },
   "devDependencies": {
