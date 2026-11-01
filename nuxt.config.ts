@@ -117,6 +117,14 @@ export default defineNuxtConfig({
     },
   },
 
+  // nuxt-og-image reads only the first @font-face per family from app CSS,
+  // which in font-subset.css is a Latin-only bucket, so OG images lost every
+  // Japanese glyph. Declared here, the family reaches it with all the Google
+  // subsets; pages still load font-subset.css on top, so readers see no change.
+  fonts: {
+    families: [{ name: "Zen Old Mincho", weights: [400], global: true }],
+  },
+
   ogImage: {
     zeroRuntime: true,
   },
