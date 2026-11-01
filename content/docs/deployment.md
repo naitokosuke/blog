@@ -27,7 +27,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 26
       - run: pnpm install
       - run: pnpm generate
       - uses: cloudflare/wrangler-action@v3
