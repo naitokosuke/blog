@@ -34,7 +34,8 @@ useSchemaOrg([
   defineWebPage(),
 ]);
 
-defineOgImage("Default", {
+// The full registered name keeps the template hash in the URL; see [...slug].vue.
+defineOgImage("DefaultTakumi", {
   title: "blog.naito.dev",
   description: "ナイトウコウスケのブログ",
 });
