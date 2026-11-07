@@ -522,6 +522,20 @@ nuxt-studio {
   }
 }
 
+/* sight without the blur, for blocks that carry a pixel filter of their own:
+   an animated filter on them, even one a later rule overrides, makes the
+   browser run the pixel filter again every frame of the scroll */
+@keyframes sight-fade {
+  from,
+  to {
+    opacity: 0.18;
+  }
+  22%,
+  80% {
+    opacity: 1;
+  }
+}
+
 /* Every page arrives the way a Silent Hill scene does: up out of black */
 @keyframes arrive {
   from {
@@ -571,11 +585,11 @@ nuxt-studio {
   }
 
   /* So the reading text is coarsened block by block. Those blocks are what
-     the reach-of-sight animation drives, and an animation outranks a plain
-     declaration, so this one is important: the blocks keep their fade but
-     not its blur, which the coarse steps stand in for. */
+     the reach-of-sight animation drives; they keep its fade but trade its
+     blur for the coarse steps (see sight-fade). */
   .prose > div > * {
-    filter: url("#pixel-2-soft") !important;
+    filter: url("#pixel-2-soft");
+    animation-name: sight-fade;
   }
 
   :is(
