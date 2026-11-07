@@ -573,19 +573,20 @@ nuxt-studio {
    the words plainly again.
 
    A phone sets smaller type, so there everything but the page title takes
-   1px steps, the screen's density picking the filter cut for it. Steps that
-   fine leave small print readable, so it takes them hard as well. */
+   steps of about 1.5px, the screen's density picking the filter cut for
+   it. */
 :root:not(.no-pixel) {
   --pixel: url("#pixel-2");
   --pixel-soft: url("#pixel-2-soft");
 
   @media (width <= 768px) and (resolution >= 2dppx) {
-    --pixel: url("#pixel-1-x2");
-    --pixel-soft: var(--pixel);
+    --pixel: url("#pixel-phone-x2");
+    --pixel-soft: url("#pixel-phone-x2-soft");
   }
 
   @media (width <= 768px) and (resolution >= 2.5dppx) {
-    --pixel: url("#pixel-1-x3");
+    --pixel: url("#pixel-phone-x3");
+    --pixel-soft: url("#pixel-phone-x3-soft");
   }
 
   .hero h1 {

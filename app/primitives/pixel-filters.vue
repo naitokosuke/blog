@@ -21,18 +21,31 @@
        every dilate radius is a whole number; WebKit drops a radius of 0.5,
          so a 2px block is filled by copying the sample, not by dilating
 
-     #pixel-1-xN is a block of 1 CSS pixel for a phone, whose type is smaller
-     and whose screen is N device pixels to the CSS pixel. Its cell is one
-     device pixel (1/N), so the sample needs no dilate to hold one value, and
-     the block is filled by copies offset a device pixel at a time. The CSS
+     #pixel-phone-xN is a block of about 1.5 CSS pixels for a phone, whose
+     type is smaller and whose screen is N device pixels to the CSS pixel.
+     The block is a whole number of device pixels (3 on a 2x screen, 1.5px;
+     5 on a 3x one, 1.67px, as 4.5 would not tile evenly). Its cell is one
+     device pixel, so the sample holds one value as it is, and a dilate of 1
+     grows it over the block, spilling a device pixel into each neighbour
+     where the darker one wins; filling by offset copies instead drew the
+     same but halved the frame rate of a scroll in WebKit. WebKit rounds a
+     tile to whole CSS pixels, so the tile is N blocks wide (a whole number
+     of CSS pixels) and its N cells are placed by offset copies. The CSS
      picks the one matching the screen. -->
 <script setup lang="ts">
-const fine = [2, 3].map((n) => ({
-  id: `pixel-1-x${n}`,
-  cell: 1 / n,
-  // Device-pixel steps across the block, after the sample itself
-  steps: Array.from({ length: n - 1 }, (_, i) => (i + 1) / n),
-}));
+const fine = [
+  { n: 2, block: 3 },
+  { n: 3, block: 5 },
+].flatMap(({ n, block }) =>
+  [false, true].map((soft) => ({
+    id: `pixel-phone-x${n}${soft ? "-soft" : ""}`,
+    soft,
+    cell: 1 / n,
+    tile: block,
+    // Where the other cells of a tile sit, after its first
+    cells: Array.from({ length: n - 1 }, (_, i) => ((i + 1) * block) / n),
+  })),
+);
 </script>
 
 <template>
@@ -104,19 +117,28 @@ const fine = [2, 3].map((n) => ({
       y="0"
     >
       <feFlood :height="f.cell" :width="f.cell" />
-      <feComposite height="1" width="1" />
-      <feTile result="grid" />
-      <feComposite in="SourceGraphic" in2="grid" operator="in" result="sample" />
-      <feOffset v-for="s in f.steps" :key="s" :dx="s" in="sample" :result="`x${s}`" />
-      <feMerge result="row">
-        <feMergeNode in="sample" />
-        <feMergeNode v-for="s in f.steps" :key="s" :in="`x${s}`" />
+      <feComposite :height="f.tile" :width="f.tile" />
+      <feTile result="tiled" />
+      <feOffset v-for="c in f.cells" :key="c" :dx="c" in="tiled" :result="`gx${c}`" />
+      <feMerge result="columns">
+        <feMergeNode in="tiled" />
+        <feMergeNode v-for="c in f.cells" :key="c" :in="`gx${c}`" />
       </feMerge>
-      <feOffset v-for="s in f.steps" :key="s" :dy="s" in="row" :result="`y${s}`" />
-      <feMerge>
-        <feMergeNode in="row" />
-        <feMergeNode v-for="s in f.steps" :key="s" :in="`y${s}`" />
+      <feOffset v-for="c in f.cells" :key="c" :dy="c" in="columns" :result="`gy${c}`" />
+      <feMerge result="grid">
+        <feMergeNode in="columns" />
+        <feMergeNode v-for="c in f.cells" :key="c" :in="`gy${c}`" />
       </feMerge>
+      <feComposite in="SourceGraphic" in2="grid" operator="in" />
+      <feMorphology operator="dilate" radius="1" :result="f.soft ? 'coarse' : undefined" />
+      <feComposite
+        v-if="f.soft"
+        in="coarse"
+        in2="SourceGraphic"
+        k2="0.55"
+        k3="0.45"
+        operator="arithmetic"
+      />
     </filter>
   </svg>
 </template>
