@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import { useColorMode } from "#imports";
+import { canvasSize } from "./canvas-size";
 import { useOverlay } from "./use-overlay";
 
-const { fogOpacity } = useOverlay();
+const { fogOpacity, pixelEnabled } = useOverlay();
 const canvasRef = useTemplateRef<HTMLCanvasElement>("canvasRef");
 const colorMode = useColorMode();
 
@@ -144,9 +145,7 @@ let startTime = 0;
 // frame, which read as the effect looping
 let clockMs = 0;
 let lastFrameTime = 0;
-let sizedWidth = 0;
-let sizedHeight = 0;
-let sizedDpr = 0;
+let sizedKey = "";
 const TARGET_FPS = 30;
 const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
@@ -240,21 +239,18 @@ function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!canvas || !gl) return;
 
-  const dpr = Math.min(window.devicePixelRatio, 1.5);
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+  const size = canvasSize(pixelEnabled.value);
 
   // Mobile browsers fire resize for every URL-bar nudge; reallocating the
   // drawing buffer for an unchanged size is pure waste
-  if (width === sizedWidth && height === sizedHeight && dpr === sizedDpr) return;
-  sizedWidth = width;
-  sizedHeight = height;
-  sizedDpr = dpr;
+  if (size.key === sizedKey) return;
+  sizedKey = size.key;
 
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
-  canvas.style.width = `${width}px`;
-  canvas.style.height = `${height}px`;
+  canvas.width = size.width;
+  canvas.height = size.height;
+  canvas.style.width = `${size.cssWidth}px`;
+  canvas.style.height = `${size.cssHeight}px`;
+  canvas.style.imageRendering = size.rendering;
 
   gl.viewport(0, 0, canvas.width, canvas.height);
 }
@@ -341,6 +337,8 @@ onMounted(() => {
   });
 
   window.addEventListener("resize", scheduleResize);
+  // The header's pixel toggle coarsens the fog along with the words
+  watch(pixelEnabled, scheduleResize);
 
   // Watch tab visibility changes (pause rendering when inactive)
   document.addEventListener("visibilitychange", () => {

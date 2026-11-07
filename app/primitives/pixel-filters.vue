@@ -5,7 +5,7 @@
      aloud); only its picture is coarsened. The steps are sized to the type
      the way a 480-line screen sized them: a glyph some 14 to 20 blocks tall.
 
-     The sizes live in `tuning` below; the CSS (assets/css/main.css) picks
+     The sizes live in `tuning` (pixel-tuning.ts); the CSS (assets/css/main.css) picks
      which filter each kind of text takes, by role, so changing a size never
      touches it.
 
@@ -40,20 +40,7 @@
      steps laid over the sharp drawing rather than replacing it, so the edges
      still stair-step but every stroke keeps its true shape. -->
 <script setup lang="ts">
-const tuning = {
-  // How much of the coarse picture a -soft filter shows over the sharp
-  // text, 0 to 1
-  softMix: 0.55,
-  // Wide screens, in CSS pixels
-  wide: { title: 3, text: 2 },
-  phone: {
-    // In CSS pixels
-    title: 2,
-    // In device pixels, by screen density (2x, 3x); the CSS picks the one
-    // for the screen
-    text: { 2: 3, 3: 5 },
-  },
-};
+import { tuning } from "./pixel-tuning";
 
 const half = (n: number) => Math.floor((n - 1) / 2);
 

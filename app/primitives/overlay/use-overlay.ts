@@ -12,8 +12,9 @@ export function useOverlay() {
   const textureEnabled = useState("textureEnabled", () => true);
   const textureOpacity = useState("textureOpacity", () => 1);
 
-  // PlayStation-resolution text (both modes). The filters are switched off by
-  // a class on <html>, which the pixel rules in main.css step around.
+  // PlayStation resolution for the text and the background (both modes). The
+  // text filters are switched off by a class on <html>, which the pixel rules
+  // in main.css step around; the background canvases watch this state.
   const pixelEnabled = useState("pixelEnabled", () => true);
 
   function togglePixel() {
