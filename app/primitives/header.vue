@@ -44,7 +44,7 @@ const isLight = computed(() => colorMode.value === "light");
           </button>
           <button
             type="button"
-            :aria-label="pixelEnabled ? '文字の粗さを戻す' : '文字を粗くする'"
+            :aria-label="pixelEnabled ? '画面の粗さを戻す' : '画面を粗くする'"
             @click="togglePixel"
           >
             <AppIcon :name="pixelEnabled ? 'type' : 'grid-2x2'" size="20" />

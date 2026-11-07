@@ -574,7 +574,7 @@ nuxt-studio {
 
    A phone sets smaller type, so there it takes finer steps, the text's cut
    for the screen's density. The step sizes are set in `tuning` in
-   pixel-filters.vue; here is only which role takes which filter. */
+   primitives/pixel-tuning.ts; here is only which role takes which filter. */
 :root:not(.no-pixel) {
   --pixel-title: url("#pixel-title");
   --pixel: url("#pixel-text");
