@@ -561,8 +561,8 @@ nuxt-studio {
 
 /* PlayStation resolution, on every word the site sets. Words are coarsened
    in square steps sized to the type, a glyph some 14 to 20 steps tall, as on
-   a 480-line screen: 3px for the page title, 2px for headings, titles and the
-   name in the header. Small print (dates, descriptions, the contents, the
+   a 480-line screen: coarsest for the page title, then headings, titles and
+   the name in the header. Small print (dates, descriptions, the contents, the
    foot, the header's glyphs and hints) has too few steps to survive the hard
    steps, so it takes the softened ones, as the reading text does. The filters
    live in primitives/pixel-filters.vue. They are never set on an ancestor of
@@ -572,12 +572,17 @@ nuxt-studio {
    nothing in its place. The header's toggle puts .no-pixel on <html> to draw
    the words plainly again.
 
-   A phone sets smaller type, so there everything but the page title takes
-   steps of about 1.5px, the screen's density picking the filter cut for
-   it. */
+   A phone sets smaller type, so there it takes finer steps, the text's cut
+   for the screen's density. The step sizes are set in `tuning` in
+   pixel-filters.vue; here is only which role takes which filter. */
 :root:not(.no-pixel) {
-  --pixel: url("#pixel-2");
-  --pixel-soft: url("#pixel-2-soft");
+  --pixel-title: url("#pixel-title");
+  --pixel: url("#pixel-text");
+  --pixel-soft: url("#pixel-text-soft");
+
+  @media (width <= 768px) {
+    --pixel-title: url("#pixel-phone-title");
+  }
 
   @media (width <= 768px) and (resolution >= 2dppx) {
     --pixel: url("#pixel-phone-x2");
@@ -590,11 +595,7 @@ nuxt-studio {
   }
 
   .hero h1 {
-    filter: url("#pixel-3");
-
-    @media (width <= 768px) {
-      filter: url("#pixel-2");
-    }
+    filter: var(--pixel-title);
   }
 
   :is(.index h1, .index .year, .index .title, .article-end nav .title, header .logo) {
