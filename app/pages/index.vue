@@ -8,12 +8,12 @@ const { data: posts } = await usePostList();
 
 // One group per year, newest first
 const years = computed(() => {
-  const groups: { year: string; posts: NonNullable<typeof posts.value> }[] = [];
+  const groups: { id: string; year: string; posts: NonNullable<typeof posts.value> }[] = [];
   for (const post of posts.value ?? []) {
     const year = post.date?.slice(0, 4) ?? "";
     const last = groups.at(-1);
     if (last?.year === year) last.posts.push(post);
-    else groups.push({ year, posts: [post] });
+    else groups.push({ id: `year-${year}`, year, posts: [post] });
   }
   return groups;
 });
@@ -49,19 +49,17 @@ defineOgImage("DefaultTakumi", {
     <h1>ナイトウコウスケのブログ</h1>
 
     <template v-if="years.length">
-      <section v-for="group in years" :key="group.year" :aria-labelledby="`year-${group.year}`">
-        <h2 :id="`year-${group.year}`" class="year">{{ group.year }}</h2>
+      <section v-for="group in years" :key="group.year" :aria-labelledby="group.id">
+        <h2 :id="group.id" class="year">{{ group.year }}</h2>
         <ol>
           <li v-for="post in group.posts" :key="post.path">
             <NuxtLink :to="post.path">
-              <!-- Every entry is the same height: one line of title, one line
-                   of description, kept even when the post has none -->
               <span class="title">{{ post.title }}</span>
-              <span class="description">
-                {{ post.description && post.description !== post.title ? post.description : "" }}
+              <span v-if="post.description && post.description !== post.title" class="description">
+                {{ post.description }}
               </span>
             </NuxtLink>
-            <time v-if="post.date" class="meta" :datetime="isoDate(post.date)">
+            <time v-if="post.date != null" class="meta" :datetime="isoDate(post.date)">
               {{ formatDate(post.date).slice(5) }}
             </time>
           </li>
@@ -80,25 +78,37 @@ defineOgImage("DefaultTakumi", {
 }
 
 h1 {
+  font-family: var(--font-ui);
   font-size: var(--text-small);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   color: var(--color-text-secondary);
 }
 
 section {
-  margin-top: clamp(2.5rem, 6vw, 4rem);
-}
+  margin-block-start: clamp(2.5rem, 6vw, 4rem);
 
-/* Where the year turns, a hairline across the column (and, on a wide screen,
-   across the margin the dates hang in) marks the break */
-section + section {
-  padding-top: clamp(2.5rem, 6vw, 4rem);
-  border-top: 1px solid var(--color-rule);
+  /* Where the year turns, a hairline across the column (and, on a wide screen,
+     across the margin the dates hang in) marks the break */
+  & + section {
+    padding-block-start: clamp(2.5rem, 6vw, 4rem);
+    border-block-start: 1px solid var(--color-rule);
+
+    /* Room on both sides: the section itself starts in the margin, so its
+       children are already out there */
+    @media (width >= 1040px) {
+      margin-inline-start: calc(var(--hang) * -1);
+
+      :is(.year, li) {
+        margin-inline-start: 0;
+      }
+    }
+  }
 }
 
 .year {
+  font-family: var(--font-ui);
   font-size: var(--text-meta);
-  letter-spacing: 0.2em;
+  letter-spacing: 0.1em;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-secondary);
   margin-bottom: 0.75rem;
@@ -125,9 +135,30 @@ a {
   gap: 0.375rem;
   color: var(--color-text);
 
-  &:hover .title {
-    color: var(--color-accent-hover);
+  /* Reached for, the entry comes up out of the dark with a soft bloom */
+  &:is(:hover, :focus-visible) {
+    color: var(--color-text);
+    outline: none;
+
+    .title {
+      text-shadow: 0 0 0.6em var(--glow);
+    }
+
+    .description {
+      color: var(--color-text);
+    }
   }
+}
+
+/* Light on one entry, and the rest fall back into the fog or the dark:
+   a flashlight shows you one thing at a time. Set on the children, since
+   the li's own opacity belongs to the reach-of-sight animation. */
+li > * {
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+ol:has(a:is(:hover, :focus-visible)) li:not(:has(a:is(:hover, :focus-visible))) > * {
+  opacity: 0.3;
 }
 
 time {
@@ -135,8 +166,9 @@ time {
   margin-bottom: 0.25rem;
 }
 
-/* Title and description are each held to exactly one line, cut with an
-   ellipsis, so every entry in the list has the same height */
+/* Title and description are each held to one line, cut with an ellipsis.
+   A post without a description is one line shorter: a blank line held open
+   for it read as a hole in the list. */
 .title,
 .description {
   overflow: hidden;
@@ -149,16 +181,17 @@ time {
   line-height: 1.35;
   letter-spacing: 0.03em;
   font-feature-settings: "palt";
-  transition: color 0.25s;
+  /* Room inside the clipped box for the bloom to spread */
+  padding-block: 0.1em;
+  transition: text-shadow 0.8s;
 }
 
 .description {
   max-width: 38em;
-  /* An empty line still takes its height */
-  min-height: 1lh;
   font-size: var(--text-small);
   line-height: 1.7;
   color: var(--color-text-secondary);
+  transition: color 0.8s;
 }
 
 .empty {
@@ -169,15 +202,8 @@ time {
    left margin and sit on the first line of the title */
 @media (width >= 1040px) {
   .year,
-  li,
-  section + section {
-    margin-left: calc(var(--hang) * -1);
-  }
-
-  /* The section itself now starts in the margin, so its children are already
-     out there */
-  section + section :is(.year, li) {
-    margin-left: 0;
+  li {
+    margin-inline-start: calc(var(--hang) * -1);
   }
 
   .year {

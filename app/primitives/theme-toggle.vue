@@ -14,6 +14,7 @@ function toggleTheme(): void {
 <template>
   <ClientOnly>
     <button
+      class="marked"
       type="button"
       :aria-label="
         isDark ? '表の世界（ライトモード）に切り替える' : '裏の世界（ダークモード）に切り替える'
@@ -23,7 +24,7 @@ function toggleTheme(): void {
       {{ isDark ? "表" : "裏" }}
     </button>
     <template #fallback>
-      <button type="button" aria-label="表と裏を切り替える">暗</button>
+      <button aria-label="表と裏を切り替える" class="marked" type="button">暗</button>
     </template>
   </ClientOnly>
 </template>
@@ -71,26 +72,10 @@ function toggleTheme(): void {
   unicode-range: U+6697; /* 暗 */
 }
 
-button {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  background: none;
-  border: none;
-  border-radius: 8px;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition:
-    background-color 0.2s,
-    color 0.2s;
+/* Box, color and the red-pen ring come from the header's .marked; only the
+   face is this button's own */
+button.marked {
   font-family: "Noto Serif JP", serif;
-  font-size: 18px;
-  font-weight: 500;
-
-  &:hover {
-    background-color: var(--color-bg-secondary);
-    color: var(--color-text);
-  }
+  font-weight: 400;
 }
 </style>

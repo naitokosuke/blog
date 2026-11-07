@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{
+const { title, description, siteName } = defineProps<{
   title: string;
   description?: string;
   siteName?: string;
@@ -17,8 +17,8 @@ defineProps<{
   >
     <!-- Background image -->
     <img
-      src="/og-background.png"
       alt=""
+      src="/og-background.png"
       :style="{
         position: 'absolute',
         top: '0',
@@ -72,7 +72,7 @@ defineProps<{
           {{ title }}
         </div>
         <div
-          v-if="description"
+          v-if="(description ?? '') !== ''"
           :style="{
             fontSize: '24px',
             color: '#c0b8b0',

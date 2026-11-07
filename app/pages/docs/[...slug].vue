@@ -12,19 +12,19 @@ if (page.value == null) {
   throw createError({ statusCode: 404, statusMessage: "Page not found", fatal: true });
 }
 
-const title = computed(() => page.value?.title || extractTitleFromPath(route.path));
+const title = computed(() => page.value?.title ?? extractTitleFromPath(route.path));
 
 function extractTitleFromPath(path: string): string {
   const segments = path.split("/").filter(Boolean);
   const last = segments[segments.length - 1];
-  return last?.replace(/-/g, " ") || "Documentation";
+  return last?.replace(/-/g, " ") ?? "Documentation";
 }
 
 useSeoMeta({
-  title: title.value,
-  description: page.value?.description,
-  ogTitle: title.value,
-  ogDescription: page.value?.description,
+  title,
+  description: () => page.value?.description,
+  ogTitle: title,
+  ogDescription: () => page.value?.description,
 });
 </script>
 

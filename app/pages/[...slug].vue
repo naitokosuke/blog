@@ -133,14 +133,14 @@ defineOgImage("DefaultTakumi", {
       <footer class="article-end">
         <div class="actions">
           <ShareButtons :title="page.title ?? ''" />
-          <a href="#top" class="to-top">先頭へ戻る</a>
+          <a class="to-top" href="#top">先頭へ戻る</a>
         </div>
         <!-- The way on is set like the index: the next title, large -->
         <nav v-if="neighbours.newer || neighbours.older" aria-label="前後の記事">
           <NuxtLink v-if="neighbours.newer" :to="neighbours.newer.path">
             <span class="meta">
               新しい記事
-              <time v-if="neighbours.newer.date" :datetime="isoDate(neighbours.newer.date)">
+              <time v-if="neighbours.newer.date != null" :datetime="isoDate(neighbours.newer.date)">
                 {{ formatDate(neighbours.newer.date) }}
               </time>
             </span>
@@ -149,7 +149,7 @@ defineOgImage("DefaultTakumi", {
           <NuxtLink v-if="neighbours.older" :to="neighbours.older.path">
             <span class="meta">
               古い記事
-              <time v-if="neighbours.older.date" :datetime="isoDate(neighbours.older.date)">
+              <time v-if="neighbours.older.date != null" :datetime="isoDate(neighbours.older.date)">
                 {{ formatDate(neighbours.older.date) }}
               </time>
             </span>
@@ -162,11 +162,8 @@ defineOgImage("DefaultTakumi", {
 </template>
 
 <style scoped>
-#top {
-  scroll-margin-top: var(--header-height);
-}
-
 .contents {
+  font-family: var(--font-ui);
   max-width: var(--content-width);
   margin: calc(clamp(3rem, 7vw, 5rem) * -0.5) auto clamp(3rem, 7vw, 4.5rem);
 
@@ -176,7 +173,7 @@ defineOgImage("DefaultTakumi", {
     gap: 0.75rem;
     min-height: 44px;
     font-size: var(--text-small);
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     color: var(--color-text-secondary);
     cursor: pointer;
     list-style: none;
@@ -230,8 +227,9 @@ defineOgImage("DefaultTakumi", {
 @media (width >= 1280px) {
   .contents {
     position: fixed;
-    top: calc(var(--header-height) + 3rem);
-    left: calc(50% + var(--content-width) / 2 + 3.5rem);
+    /* Level with the title, which opens 6rem below the header */
+    inset-block-start: calc(var(--header-height) + 6rem);
+    inset-inline-start: calc(50% + var(--content-width) / 2 + 3.5rem);
     width: min(15rem, calc(50% - var(--content-width) / 2 - 5rem));
     max-height: calc(100dvh - var(--header-height) - 6rem);
     margin: 0;
@@ -259,15 +257,35 @@ defineOgImage("DefaultTakumi", {
     }
 
     a {
-      padding-block: 0.3rem;
+      padding-block: 0.25rem;
       font-size: var(--text-meta);
-      line-height: 1.6;
+      line-height: 1.55;
+      letter-spacing: 0.02em;
       color: var(--color-text-secondary);
+      /* Only the section you are in is clear; the rest of the way lies in
+         the murk, the near rooms less deep in it than the far ones */
+      opacity: 0.4;
+      transition:
+        opacity 0.8s,
+        color 0.8s,
+        text-shadow 0.8s;
 
-      /* The section being read */
-      &[aria-current] {
-        color: var(--color-text);
+      &:hover {
+        opacity: 1;
       }
+
+      &[aria-current] {
+        opacity: 1;
+        color: var(--color-text);
+        text-shadow:
+          0 0 0.35em var(--color-bg),
+          0 0 0.8em var(--glow);
+      }
+    }
+
+    li:has(+ li > [aria-current]) a,
+    li:has(> [aria-current]) + li a {
+      opacity: 0.7;
     }
   }
 }
@@ -286,6 +304,7 @@ defineOgImage("DefaultTakumi", {
   }
 
   .to-top {
+    font-family: var(--font-ui);
     display: inline-block;
     min-height: 44px;
     padding-block: 0.625rem;

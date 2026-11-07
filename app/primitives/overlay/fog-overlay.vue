@@ -165,7 +165,7 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string): 
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
 
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+  if (gl.getShaderParameter(shader, gl.COMPILE_STATUS) !== true) {
     console.error("Shader compile error:", gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
     return null;
@@ -180,13 +180,12 @@ function createProgram(
   fs: WebGLShader,
 ): WebGLProgram | null {
   const prog = gl.createProgram();
-  if (!prog) return null;
 
   gl.attachShader(prog, vs);
   gl.attachShader(prog, fs);
   gl.linkProgram(prog);
 
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+  if (gl.getProgramParameter(prog, gl.LINK_STATUS) !== true) {
     console.error("Program link error:", gl.getProgramInfoLog(prog));
     gl.deleteProgram(prog);
     return null;
@@ -396,14 +395,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <canvas ref="canvasRef" width="1" height="1" />
+  <canvas ref="canvasRef" height="1" width="1" />
 </template>
 
 <style scoped>
 canvas {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: var(--z-fog);
   opacity: v-bind(fogOpacity);
   pointer-events: none;
   touch-action: none;

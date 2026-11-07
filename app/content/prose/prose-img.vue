@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { safeUrl } from "~/utils/safe-url";
 
-defineProps<{
+const { src, alt, width, height } = defineProps<{
   src: string;
   alt?: string;
   width?: string | number;
@@ -10,5 +10,5 @@ defineProps<{
 </script>
 
 <template>
-  <img :src="safeUrl(src)" :alt="alt" :width="width" :height="height" />
+  <img :src="safeUrl(src)" :alt :width :height />
 </template>

@@ -1,15 +1,15 @@
 <script setup lang="ts">
-defineProps<{
+const { is, id } = defineProps<{
   is: "h1" | "h2" | "h3" | "h4";
   id?: string;
 }>();
 </script>
 
 <template>
-  <component :is="is" :id="id">
-    <a v-if="id" :href="`#${id}`">
+  <component :is :id>
+    <a v-if="id !== undefined" :href="`#${id}`">
       <slot />
-      <AppIcon name="link-simple" class="heading-anchor-icon" />
+      <AppIcon class="heading-anchor-icon" name="link-simple" />
     </a>
     <slot v-else />
   </component>
