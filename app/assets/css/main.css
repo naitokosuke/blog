@@ -30,12 +30,25 @@
   --color-blood: #8a2f25;
   --color-rust: #8a5a3a;
 
+  /* The world of Silent Hill is mostly what cannot be seen: fog or darkness
+     fills the frame, and only a short reach around you is clear. The UI
+     follows it. Words are never razor-sharp; what you reach for comes up out
+     of the murk with a soft bloom, the way a PS2 frame glowed; and what is
+     far from where you are reading sinks back into the fog or the dark. */
+  /* The bloom around a word that has come into sight. In fog it is the
+     fog's own pale, so the word seems to stand inside it. */
+  --glow: color-mix(in oklab, #fff 70%, transparent);
+
   /* Typography */
   --font-sans: "Zen Old Mincho", ui-serif, serif;
+  /* Wayfinding (dates, the contents, the site name, the menu) is serif too:
+     Silent Hill sets its menus and memos as serif words on darkness, never as
+     OS chrome. Kept as its own token so the menu layer can be told apart. */
+  --font-ui: var(--font-sans);
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   /* Type scale. One weight, so each step is at least ~1.25x the one below. */
-  --text-meta: 0.8125rem;
+  --text-meta: 0.875rem;
   --text-small: 0.9375rem;
   --text-body: 1.1875rem;
   --text-h3: 1.4375rem;
@@ -51,6 +64,12 @@
 
   /* Dates hang in the margin left of the column when there is room for them */
   --hang: 6.5rem;
+
+  /* Stacking, back to front: the paper texture under the content, the fog
+     over it, and the header above the fog so the fog is seen through it */
+  --z-texture: -1;
+  --z-fog: 100;
+  --z-header: 110;
 }
 
 .dark {
@@ -67,6 +86,8 @@
   --color-accent-hover: #c46a5e;
   --color-blood: #7e2b23;
   --color-rust: #9a6440;
+  /* In the dark, the bloom is the word's own light: a warm flashlight pale */
+  --glow: color-mix(in oklab, #f3dcb8 38%, transparent);
 }
 
 /* Reset */
@@ -93,7 +114,7 @@ ol {
 html {
   font-family: var(--font-sans);
   font-weight: 400;
-  line-height: 2;
+  line-height: 1.85;
   color: var(--color-text);
   background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
@@ -108,8 +129,8 @@ html {
 
 body {
   min-height: 100dvh;
-  font-size: 1.1875rem;
-  letter-spacing: 0.04em;
+  font-size: var(--text-body);
+  letter-spacing: 0.02em;
 }
 
 :is(h1, h2, h3, h4, h5, h6, strong, b, th) {
@@ -200,8 +221,9 @@ img {
 
 /* Dates and other small print: quiet, with numerals that line up */
 .meta {
+  font-family: var(--font-ui);
   font-size: var(--text-meta);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-secondary);
 }
@@ -230,6 +252,7 @@ img {
     letter-spacing: 0.04em;
     font-feature-settings: "palt";
     text-wrap: balance;
+    word-break: auto-phrase;
     scroll-margin-top: calc(var(--header-height) + 1rem);
   }
 
@@ -242,7 +265,7 @@ img {
      step in size is all it takes to start something new */
   h2 {
     font-size: var(--text-h2);
-    margin-block: 5.5rem 1.5rem;
+    margin-block: 4.5rem 1.25rem;
   }
 
   h3 {
@@ -257,8 +280,16 @@ img {
     margin-block: 2.5rem 0.5rem;
   }
 
+  /* Posts are written a line at a time, so paragraphs sit close: a full line
+     apart cut the text into slips, half a line keeps it a page of prose while
+     each thought still starts on its own line */
   p {
-    margin-bottom: 1.1em;
+    margin-bottom: 0.5em;
+  }
+
+  /* A paragraph after a list, quote or figure gets a full gap back */
+  :is(ul, ol, blockquote, pre, figure, table) + p {
+    margin-top: 1.25em;
   }
 
   :is(ul, ol) {
@@ -461,4 +492,45 @@ nuxt-studio {
   bottom: 0 !important;
   left: 0 !important;
   z-index: 9999 !important;
+}
+
+/* The reach of sight. A block of text is clear while it is near the middle of
+   the screen and sinks into the fog (or the dark) as it moves toward the
+   edges, softening as it goes: the radius a flashlight or the fog allows.
+   Only opacity and a touch of blur move, and only on the words; the world
+   behind them is untouched. */
+@keyframes sight {
+  from,
+  to {
+    opacity: 0.18;
+    filter: blur(1.5px);
+  }
+  22%,
+  80% {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* Every page arrives the way a Silent Hill scene does: up out of black */
+@keyframes arrive {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* backwards, not both: a filter left on after the fade would become the
+     containing block of the fixed contents and carry them off with the page */
+  main > * {
+    animation: arrive 1.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  @supports (animation-timeline: view()) {
+    :is(.prose > div > *, .index li, .article-end nav a) {
+      animation: sight linear both;
+      animation-timeline: view();
+    }
+  }
 }
