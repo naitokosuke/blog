@@ -570,8 +570,24 @@ nuxt-studio {
    clip, nor on anything as tall as a whole article: WebKit (Safari, and
    every browser on iOS) refuses to filter an area that large and draws
    nothing in its place. The header's toggle puts .no-pixel on <html> to draw
-   the words plainly again. */
+   the words plainly again.
+
+   A phone sets smaller type, so there everything but the page title takes
+   1px steps, the screen's density picking the filter cut for it. Steps that
+   fine leave small print readable, so it takes them hard as well. */
 :root:not(.no-pixel) {
+  --pixel: url("#pixel-2");
+  --pixel-soft: url("#pixel-2-soft");
+
+  @media (width <= 768px) and (resolution >= 2dppx) {
+    --pixel: url("#pixel-1-x2");
+    --pixel-soft: var(--pixel);
+  }
+
+  @media (width <= 768px) and (resolution >= 2.5dppx) {
+    --pixel: url("#pixel-1-x3");
+  }
+
   .hero h1 {
     filter: url("#pixel-3");
 
@@ -581,14 +597,14 @@ nuxt-studio {
   }
 
   :is(.index h1, .index .year, .index .title, .article-end nav .title, header .logo) {
-    filter: url("#pixel-2");
+    filter: var(--pixel);
   }
 
   /* So the reading text is coarsened block by block. Those blocks are what
      the reach-of-sight animation drives; they keep its fade but trade its
      blur for the coarse steps (see sight-fade). */
   .prose > div > * {
-    filter: url("#pixel-2-soft");
+    filter: var(--pixel-soft);
     animation-name: sight-fade;
   }
 
@@ -601,7 +617,7 @@ nuxt-studio {
     header .actions :is(svg, span),
     header .actions [aria-label]::after
   ) {
-    filter: url("#pixel-2-soft");
+    filter: var(--pixel-soft);
   }
 }
 

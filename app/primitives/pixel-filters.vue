@@ -19,7 +19,22 @@
          from somewhere other than the element's corner, so a cell placed at
          0,0 fell outside and the words came out blank
        every dilate radius is a whole number; WebKit drops a radius of 0.5,
-         so a 2px block is filled by copying the sample, not by dilating -->
+         so a 2px block is filled by copying the sample, not by dilating
+
+     #pixel-1-xN is a block of 1 CSS pixel for a phone, whose type is smaller
+     and whose screen is N device pixels to the CSS pixel. Its cell is one
+     device pixel (1/N), so the sample needs no dilate to hold one value, and
+     the block is filled by copies offset a device pixel at a time. The CSS
+     picks the one matching the screen. -->
+<script setup lang="ts">
+const fine = [2, 3].map((n) => ({
+  id: `pixel-1-x${n}`,
+  cell: 1 / n,
+  // Device-pixel steps across the block, after the sample itself
+  steps: Array.from({ length: n - 1 }, (_, i) => (i + 1) / n),
+}));
+</script>
+
 <template>
   <svg aria-hidden="true" class="pixel-filters" focusable="false">
     <filter id="pixel-3" color-interpolation-filters="sRGB" height="100%" width="100%" x="0" y="0">
@@ -77,6 +92,31 @@
         <feMergeNode in="across" />
       </feMerge>
       <feComposite in="coarse" in2="SourceGraphic" k2="0.55" k3="0.45" operator="arithmetic" />
+    </filter>
+    <filter
+      v-for="f in fine"
+      :id="f.id"
+      :key="f.id"
+      color-interpolation-filters="sRGB"
+      height="100%"
+      width="100%"
+      x="0"
+      y="0"
+    >
+      <feFlood :height="f.cell" :width="f.cell" />
+      <feComposite height="1" width="1" />
+      <feTile result="grid" />
+      <feComposite in="SourceGraphic" in2="grid" operator="in" result="sample" />
+      <feOffset v-for="s in f.steps" :key="s" :dx="s" in="sample" :result="`x${s}`" />
+      <feMerge result="row">
+        <feMergeNode in="sample" />
+        <feMergeNode v-for="s in f.steps" :key="s" :in="`x${s}`" />
+      </feMerge>
+      <feOffset v-for="s in f.steps" :key="s" :dy="s" in="row" :result="`y${s}`" />
+      <feMerge>
+        <feMergeNode in="row" />
+        <feMergeNode v-for="s in f.steps" :key="s" :in="`y${s}`" />
+      </feMerge>
     </filter>
   </svg>
 </template>
