@@ -3,9 +3,9 @@ import { computed } from "vue";
 import type { NuxtError } from "#app";
 import { clearError, useSeoMeta } from "#imports";
 
-const props = defineProps<{ error: NuxtError }>();
+const { error } = defineProps<{ error: NuxtError }>();
 
-const notFound = computed(() => props.error.statusCode === 404);
+const notFound = computed(() => error.statusCode === 404);
 
 useSeoMeta({
   title: () => (notFound.value ? "ページが見つかりません" : "ページを表示できませんでした"),

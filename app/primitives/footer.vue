@@ -1,9 +1,17 @@
+<script setup lang="ts">
+import { useState } from "#imports";
+
+// The year the page was rendered, carried in the payload so hydration reads
+// the same value even when a prerendered page is opened in a later year
+const year = useState("footer-year", () => new Date().getFullYear());
+</script>
+
 <template>
   <!-- One quiet line at the foot of the column. RSS and the source live in the
        header, so nothing here links anywhere. -->
   <footer>
     <div>
-      <p class="meta">&copy; {{ new Date().getFullYear() }} naitokosuke</p>
+      <p class="meta">&copy; {{ year }} naitokosuke</p>
     </div>
   </footer>
 </template>

@@ -6,7 +6,7 @@
       <LazyBackgroundTexture />
       <LazyFogOverlay />
     </ClientOnly>
-    <a href="#main" class="skip-link">本文へ移動</a>
+    <a class="skip-link" href="#main">本文へ移動</a>
     <div class="layout">
       <Header />
       <main id="main" tabindex="-1">
@@ -49,7 +49,7 @@
   content: "";
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: var(--z-texture);
   pointer-events: none;
   --band: calc(var(--content-width) / 2 + var(--gutter));
   --pool: color-mix(in oklab, var(--color-bg) 58%, transparent);

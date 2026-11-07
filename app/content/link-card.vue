@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, useTemplateRef } from "vue";
 import { useFetch } from "#imports";
+import type { OgpData } from "#shared/types/ogp";
 import { safeUrl } from "~/utils/safe-url";
 
-const props = defineProps<{
+const { url } = defineProps<{
   url: string;
 }>();
 
-const { data, status } = useFetch("/api/ogp", {
-  query: { url: props.url },
+const { data, status } = useFetch<OgpData>("/api/ogp", {
+  query: { url },
 });
 
 const imageError = ref(false);
@@ -40,16 +41,16 @@ function onFaviconError(): void {
 
 const domain = computed(() => {
   try {
-    return new URL(props.url).hostname;
+    return new URL(url).hostname;
   } catch {
-    return props.url;
+    return url;
   }
 });
 </script>
 
 <template>
   <!-- Loading -->
-  <div v-if="status === 'pending'" class="card" role="status" aria-label="リンク情報を読み込み中">
+  <div v-if="status === 'pending'" aria-label="リンク情報を読み込み中" class="card" role="status">
     <!-- title, description*2, domain -->
     <div>
       <div v-for="n in 4" :key="n" class="placeholder" />
@@ -74,9 +75,9 @@ const domain = computed(() => {
           ref="faviconImg"
           :src="safeUrl(data.favicon)"
           alt=""
-          width="16"
           height="16"
           loading="lazy"
+          width="16"
           @error="onFaviconError"
         />
         <span>{{ data.siteName || domain }}</span>

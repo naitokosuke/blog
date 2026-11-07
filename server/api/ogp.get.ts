@@ -1,18 +1,10 @@
 import { createError, defineEventHandler, getQuery } from "#imports";
 import type { DefaultTreeAdapterMap } from "parse5";
 import { parse } from "parse5";
+import type { OgpData } from "#shared/types/ogp";
 
 type Element = DefaultTreeAdapterMap["element"];
 type ChildNode = DefaultTreeAdapterMap["childNode"];
-
-interface OgpData {
-  title: string;
-  description: string;
-  image: string;
-  url: string;
-  siteName: string;
-  favicon: string;
-}
 
 function isElement(node: ChildNode): node is Element {
   return node.nodeName !== "#text" && node.nodeName !== "#comment" && "tagName" in node;

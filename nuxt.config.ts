@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "@nuxtjs/seo",
     "nuxt-studio",
+    "@vizejs/nuxt",
   ],
 
   components: {
@@ -136,5 +137,12 @@ export default defineNuxtConfig({
       repo: "blog",
       branch: "main",
     },
+  },
+
+  // Vize compiles the SFCs in place of @vitejs/plugin-vue. Its lint config
+  // generator stays off: `vp lint` already loads the Vize preset from
+  // vite.config.ts, and a second generated .oxlint.vize.json would be unread.
+  vize: {
+    lint: false,
   },
 });

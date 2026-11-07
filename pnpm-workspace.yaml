@@ -5,7 +5,6 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - "@vizejs/*"
   - "vize"
-  - "oxlint-plugin-vize"
 
 overrides:
   chokidar: "^3.6.0"

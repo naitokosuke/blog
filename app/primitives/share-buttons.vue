@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { useRoute, useSiteConfig } from "#imports";
 import { safeUrl } from "~/utils/safe-url";
 
-const props = defineProps<{
+const { title, url } = defineProps<{
   title: string;
   url?: string;
 }>();
@@ -11,7 +11,7 @@ const props = defineProps<{
 const siteConfig = useSiteConfig();
 
 const shareUrl = computed(() => {
-  if (props.url) return props.url;
+  if (url !== undefined) return url;
   if (import.meta.client) {
     return window.location.href;
   }
@@ -19,7 +19,7 @@ const shareUrl = computed(() => {
 });
 
 const xShareUrl = computed(() => {
-  const text = `『${props.title}』- blog.naito.dev`;
+  const text = `『${title}』- blog.naito.dev`;
   const params = new URLSearchParams({
     url: shareUrl.value,
     text,
@@ -29,12 +29,19 @@ const xShareUrl = computed(() => {
 });
 
 const copied = ref(false);
+let copyRun = 0;
+let resetTimer: ReturnType<typeof setTimeout> | undefined;
 
 async function copyUrl() {
-  const textToCopy = `『${props.title}』- blog.naito.dev\n${shareUrl.value}`;
+  const run = ++copyRun;
+  const textToCopy = `『${title}』- blog.naito.dev\n${shareUrl.value}`;
   await navigator.clipboard.writeText(textToCopy);
+  // A later click owns the status line now
+  if (run !== copyRun) return;
   copied.value = true;
-  setTimeout(() => {
+  // Restart the countdown so an earlier click cannot clear it early
+  clearTimeout(resetTimer);
+  resetTimer = setTimeout(() => {
     copied.value = false;
   }, 2000);
 }
@@ -43,7 +50,7 @@ async function copyUrl() {
 <!-- A quiet line of words under the article, not a row of bordered glyphs -->
 <template>
   <div class="share-buttons">
-    <a :href="safeUrl(xShareUrl)" target="_blank" rel="noopener noreferrer">X で共有</a>
+    <a :href="safeUrl(xShareUrl)" rel="noopener noreferrer" target="_blank">X で共有</a>
     <button type="button" @click="copyUrl">URL をコピー</button>
     <span class="status" role="status">{{ copied ? "コピーしました" : "" }}</span>
   </div>

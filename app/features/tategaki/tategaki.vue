@@ -5,18 +5,6 @@ import { LAYOUTS } from "./layouts";
 
 import type { ModeKey, Position } from "./layouts";
 
-const MODES: readonly { key: ModeKey; jp: string }[] = [
-  { key: "vertical", jp: "縦" },
-  { key: "horizontal", jp: "横" },
-  { key: "spiral", jp: "螺旋" },
-  { key: "scatter", jp: "散" },
-] as const;
-
-const MAX_CHARS = 2000;
-const FONT_FAMILY = '"Zen Old Mincho", ui-serif, serif';
-const LINE_HEIGHT = 1.9;
-const STAGGER_MS = 12;
-
 const {
   text: textProp = "",
   editable = false,
@@ -31,11 +19,25 @@ defineSlots<{
   default?: () => unknown;
 }>();
 
+const MODES: readonly { key: ModeKey; jp: string }[] = [
+  { key: "vertical", jp: "縦" },
+  { key: "horizontal", jp: "横" },
+  { key: "spiral", jp: "螺旋" },
+  { key: "scatter", jp: "散" },
+] as const;
+
+const MAX_CHARS = 2000;
+const FONT_FAMILY = '"Zen Old Mincho", ui-serif, serif';
+const LINE_HEIGHT = 1.9;
+const STAGGER_MS = 12;
+
 const slotHost = useTemplateRef<HTMLDivElement>("slot-host");
 const stage = useTemplateRef<HTMLDivElement>("stage");
 
 const slotText = ref("");
-const text = ref(textProp);
+// Editable, so a local copy of the prop; the watcher keeps it following the
+// prop until slot content takes over
+const draft = ref("");
 const current = ref<ModeKey>(initialMode);
 const seed = ref(0);
 const size = ref({ w: 800, h: 500 });
@@ -43,8 +45,9 @@ const size = ref({ w: 800, h: 500 });
 watch(
   () => textProp,
   (v) => {
-    if (!slotText.value) text.value = v;
+    if (!slotText.value) draft.value = v;
   },
+  { immediate: true },
 );
 
 function extractSlotText(host: HTMLElement): string {
@@ -64,8 +67,8 @@ const fontSize = computed(() => {
 
 const graphemes = computed(() => {
   if (!import.meta.client) return [];
-  if (!text.value) return [];
-  return measureGraphemes(text.value, `${fontSize.value}px ${FONT_FAMILY}`);
+  if (!draft.value) return [];
+  return measureGraphemes(draft.value, `${fontSize.value}px ${FONT_FAMILY}`);
 });
 
 const positions = computed<Position[]>(() => {
@@ -92,7 +95,7 @@ function selectMode(key: ModeKey): void {
 }
 
 function clearText(): void {
-  text.value = "";
+  draft.value = "";
 }
 
 let resize: ResizeObserver | null = null;
@@ -102,7 +105,7 @@ onMounted(() => {
     const extracted = extractSlotText(slotHost.value);
     if (extracted) {
       slotText.value = extracted;
-      text.value = extracted;
+      draft.value = extracted;
     }
   }
 
@@ -124,23 +127,23 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="tg-root">
-    <div ref="slot-host" class="tg-slot-host" aria-hidden="true">
+    <div ref="slot-host" class="tg-slot-host" hidden>
       <slot />
     </div>
 
     <header v-if="editable" class="tg-topbar">
       <input
-        v-model="text"
-        type="text"
+        v-model="draft"
         class="tg-input"
+        type="text"
         :maxlength="MAX_CHARS"
         aria-label="文字を写す"
-        placeholder="文字を写す"
-        spellcheck="false"
         autocapitalize="off"
         autocorrect="off"
+        placeholder="文字を写す"
+        spellcheck="false"
       />
-      <button v-if="text" class="tg-clear" type="button" aria-label="消す" @click="clearText">
+      <button v-if="draft" aria-label="消す" class="tg-clear" type="button" @click="clearText">
         ×
       </button>
     </header>
@@ -160,17 +163,16 @@ onBeforeUnmount(() => {
           transform: `translate(${pos.x}px, ${pos.y}px) rotate(${pos.rotation}rad)`,
           transitionDelay: `${i * STAGGER_MS}ms`,
         }"
-        >{{ isBreak(graphemes[i]?.char ?? "") ? "" : graphemes[i]?.char }}</span
-      >
+      >{{ isBreak(graphemes[i]?.char ?? "") ? "" : graphemes[i]?.char }}</span>
     </main>
 
     <footer class="tg-bottombar">
-      <div class="tg-modes" role="group" aria-label="字の配り方">
+      <div aria-label="字の配り方" class="tg-modes" role="group">
         <button
           v-for="m in MODES"
           :key="m.key"
-          type="button"
           class="tg-chip"
+          type="button"
           :class="{ 'is-active': current === m.key }"
           :aria-pressed="current === m.key"
           @click="() => selectMode(m.key)"
@@ -180,8 +182,8 @@ onBeforeUnmount(() => {
       </div>
     </footer>
 
-    <p v-if="text" class="tg-sr-only">
-      {{ text }}
+    <p v-if="draft" class="tg-sr-only">
+      {{ draft }}
     </p>
   </div>
 </template>
@@ -206,10 +208,6 @@ onBeforeUnmount(() => {
   & *::after {
     box-sizing: border-box;
   }
-}
-
-.tg-slot-host {
-  display: none;
 }
 
 .tg-topbar {
@@ -271,12 +269,23 @@ onBeforeUnmount(() => {
     aspect-ratio: 4 / 5;
     min-height: 20rem;
   }
+
+  /* Vertical mode: delegate per-char orientation to the browser. It consults
+   * Unicode Vertical_Orientation + the font's vert OpenType feature so CJK
+   * stays upright, Latin/digits rotate, and 「」 。、 ー get their vertical
+   * variants — no hardcoded char set required. */
+  &.is-vertical .tg-char {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-feature-settings: "vert";
+  }
 }
 
 .tg-char {
   position: absolute;
-  top: 0;
-  left: 0;
+  /* Physical on purpose: in vertical mode the char's own writing-mode would
+     turn logical insets into top/right */
+  inset: 0 auto auto 0;
   transform-origin: center;
   transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
@@ -290,16 +299,6 @@ onBeforeUnmount(() => {
   &.is-break {
     visibility: hidden;
   }
-}
-
-/* Vertical mode: delegate per-char orientation to the browser. It consults
- * Unicode Vertical_Orientation + the font's vert OpenType feature so CJK
- * stays upright, Latin/digits rotate, and 「」 。、 ー get their vertical
- * variants — no hardcoded char set required. */
-.tg-stage.is-vertical .tg-char {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-feature-settings: "vert";
 }
 
 .tg-bottombar {
