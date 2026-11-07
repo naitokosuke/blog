@@ -12,6 +12,15 @@ export function useOverlay() {
   const textureEnabled = useState("textureEnabled", () => true);
   const textureOpacity = useState("textureOpacity", () => 1);
 
+  // PlayStation-resolution text (both modes). The filters are switched off by
+  // a class on <html>, which the pixel rules in main.css step around.
+  const pixelEnabled = useState("pixelEnabled", () => true);
+
+  function togglePixel() {
+    pixelEnabled.value = !pixelEnabled.value;
+    document.documentElement.classList.toggle("no-pixel", !pixelEnabled.value);
+  }
+
   function toggleFog() {
     if (fogAnimationId !== null) cancelAnimationFrame(fogAnimationId);
 
@@ -73,5 +82,7 @@ export function useOverlay() {
     textureEnabled,
     textureOpacity,
     toggleTexture,
+    pixelEnabled,
+    togglePixel,
   };
 }

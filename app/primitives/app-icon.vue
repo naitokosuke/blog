@@ -8,7 +8,7 @@ const { name, size = "1em" } = defineProps<{
   size?: string | number;
 }>();
 
-// The seven glyphs this site draws, inlined.
+// The glyphs this site draws, inlined.
 //
 // @nuxt/icon shipped ~27 KB of @iconify runtime (@iconify/vue, @iconify/utils,
 // its own plugin) into the critical bundle just to render a <span> whose
@@ -35,6 +35,16 @@ const ICONS = {
   "eye-off": {
     box: "0 0 24 24",
     body: `<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575a1 1 0 0 1 0 .696a10.8 10.8 0 0 1-1.444 2.49m-6.41-.679a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151a1 1 0 0 1 0-.696a10.75 10.75 0 0 1 4.446-5.143M2 2l20 20"/></g>`,
+  },
+  // Lucide `grid-2x2` and `type`, for the pixel-text toggle: what a press
+  // turns the words into (coarse squares, or plain type again)
+  "grid-2x2": {
+    box: "0 0 24 24",
+    body: `<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 3v18M3 12h18"/><rect width="18" height="18" x="3" y="3" rx="2"/></g>`,
+  },
+  type: {
+    box: "0 0 24 24",
+    body: `<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></g>`,
   },
   github: {
     box: "0 0 24 24",

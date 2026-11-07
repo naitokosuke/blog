@@ -141,7 +141,9 @@ a {
     outline: none;
 
     .title {
-      text-shadow: 0 0 0.6em var(--glow);
+      text-shadow:
+        var(--drop),
+        0 0 0.6em var(--glow);
     }
 
     .description {
