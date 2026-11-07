@@ -43,6 +43,7 @@ const isLight = computed(() => colorMode.value === "light");
             <AppIcon :name="textureEnabled ? 'eye-off' : 'eye'" size="20" />
           </button>
           <button
+            class="pixel-toggle"
             type="button"
             :aria-label="pixelEnabled ? '文字の粗さを戻す' : '文字を粗くする'"
             @click="togglePixel"
@@ -162,6 +163,13 @@ header {
         }
       }
     }
+  }
+}
+
+/* WebKit gets no pixelation (see main.css), so there is nothing to toggle */
+@supports (font: -apple-system-body) {
+  header .actions .pixel-toggle {
+    display: none;
   }
 }
 

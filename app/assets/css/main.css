@@ -555,31 +555,36 @@ nuxt-studio {
    the blocks the reach-of-sight animation drives (that animation owns their
    own filter property), and never on an ancestor of something fixed or of an
    overflowing hint, which a filter would trap or clip. The header's toggle
-   puts .no-pixel on <html> to draw the words plainly again. */
-:root:not(.no-pixel) {
-  .hero h1 {
-    filter: url("#pixel-3");
+   puts .no-pixel on <html> to draw the words plainly again.
+   WebKit (Safari, and every browser on iOS) draws these filters as nothing
+   at all, leaving the words blank, so it is left out until the filters work
+   there. `font: -apple-system-body` is a value only WebKit accepts. */
+@supports not (font: -apple-system-body) {
+  :root:not(.no-pixel) {
+    .hero h1 {
+      filter: url("#pixel-3");
 
-    @media (width <= 768px) {
+      @media (width <= 768px) {
+        filter: url("#pixel-2");
+      }
+    }
+
+    :is(.index h1, .index .year, .index .title, .article-end nav .title, header .logo) {
       filter: url("#pixel-2");
     }
-  }
 
-  :is(.index h1, .index .year, .index .title, .article-end nav .title, header .logo) {
-    filter: url("#pixel-2");
-  }
-
-  :is(
-    .prose > div,
-    .hero .meta,
-    .index :is(.description, .meta, .empty),
-    .contents,
-    .article-end :is(.actions, .meta),
-    .layout > footer,
-    header .actions :is(svg, span),
-    header .actions [aria-label]::after
-  ) {
-    filter: url("#pixel-2-soft");
+    :is(
+      .prose > div,
+      .hero .meta,
+      .index :is(.description, .meta, .empty),
+      .contents,
+      .article-end :is(.actions, .meta),
+      .layout > footer,
+      header .actions :is(svg, span),
+      header .actions [aria-label]::after
+    ) {
+      filter: url("#pixel-2-soft");
+    }
   }
 }
 
