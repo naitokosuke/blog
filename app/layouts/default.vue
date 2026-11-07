@@ -6,6 +6,7 @@
       <LazyBackgroundTexture />
       <LazyFogOverlay />
     </ClientOnly>
+    <PixelFilters />
     <a class="skip-link" href="#main">本文へ移動</a>
     <div class="layout">
       <Header />

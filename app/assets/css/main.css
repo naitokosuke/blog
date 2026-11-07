@@ -38,9 +38,17 @@
   /* The bloom around a word that has come into sight. In fog it is the
      fog's own pale, so the word seems to stand inside it. */
   --glow: color-mix(in oklab, #fff 70%, transparent);
+  /* The games draw every word with a hard black drop shadow, so the text sits
+     on the picture instead of in it. On the fog's paper a dark word needs no
+     shadow; only the dark world carries it. */
+  --drop: 0 0 0 transparent;
 
   /* Typography */
-  --font-sans: "Zen Old Mincho", ui-serif, serif;
+  /* Latin and numerals in an old Times, kana and kanji in Mincho: how the
+     classic Silent Hill games set their words (SH1's text is a reworked Apple
+     Times; SH3's logo is a slender Ming face). Tinos carries only Latin, so
+     everything else falls through to Zen Old Mincho. */
+  --font-sans: "Tinos", "Zen Old Mincho", ui-serif, serif;
   /* Wayfinding (dates, the contents, the site name, the menu) is serif too:
      Silent Hill sets its menus and memos as serif words on darkness, never as
      OS chrome. Kept as its own token so the menu layer can be told apart. */
@@ -88,6 +96,7 @@
   --color-rust: #9a6440;
   /* In the dark, the bloom is the word's own light: a warm flashlight pale */
   --glow: color-mix(in oklab, #f3dcb8 38%, transparent);
+  --drop: 0.06em 0.07em 0.02em rgb(0 0 0 / 0.92);
 }
 
 /* Reset */
@@ -117,9 +126,10 @@ html {
   line-height: 1.85;
   color: var(--color-text);
   background-color: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* No thinning: grayscale antialiasing shaves light-on-dark strokes to
+     hairlines, and the games' words are full-bodied */
   text-rendering: optimizeLegibility;
+  text-shadow: var(--drop);
   scrollbar-color: color-mix(in oklab, var(--color-text-secondary) 55%, transparent) transparent;
   caret-color: var(--color-blood);
   /* No rubber-band past the top: the bounce would pull the sticky header down
@@ -533,4 +543,49 @@ nuxt-studio {
       animation-timeline: view();
     }
   }
+}
+
+/* PlayStation resolution, on every word the site sets. Words are coarsened
+   in square steps sized to the type, a glyph some 14 to 20 steps tall, as on
+   a 480-line screen: 3px for the page title, 2px for headings, titles and the
+   name in the header. Small print (dates, descriptions, the contents, the
+   foot, the header's glyphs and hints) has too few steps to survive the hard
+   steps, so it takes the softened ones, as the reading text does. The filters
+   live in primitives/pixel-filters.vue. They are set on wrappers, never on
+   the blocks the reach-of-sight animation drives (that animation owns their
+   own filter property), and never on an ancestor of something fixed or of an
+   overflowing hint, which a filter would trap or clip. The header's toggle
+   puts .no-pixel on <html> to draw the words plainly again. */
+:root:not(.no-pixel) {
+  .hero h1 {
+    filter: url("#pixel-3");
+
+    @media (width <= 768px) {
+      filter: url("#pixel-2");
+    }
+  }
+
+  :is(.index h1, .index .year, .index .title, .article-end nav .title, header .logo) {
+    filter: url("#pixel-2");
+  }
+
+  :is(
+    .prose > div,
+    .hero .meta,
+    .index :is(.description, .meta, .empty),
+    .contents,
+    .article-end :is(.actions, .meta),
+    .layout > footer,
+    header .actions :is(svg, span),
+    header .actions [aria-label]::after
+  ) {
+    filter: url("#pixel-2-soft");
+  }
+}
+
+/* The header keeps exactly the look it had before the type work: Zen Old
+   Mincho throughout and no drop shadow */
+header {
+  font-family: "Zen Old Mincho", ui-serif, serif;
+  text-shadow: none;
 }

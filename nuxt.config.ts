@@ -123,7 +123,12 @@ export default defineNuxtConfig({
   // Japanese glyph. Declared here, the family reaches it with all the Google
   // subsets; pages still load font-subset.css on top, so readers see no change.
   fonts: {
-    families: [{ name: "Zen Old Mincho", weights: [400], global: true }],
+    families: [
+      { name: "Zen Old Mincho", weights: [400], global: true },
+      // Latin and numerals: the classic Silent Hill games set their words in an
+      // old Times. Tinos is the metric-compatible free Times; Latin only.
+      { name: "Tinos", weights: [400], subsets: ["latin"], global: true },
+    ],
   },
 
   ogImage: {

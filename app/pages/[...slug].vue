@@ -238,6 +238,7 @@ defineOgImage("DefaultTakumi", {
     /* Out here the wall is at full strength, so each line carries a little of
        the page's darkness (or paper) around it to stay legible */
     text-shadow:
+      var(--drop),
       0 0 0.35em var(--color-bg),
       0 0 0.8em var(--color-bg);
 
@@ -278,6 +279,7 @@ defineOgImage("DefaultTakumi", {
         opacity: 1;
         color: var(--color-text);
         text-shadow:
+          var(--drop),
           0 0 0.35em var(--color-bg),
           0 0 0.8em var(--glow);
       }
