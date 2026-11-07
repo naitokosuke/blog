@@ -1,10 +1,12 @@
 minimumReleaseAge: 1440
 
 # Vize publishes several releases a day, so a one-day hold makes every fix
-# untestable until it is already superseded.
+# untestable until it is already superseded. oxlint-plugin-vize ships in the
+# same release train and comes in through vize itself.
 minimumReleaseAgeExclude:
   - "@vizejs/*"
   - "vize"
+  - "oxlint-plugin-vize"
 
 overrides:
   chokidar: "^3.6.0"
