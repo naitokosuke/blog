@@ -1,0 +1,59 @@
+name: Deploy
+
+# Vercel's own build image (Amazon Linux 2023) ships glibc 2.34, below the
+# glibc 2.36 floor Vize's native binary is built for, so the site is built
+# here on Ubuntu with the same compiler as development and handed to Vercel
+# already built. Vercel's Git builds are turned off in vercel.json.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+# A newer push supersedes a deploy of the same ref still in flight
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Not secrets: they only say which project the token deploys to
+  VERCEL_ORG_ID: team_HFMuJudW4hF6OkJGIbPycXRU
+  VERCEL_PROJECT_ID: prj_YiVuKVlDNtsaJemBbUcI0bGeg4ZJ
+  VERCEL_CLI: vercel@65.2.0
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    env:
+      ENVIRONMENT: ${{ github.event_name == 'push' && 'production' || 'preview' }}
+      PROD_FLAG: ${{ github.event_name == 'push' && '--prod' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # vercel build runs the project's install, which needs pnpm on the PATH
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Pull the project settings and environment variables
+        run: npx --yes "$VERCEL_CLI" pull --yes --environment="$ENVIRONMENT" --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build
+        run: npx --yes "$VERCEL_CLI" build $PROD_FLAG --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy
+        run: |
+          url=$(npx --yes "$VERCEL_CLI" deploy --prebuilt $PROD_FLAG --token="$VERCEL_TOKEN")
+          echo "Deployed to $url ($ENVIRONMENT)" >> "$GITHUB_STEP_SUMMARY"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
