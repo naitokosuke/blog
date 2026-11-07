@@ -50,6 +50,10 @@ jobs:
         run: npx --yes "$VERCEL_CLI" build $PROD_FLAG --token="$VERCEL_TOKEN"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          # Off Vercel, Nitro cannot tell it is building for Vercel and writes
+          # a Node server to .output; name the preset so it emits the Build
+          # Output API layout (.vercel/output) that --prebuilt uploads
+          NITRO_PRESET: vercel
 
       - name: Deploy
         run: |
