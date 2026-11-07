@@ -18,6 +18,8 @@ concurrency:
 
 permissions:
   contents: read
+  # To keep one comment on the PR pointing at its latest preview
+  pull-requests: write
 
 env:
   # Not secrets: they only say which project the token deploys to
@@ -59,5 +61,21 @@ jobs:
         run: |
           url=$(npx --yes "$VERCEL_CLI" deploy --prebuilt $PROD_FLAG --token="$VERCEL_TOKEN")
           echo "Deployed to $url ($ENVIRONMENT)" >> "$GITHUB_STEP_SUMMARY"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+        id: deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      # Every deploy gets a new URL, so the PR's comment is rewritten each
+      # time rather than a new one added
+      - name: Point the PR at its preview
+        if: github.event_name == 'pull_request'
+        run: |
+          gh pr comment "$PR" --edit-last --create-if-none \
+            --body "Preview of $SHA: $URL"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          URL: ${{ steps.deploy.outputs.url }}

@@ -522,6 +522,20 @@ nuxt-studio {
   }
 }
 
+/* sight without the blur, for blocks that carry a pixel filter of their own:
+   an animated filter on them, even one a later rule overrides, makes the
+   browser run the pixel filter again every frame of the scroll */
+@keyframes sight-fade {
+  from,
+  to {
+    opacity: 0.18;
+  }
+  22%,
+  80% {
+    opacity: 1;
+  }
+}
+
 /* Every page arrives the way a Silent Hill scene does: up out of black */
 @keyframes arrive {
   from {
@@ -551,12 +565,30 @@ nuxt-studio {
    name in the header. Small print (dates, descriptions, the contents, the
    foot, the header's glyphs and hints) has too few steps to survive the hard
    steps, so it takes the softened ones, as the reading text does. The filters
-   live in primitives/pixel-filters.vue. They are set on wrappers, never on
-   the blocks the reach-of-sight animation drives (that animation owns their
-   own filter property), and never on an ancestor of something fixed or of an
-   overflowing hint, which a filter would trap or clip. The header's toggle
-   puts .no-pixel on <html> to draw the words plainly again. */
+   live in primitives/pixel-filters.vue. They are never set on an ancestor of
+   something fixed or of an overflowing hint, which a filter would trap or
+   clip, nor on anything as tall as a whole article: WebKit (Safari, and
+   every browser on iOS) refuses to filter an area that large and draws
+   nothing in its place. The header's toggle puts .no-pixel on <html> to draw
+   the words plainly again.
+
+   A phone sets smaller type, so there everything but the page title takes
+   steps of about 1.5px, the screen's density picking the filter cut for
+   it. */
 :root:not(.no-pixel) {
+  --pixel: url("#pixel-2");
+  --pixel-soft: url("#pixel-2-soft");
+
+  @media (width <= 768px) and (resolution >= 2dppx) {
+    --pixel: url("#pixel-phone-x2");
+    --pixel-soft: url("#pixel-phone-x2-soft");
+  }
+
+  @media (width <= 768px) and (resolution >= 2.5dppx) {
+    --pixel: url("#pixel-phone-x3");
+    --pixel-soft: url("#pixel-phone-x3-soft");
+  }
+
   .hero h1 {
     filter: url("#pixel-3");
 
@@ -566,11 +598,18 @@ nuxt-studio {
   }
 
   :is(.index h1, .index .year, .index .title, .article-end nav .title, header .logo) {
-    filter: url("#pixel-2");
+    filter: var(--pixel);
+  }
+
+  /* So the reading text is coarsened block by block. Those blocks are what
+     the reach-of-sight animation drives; they keep its fade but trade its
+     blur for the coarse steps (see sight-fade). */
+  .prose > div > * {
+    filter: var(--pixel-soft);
+    animation-name: sight-fade;
   }
 
   :is(
-    .prose > div,
     .hero .meta,
     .index :is(.description, .meta, .empty),
     .contents,
@@ -579,7 +618,7 @@ nuxt-studio {
     header .actions :is(svg, span),
     header .actions [aria-label]::after
   ) {
-    filter: url("#pixel-2-soft");
+    filter: var(--pixel-soft);
   }
 }
 
