@@ -2,9 +2,10 @@
 // the app live in nuxt.config.ts under `vite`. `vue:` is what `vize lint`,
 // `vize fmt` and `vize check` read; `fmt` is Oxfmt's config for everything
 // that is not a .vue file.
-import { defineConfig } from "@vizejs/vite-plugin/vite-plus";
+import { vitePlusConfig } from "@vizejs/vite-plugin/vite-plus";
+import { defineConfig } from "vite-plus";
 
-export default defineConfig(
+const vize = await vitePlusConfig(
   {
     vue: {
       // `vize lint` is the whole linter; Oxlint is not used.
@@ -96,25 +97,31 @@ export default defineConfig(
         "app/assets/css/font-subset.css",
       ],
     },
+  },
+  // The compiler runs inside Nuxt (@vizejs/nuxt), so the helper adds no plugin.
+  { plugin: false },
+);
 
-    run: {
-      tasks: {
-        // Rebuilds the Zen Old Mincho subset from the text the site renders,
-        // into public/fonts + app/assets/css/font-subset.css. Every build
-        // already does this (modules/font-subset.ts); this is the manual
-        // trigger, e.g. to refresh it in a running `nuxt dev`.
-        //
-        // Uncached on purpose: it calls the Google Fonts API, and the source
-        // directories it scans are listed inside the script, so an `input` glob
-        // here would be a second copy of that list waiting to drift.
-        "font:subset": {
-          command: "node scripts/build-font-subset.mjs",
-          cache: false,
-        },
+// Vite+ owns the outer call and `run.tasks` stays a literal here, so `vp run`
+// can read the tasks without evaluating this file. The Vize commands are
+// package scripts, not tasks.
+export default defineConfig({
+  ...vize,
+
+  run: {
+    tasks: {
+      // Rebuilds the Zen Old Mincho subset from the text the site renders,
+      // into public/fonts + app/assets/css/font-subset.css. Every build
+      // already does this (modules/font-subset.ts); this is the manual
+      // trigger, e.g. to refresh it in a running `nuxt dev`.
+      //
+      // Uncached on purpose: it calls the Google Fonts API, and the source
+      // directories it scans are listed inside the script, so an `input` glob
+      // here would be a second copy of that list waiting to drift.
+      "font:subset": {
+        command: "node scripts/build-font-subset.mjs",
+        cache: false,
       },
     },
   },
-  // The compiler runs inside Nuxt (@vizejs/nuxt), and the Vize commands are
-  // package scripts, so the helper adds neither a plugin nor Vite+ tasks.
-  { plugin: false, tasks: false },
-);
+});
