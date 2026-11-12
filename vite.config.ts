@@ -23,6 +23,12 @@ export default defineConfig(
           "css/no-v-bind-performance": "off",
           // Nuxt registers components from `components.dirs` in nuxt.config.
           "vue/require-component-registration": "off",
+          // Nuxt names pages, layouts and error.vue by file, and the
+          // `components.dirs` prefixes turn h2.vue into <ProseH2>.
+          "vue/multi-word-component-names": "off",
+          // An optional prop left out is `undefined` on purpose here: the
+          // templates branch on it (`v-if="date !== undefined"`).
+          "script/require-default-prop": "off",
         },
       },
       entries: [

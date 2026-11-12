@@ -9,7 +9,7 @@
     "preview": "nuxt preview",
     "lint": "vize lint 'app/**/*.vue' 'components/**/*.vue' && vp fmt --check && vize fmt --check 'app/**/*.vue' 'components/**/*.vue'",
     "fmt": "vp fmt && vize fmt --write 'app/**/*.vue' 'components/**/*.vue'",
-    "typecheck": "nuxt prepare && vize check app components",
+    "typecheck": "nuxt prepare && vize check app components --tsconfig .nuxt/tsconfig.app.json",
     "secretlint": "secretlint '**/*'"
   },
   "dependencies": {
@@ -30,8 +30,8 @@
     "@nuxt/kit": "^4.5.2",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.5",
     "@types/node": "^26.6.2",
-    "@vizejs/nuxt": "^0.702.0",
-    "@vizejs/vite-plugin": "^0.702.0",
+    "@vizejs/nuxt": "^0.749.0",
+    "@vizejs/vite-plugin": "^0.749.0",
     "debug": "^4.4.3",
     "extend": "^3.0.2",
     "lefthook": "^2.1.14",
@@ -47,7 +47,7 @@
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0",
     "vite-plus": "1.0.0-rc.0",
-    "vize": "^0.702.0"
+    "vize": "^0.749.0"
   },
   "engines": {
     "node": ">=26.12"
