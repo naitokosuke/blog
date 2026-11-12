@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const { id } = defineProps<{ id?: string }>();
+
+defineSlots<{ default?: () => unknown }>();
 </script>
 
 <template>

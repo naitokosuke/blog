@@ -23,7 +23,7 @@ function toggleTheme(): void {
       <span>{{ isDark ? "表" : "裏" }}</span>
     </button>
     <template #fallback>
-      <button aria-label="表と裏を切り替える" type="button"><span>暗</span></button>
+      <button type="button" aria-label="表と裏を切り替える"><span>暗</span></button>
     </template>
   </ClientOnly>
 </template>
