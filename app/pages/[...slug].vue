@@ -34,7 +34,7 @@ const neighbours = computed(() => {
 
 // Only a post long enough to lose your place in gets a contents list
 const contents = computed(() => {
-  const links = page.value?.body?.toc?.links ?? [];
+  const links = page.value?.body.toc?.links ?? [];
   return links.length >= 4 ? links : [];
 });
 

@@ -55,7 +55,10 @@ defineOgImage("DefaultTakumi", {
           <li v-for="post in group.posts" :key="post.path">
             <NuxtLink :to="post.path">
               <span class="title">{{ post.title }}</span>
-              <span v-if="post.description && post.description !== post.title" class="description">
+              <span
+                v-if="(post.description ?? '') !== '' && post.description !== post.title"
+                class="description"
+              >
                 {{ post.description }}
               </span>
             </NuxtLink>
