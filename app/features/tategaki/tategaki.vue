@@ -7,7 +7,7 @@ import type { ModeKey, Position } from "./layouts";
 
 const {
   text: textProp = "",
-  editable = false,
+  editable,
   mode: initialMode = "vertical",
 } = defineProps<{
   text?: string;
@@ -51,10 +51,10 @@ watch(
 );
 
 function extractSlotText(host: HTMLElement): string {
-  if (host.children.length === 0) return host.textContent?.trim() ?? "";
+  if (host.children.length === 0) return host.textContent.trim();
   const parts: string[] = [];
   for (const child of Array.from(host.children)) {
-    const t = (child.textContent ?? "").trim();
+    const t = child.textContent.trim();
     if (t) parts.push(t);
   }
   return parts.join("\n");

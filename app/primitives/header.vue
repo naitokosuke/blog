@@ -65,7 +65,7 @@ const isLight = computed(() => colorMode.value === "light");
 header {
   position: sticky;
   top: 0;
-  z-index: 110;
+  z-index: var(--z-header);
   height: var(--header-height);
   /* The dark wall is dim to begin with, so 裏 can let more of it through */
   --veil: 72%;
@@ -102,7 +102,7 @@ header {
     align-items: center;
     gap: 0.25rem;
     /* Pull the last button's padding out so its glyph sits on the column edge */
-    margin-right: -10px;
+    margin-inline-end: -10px;
 
     a,
     button {
@@ -135,7 +135,7 @@ header {
         content: attr(aria-label);
         position: absolute;
         top: calc(100% + 6px);
-        right: 0;
+        inset-inline-end: 0;
         padding: 0.3em 0.6em;
         border-radius: 4px;
         background-color: color-mix(in oklab, var(--color-bg) 82%, transparent);

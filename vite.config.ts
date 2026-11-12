@@ -28,8 +28,16 @@ const vize = await vitePlusConfig(
           // `components.dirs` prefixes turn h2.vue into <ProseH2>.
           "vue/multi-word-component-names": "off",
           // An optional prop left out is `undefined` on purpose here: the
-          // templates branch on it (`v-if="date !== undefined"`).
+          // templates branch on it (`v-if="date !== undefined"`) or pass it
+          // on so the attribute is omitted (`<img :alt :width :height />`).
+          // A default would make "not given" look like a value; the rule has
+          // no option that accepts a type-level `?`.
           "script/require-default-prop": "off",
+        },
+        ruleOptions: {
+          // `vize fmt` writes void elements as `<img />`; the rule's default
+          // wants `<img>`, and the two would undo each other.
+          "vue/html-self-closing": { html: { void: "always" } },
         },
       },
       entries: [
