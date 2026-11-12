@@ -5,7 +5,7 @@ import { clearError, useSeoMeta } from "#imports";
 
 const { error } = defineProps<{ error: NuxtError }>();
 
-const notFound = computed(() => error.statusCode === 404);
+const notFound = computed(() => error.status === 404);
 
 useSeoMeta({
   title: () => (notFound.value ? "ページが見つかりません" : "ページを表示できませんでした"),
@@ -23,7 +23,7 @@ function goHome(): void {
   <NuxtLayout>
     <div class="error">
       <header>
-        <p class="meta">{{ error.statusCode }}</p>
+        <p class="meta">{{ error.status }}</p>
         <h1>{{ notFound ? "ページが見つかりません" : "ページを表示できませんでした" }}</h1>
       </header>
       <p v-if="notFound">
