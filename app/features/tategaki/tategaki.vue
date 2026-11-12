@@ -143,7 +143,7 @@ onBeforeUnmount(() => {
         placeholder="文字を写す"
         spellcheck="false"
       />
-      <button v-if="draft" aria-label="消す" class="tg-clear" type="button" @click="clearText">
+      <button v-if="draft" type="button" aria-label="消す" class="tg-clear" @click="clearText">
         ×
       </button>
     </header>
@@ -171,8 +171,8 @@ onBeforeUnmount(() => {
         <button
           v-for="m in MODES"
           :key="m.key"
-          class="tg-chip"
           type="button"
+          class="tg-chip"
           :class="{ 'is-active': current === m.key }"
           :aria-pressed="current === m.key"
           @click="() => selectMode(m.key)"
