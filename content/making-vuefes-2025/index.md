@@ -136,14 +136,14 @@ Vue Fes Japan 自体が 2 度の中止を乗り越えて、今も続いている
 [Nuxt Typed Router](https://nuxt-typed-router.vercel.app/) を使用すると、`.nuxt/typed-router/` ディレクトリ下に型ファイルなどが生成される。
 これを Slidev プロジェクトにコピーして monaco editor で使用した。
 
-![Nuxt Typed Router デモ](/making-vuefes-2025/images/ntr-demo.png)
+![Nuxt Typed Router デモ](/making-vuefes-2025/images/ntr-demo.webp){width="938" height="528"}
 
 ### 極力字をデカく
 
 なるべく後ろの方まで見えるように極力字を大きくした。
 
-![大きい文字1](/making-vuefes-2025/images/big-moji.png)
-![大きい文字2](/making-vuefes-2025/images/big-moji2.png)
+![大きい文字1](/making-vuefes-2025/images/big-moji.webp){width="938" height="530"}
+![大きい文字2](/making-vuefes-2025/images/big-moji2.webp){width="938" height="530"}
 
 コードブロックの文字についても気持ち大きくした。
 
@@ -161,7 +161,7 @@ Vue Fes Japan が広報や SNS にも力を入れていることを知ってい�
 もちろん vibe slide なんて言葉はない。
 全然うまくいかなかったのだが、一部箇所は Claude Code にスライドの内容を作成させた。
 
-![vibe slide](/making-vuefes-2025/images/vibe-slide.png)
+![vibe slide](/making-vuefes-2025/images/vibe-slide.webp){width="940" height="530"}
 
 敢えて AI に全て任せたスライドと明示することによって、それ以外のスライドをこだわった感じを出せるんじゃないかと思い、ジョークとして挿入した。
 
