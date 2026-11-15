@@ -536,10 +536,13 @@ nuxt-studio {
   }
 }
 
-/* Every page arrives the way a Silent Hill scene does: up out of black */
+/* Every page arrives the way a Silent Hill scene does: up out of black. It
+   starts just above zero, which looks the same: Chrome skips anything painted
+   at opacity 0 as a Largest Contentful Paint, and the fade then runs without
+   a repaint, so a fade from 0 held LCP back by some two seconds on a phone */
 @keyframes arrive {
   from {
-    opacity: 0;
+    opacity: 0.01;
     filter: blur(4px);
   }
 }
