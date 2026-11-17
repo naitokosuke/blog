@@ -95,38 +95,47 @@ const fragmentShaderSource = /* glsl */ `
     float aspect = u_resolution.x / u_resolution.y;
     vec2 p = vec2(uv.x * aspect, uv.y);
 
-    // Squash y so the fog stretches into horizontal wisps
-    vec2 ps = vec2(p.x * 0.85, p.y * 1.6);
+    float t = u_time;
 
-    // Slow time for gentle fog movement
-    float t = u_time * 0.02;
-
-    // Domain warping: warp fields curl the fog into drifting wisps.
-    // Warp fields run at lower frequency than the base noise so wisps
-    // gather in banks instead of swirling uniformly across the frame.
-    vec2 q = vec2(
-      fbm3(ps * 0.55 + vec2(t * 0.35, t * 0.05)),
-      fbm3(ps * 0.55 + vec2(5.2, 1.3) + vec2(-t * 0.25, t * 0.08))
+    // One slow, low-frequency flow shared by every depth. It bends the banks
+    // as a whole; the old deep domain warp curled them into marble veins
+    vec2 flow = vec2(
+      fbm3(p * 0.42 + vec2(t * 0.0045, 0.0)),
+      fbm3(p * 0.42 + vec2(5.2, 1.3 + t * 0.0035))
     );
-    vec2 r = vec2(
-      fbm3(ps * 0.85 + 1.5 * q + vec2(1.7, 9.2) + vec2(t * 0.15, 0.0)),
-      fbm3(ps * 0.85 + 1.5 * q + vec2(8.3, 2.8))
-    );
-    float f = fbm4(ps + 1.7 * r) * 0.5 + 0.5;
 
-    // Wispy density: thin streaks with clear patches of paper between
-    float density = smoothstep(0.34, 0.88, f);
-    density *= 0.55 + 0.45 * smoothstep(0.2, 0.8, q.x * 0.5 + 0.5);
+    // Three depths drifting the same way at parallax speeds, each squashed
+    // into horizontal banks: far is broad, pale and slow; near is fine, dark
+    // and quicker. The eye reads the speed difference as distance
+    // Each depth is also pushed around by the one behind it, so the wisps
+    // feather along the banks instead of sliding over them as flat sheets
+    vec2 squash = vec2(0.75, 2.1);
+    float far = fbm3((p - vec2(t * 0.006, 0.0)) * squash * 0.9 + flow * 0.45 + vec2(1.7, 9.2)) * 0.5 + 0.5;
+    float mid = fbm3((p - vec2(t * 0.013, 0.0)) * squash * 1.8 + flow * 0.6 + far * 0.5 + vec2(8.3, 2.8)) * 0.5 + 0.5;
+    float near = fbm4((p - vec2(t * 0.024, -t * 0.002)) * squash * 3.2 + flow * 0.7 + vec2(mid, far) * 0.9 + vec2(3.1, 6.4)) * 0.5 + 0.5;
 
+    float aFar = smoothstep(0.30, 0.85, far) * 0.30;
+    float aMid = smoothstep(0.42, 0.88, mid) * 0.32;
+    float aNear = smoothstep(0.52, 0.92, near) * 0.40;
+
+    // Fog settles: a little denser low in the frame than high
+    float settle = mix(1.12, 0.86, uv.y);
     // Keep the reading column clearer, thicken toward the edges
     vec2 c = uv - 0.5;
     float edge = smoothstep(0.15, 0.75, length(vec2(c.x * 1.1, c.y * 0.85)));
-    density *= mix(0.45, 1.0, edge);
+    float shape = settle * mix(0.26, 1.0, edge);
+    aFar *= shape;
+    aMid *= shape;
+    aNear *= shape;
 
-    // Warm sumi-ink tone instead of neutral black, darker in the fog cores
-    vec3 ink = mix(vec3(0.24, 0.20, 0.17), vec3(0.10, 0.08, 0.07), smoothstep(0.2, 0.9, r.y * 0.5 + 0.5));
-
-    float alpha = density * 0.55;
+    // Composite near over mid over far. Warm sumi-ink tones, paler with
+    // distance the way real fog washes out what is behind it
+    vec3 inkFar = vec3(0.34, 0.30, 0.27);
+    vec3 inkMid = vec3(0.21, 0.18, 0.155);
+    vec3 inkNear = vec3(0.10, 0.083, 0.072);
+    vec3 premul = inkNear * aNear + (1.0 - aNear) * (inkMid * aMid + (1.0 - aMid) * inkFar * aFar);
+    float alpha = 1.0 - (1.0 - aNear) * (1.0 - aMid) * (1.0 - aFar);
+    vec3 ink = premul / max(alpha, 0.0001);
 
     // Dither kills gradient banding in the thin fog ramps
     alpha += (hash12(gl_FragCoord.xy) - 0.5) * 0.015;
