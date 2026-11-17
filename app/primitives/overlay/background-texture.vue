@@ -134,15 +134,16 @@ const wallFragmentShaderSource = /* glsl */ `${commonSource}
     return sqrt(d);
   }
 
-  // Iron-oxide color ramp, dark to bright: magnetite black-brown, old
-  // hematite red-brown, #942D00 / #B7410E rust body, fresh goethite orange,
-  // powdery akaganeite ochre. Values darkened ~55% to sit behind text.
+  // Iron-oxide color ramp, dark to bright: magnetite black, old hematite
+  // red, #942D00 / #B7410E rust body, fresh goethite orange, powdery
+  // akaganeite amber. Values darkened to sit behind text, and every stop
+  // keeps green under ~35% of red: any higher and rust turns to mud-brown.
   vec3 rustRamp(float t) {
-    vec3 c = mix(vec3(0.050, 0.036, 0.030), vec3(0.135, 0.085, 0.075), smoothstep(0.00, 0.30, t));
-    c = mix(c, vec3(0.210, 0.085, 0.030), smoothstep(0.30, 0.60, t));
-    c = mix(c, vec3(0.270, 0.115, 0.045), smoothstep(0.60, 0.80, t));
-    c = mix(c, vec3(0.300, 0.160, 0.100), smoothstep(0.80, 0.92, t));
-    c = mix(c, vec3(0.290, 0.200, 0.110), smoothstep(0.92, 1.00, t));
+    vec3 c = mix(vec3(0.045, 0.017, 0.012), vec3(0.120, 0.034, 0.022), smoothstep(0.00, 0.30, t));
+    c = mix(c, vec3(0.215, 0.062, 0.014), smoothstep(0.30, 0.60, t));
+    c = mix(c, vec3(0.275, 0.088, 0.018), smoothstep(0.60, 0.80, t));
+    c = mix(c, vec3(0.310, 0.104, 0.022), smoothstep(0.80, 0.92, t));
+    c = mix(c, vec3(0.335, 0.117, 0.030), smoothstep(0.92, 1.00, t));
     return c;
   }
 
@@ -208,25 +209,42 @@ const wallFragmentShaderSource = /* glsl */ `${commonSource}
     streak *= smoothstep(0.42, 0.52, fSrc);
     // Semi-transparent oxide stain: darkens what it crosses and warms it,
     // so bleeds stay visible over both bare wall and rust patches
-    col = mix(col, col * 0.5 + vec3(0.085, 0.038, 0.018), clamp(streak, 0.0, 1.0) * 0.75 * intensity);
+    col = mix(col, col * 0.5 + vec3(0.090, 0.026, 0.008), clamp(streak, 0.0, 1.0) * 0.75 * intensity);
 
-    // === Old dried blood: hard-edged dark maroon stains, no swirling ===
+    // === Old dried blood: hard-edged dark crimson stains, no swirling ===
     float driedF = fbm3(p * 0.8 + 0.2 * wR + vec2(4.7, 1.9)) * 0.5 + 0.5;
     float dried = smoothstep(0.63, 0.70, driedF);
-    col = mix(col, vec3(0.102, 0.030, 0.026), dried * 0.55 * intensity);
+    col = mix(col, vec3(0.100, 0.013, 0.011), dried * 0.55 * intensity);
 
-    gl_FragColor = vec4(col, 1.0);
+    // === Relief, baked into alpha for the animated pass to light ===
+    // Rust is a crust that swells the surface; the corrosion front lifts the
+    // paint into a blistered ridge; pits sink in; the bare wall undulates
+    float height = 0.42
+      + (grime - 0.5) * 0.10
+      + M * (0.20 + 0.10 * (gran * 0.5 + 0.5))
+      + rimR * 0.12
+      + clamp(halo, 0.0, 1.0) * 0.06 * pitStrength
+      - clamp(pit, 0.0, 1.0) * 0.34 * pitStrength
+      + dried * 0.03
+      + gran * 0.035;
+
+    gl_FragColor = vec4(col, clamp(height, 0.0, 1.0));
   }
 `;
 
-// The animated half: blood spreading like sumi ink dropped on a water surface
-// (closed-form marbling rings + a dense diffusion front + radial filaments),
-// composited over the baked wall.
+// The animated half: a swaying bulb raking the baked wall's relief, and blood
+// spreading like sumi ink dropped on a water surface (closed-form marbling
+// rings + a dense diffusion front + radial filaments) composited over it.
 const fragmentShaderSource = /* glsl */ `${commonSource}
 
   uniform sampler2D u_wall;
   uniform float u_time;
   uniform float u_isDark;
+
+  // The blood runs on its own, slower clock. Blood that bursts open reads as
+  // a screensaver; blood that seeps, too slowly to watch move but never
+  // stopping, is what keeps the eye uneasy
+  const float BLOOD_PACE = 0.35;
 
   float hash11(float n) {
     return fract(sin(n * 12.9898) * 43758.5453);
@@ -244,10 +262,10 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
     out float life
   ) {
     // Quarter-cycle offsets keep a fresh bloom always opening somewhere, and
-    // each drop runs its own ~21-37s cycle: four periods that never line up, so
+    // each drop runs its own ~60-105s cycle: four periods that never line up, so
     // the births stop landing on a metronome beat the eye can follow
     float rate = 0.033 * mix(0.82, 1.42, hash11(fi * 3.11 + 0.9));
-    float phase = u_time * rate + fi * 0.25 + hash11(fi * 7.93 + 2.7) * 0.05;
+    float phase = u_time * BLOOD_PACE * rate + fi * 0.25 + hash11(fi * 7.93 + 2.7) * 0.05;
     age = fract(phase);
     float gen = floor(phase);
     center = vec2(
@@ -267,22 +285,46 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
 
     float intensity = calmIntensity(uv);
 
-    // The wall: rust, pits, run-off and dried blood, baked once per size
-    vec3 col = texture2D(u_wall, uv).rgb;
+    // The wall: rust, pits, run-off and dried blood, baked once per size,
+    // with its relief in alpha
+    vec4 wall = texture2D(u_wall, uv);
+    vec3 col = wall.rgb;
+
+    // === A bare bulb hanging above the frame, swaying on its cord ===
+    // Two incommensurate swings so the arc never settles into a metronome
+    float sway = sin(u_time * 0.21) * 0.65 + sin(u_time * 0.077 + 1.3) * 0.35;
+    vec3 bulb = vec3(aspect * (0.5 + 0.30 * sway), 1.08 - 0.04 * sway * sway, 0.55);
+    vec3 toBulb = bulb - vec3(uvA, 0.0);
+    float bulbD2 = dot(toBulb, toBulb);
+    vec3 l = toBulb * inversesqrt(bulbD2);
+    // Inverse-square-ish falloff, softened so the far corners are dim, not black
+    float pool = 1.0 / (1.0 + bulbD2 * 2.4);
+
+    // Relief from the baked height: the taps stay a constant fraction of the
+    // screen, so the bumps read the same at PlayStation and full resolution
+    vec2 tap = max(1.0, u_resolution.y / 320.0) / u_resolution;
+    float hX = texture2D(u_wall, uv + vec2(tap.x, 0.0)).a;
+    float hY = texture2D(u_wall, uv + vec2(0.0, tap.y)).a;
+    vec3 n = normalize(vec3((wall.a - hX) * 3.2, (wall.a - hY) * 3.2, 1.0));
+    // Only the bumps' deviation from a flat wall: crusts catch the light on
+    // the side facing the bulb and fall into shadow on the other
+    float relief = dot(n, l) - l.z;
+    col *= 1.0 + relief * (1.4 + 1.2 * pool) * intensity;
 
     // === Fresh blood as sumi ink on water ===
     // A shared writhing field: time is injected into the phase via length(q)
     // so the distortion swirls instead of translating
+    float bt = u_time * BLOOD_PACE;
     vec2 qi = uvA;
-    qi += 0.022 * sin(vec2(0.38, 0.33) * u_time + length(qi) * vec2(4.1, 4.3));
+    qi += 0.022 * sin(vec2(0.38, 0.33) * bt + length(qi) * vec2(4.1, 4.3));
     vec2 iw = vec2(
-      fbm3(qi * 2.6 + vec2(u_time * 0.09, -u_time * 0.065)),
-      fbm3(qi * 2.6 + vec2(3.1 + u_time * 0.07, 7.7 + u_time * 0.10))
+      fbm3(qi * 2.6 + vec2(bt * 0.09, -bt * 0.065)),
+      fbm3(qi * 2.6 + vec2(3.1 + bt * 0.07, 7.7 + bt * 0.10))
     );
 
     // Fibrous nijimi texture: ink wicking into paper. Coupled to the flow
     // field so the feathered fingers visibly crawl along the front
-    float fiber = fbm3(uvA * 14.0 - iw * 0.3 + vec2(0.0, u_time * 0.015)) * 0.5 + 0.5;
+    float fiber = fbm3(uvA * 14.0 - iw * 0.3 + vec2(0.0, bt * 0.015)) * 0.5 + 0.5;
 
     // Every drop is read four times by the marbling loop below, so solve the
     // lifecycle once per drop instead of 4x4 times per pixel
@@ -301,9 +343,14 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
       dropLife[i] = lifeI;
     }
 
+    // One canvas pixel in uvA units, for anti-aliasing the ring lattice
+    float px = 1.0 / u_resolution.y;
+    vec2 lightDir = normalize(l.xy + 0.0001);
+
     float inkWash = 0.0;
     float inkRing = 0.0;
     float inkFront = 0.0;
+    float inkSheen = 0.0;
     for (int i = 0; i < 4; i++) {
       float fi = float(i);
       vec2 Ci = dropC[i];
@@ -335,9 +382,15 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
       // Suminagashi ring lattice: bands at sqrt(k) * r0, thinner outward;
       // the fiber jitter makes the year-rings bleed instead of staying crisp
       float r0 = Ri / 3.0;
-      float ru = min(dot(dp, dp) / max(r0 * r0, 0.000001), 64.0);
+      float r02 = max(r0 * r0, 0.000001);
+      float ru = min(dot(dp, dp) / r02, 64.0);
       float tri = abs(2.0 * fract(0.5 * (ru + (fiber - 0.5) * 0.9)) - 1.0);
-      float rings = smoothstep(0.45, 0.75, tri);
+      // The bands crowd together outward and on young drops: once a band is
+      // only a pixel or two wide, soften its edge and then settle it to its
+      // mean tone instead of letting it crawl and shimmer as the drop grows
+      float fw = 2.0 * dist / r02 * px;
+      float rw = max(0.15, fw);
+      float rings = mix(smoothstep(0.6 - rw, 0.6 + rw, tri), 0.4, smoothstep(0.35, 0.9, fw));
       float inside = 1.0 - smoothstep(Ri * 0.92, Ri * 1.04, dist + (fiber - 0.5) * Ri * 0.35);
       float core = 1.0 - smoothstep(0.25, 0.9, ru);
 
@@ -348,21 +401,33 @@ const fragmentShaderSource = /* glsl */ `${commonSource}
       float rim = exp(-sd * sd / (wRim * wRim)) * (1.0 - 0.45 * ageI) * (0.7 + 0.6 * fiber);
 
       // Filaments licking outward: ridged noise, fine across the angle,
-      // stretched along the radius so the spikes point away from the drop
-      float theta = atan(dp.y, dp.x);
-      float fn = snoise(vec2(theta * 5.0, dist * 2.2 / rmaxI - ageI * 2.6) + hash11(fi * 91.7) * 19.0);
-      float fil = pow(max(1.0 - abs(fn) * 1.7, 0.0), 2.0);
+      // stretched along the radius so the spikes point away from the drop.
+      // They live in a thin annulus, so most pixels skip the noise entirely
       float filWin = smoothstep(Ri * 0.8, Ri, dist) * (1.0 - smoothstep(Ri, Ri * 1.6, dist));
+      float fil = 0.0;
+      if (filWin > 0.0) {
+        float theta = atan(dp.y, dp.x);
+        float fn = snoise(vec2(theta * 5.0, dist * 2.2 / rmaxI - ageI * 2.6) + hash11(fi * 91.7) * 19.0);
+        fil = pow(max(1.0 - abs(fn) * 1.7, 0.0), 2.0);
+      }
 
       // Interior pooling drifts with the flow so old drops keep moving
-      float pool = 0.72 + 0.28 * (iw.x * 0.5 + 0.5);
-      inkWash += (core * 0.6 + inside * 0.22) * pool * life;
+      float pooling = 0.72 + 0.28 * (iw.x * 0.5 + 0.5);
+      inkWash += (core * 0.6 + inside * 0.22) * pooling * life;
       inkRing += rings * inside * 0.85 * life;
       inkFront += (rim + fil * filWin * 0.8) * life;
+      // The swollen meniscus at a fresh front is still wet: the side facing
+      // the bulb glints. It dulls as the drop ages and soaks in
+      float facing = max(dot(dp / max(dist, 0.0001), lightDir), 0.0);
+      inkSheen += rim * facing * facing * (1.0 - ageI) * life;
     }
-    col = mix(col, vec3(0.115, 0.030, 0.027), clamp(inkWash, 0.0, 1.0) * 0.75 * intensity);
-    col = mix(col, vec3(0.235, 0.042, 0.034), clamp(inkRing, 0.0, 1.0) * 0.85 * intensity);
-    col = mix(col, vec3(0.315, 0.058, 0.044), clamp(inkFront, 0.0, 1.0) * 0.9 * intensity);
+    col = mix(col, vec3(0.110, 0.013, 0.011), clamp(inkWash, 0.0, 1.0) * 0.75 * intensity);
+    col = mix(col, vec3(0.235, 0.022, 0.017), clamp(inkRing, 0.0, 1.0) * 0.85 * intensity);
+    col = mix(col, vec3(0.320, 0.030, 0.022), clamp(inkFront, 0.0, 1.0) * 0.9 * intensity);
+    col = mix(col, vec3(0.520, 0.050, 0.035), clamp(inkSheen, 0.0, 1.0) * (0.25 + 0.6 * pool) * intensity);
+
+    // The bulb's pool of light over everything, wall and blood alike
+    col *= 0.84 + 0.36 * pool;
 
     // Corner vignette
     col *= 1.0 - smoothstep(0.55, 0.95, length(c)) * 0.35;
