@@ -20,6 +20,8 @@ permissions:
   contents: read
   # To keep one comment on the PR pointing at its latest preview
   pull-requests: write
+  # To record each deploy in the repo's Deployments panel
+  deployments: write
 
 env:
   # Not secrets: they only say which project the token deploys to
@@ -34,6 +36,25 @@ jobs:
       ENVIRONMENT: ${{ github.event_name == 'push' && 'production' || 'preview' }}
       PROD_FLAG: ${{ github.event_name == 'push' && '--prod' || '' }}
     steps:
+      # Vercel writes GitHub deployments only for its own Git builds, which are
+      # off, so the Deployments panel kept showing the last of those (failed)
+      # forever. Record this run there instead, under the same names
+      - name: Open a GitHub deployment
+        id: record
+        run: |
+          id=$(jq -n --arg ref "$SHA" --arg env "$NAME" --argjson prod "$PROD" \
+            '{ref: $ref, environment: $env, production_environment: $prod, auto_merge: false, required_contexts: []}' \
+            | gh api "repos/$GH_REPO/deployments" --input - --jq .id)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          gh api "repos/$GH_REPO/deployments/$id/statuses" -f state=in_progress -f log_url="$RUN_URL" > /dev/null
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          NAME: ${{ github.event_name == 'push' && 'Production' || 'Preview' }}
+          PROD: ${{ github.event_name == 'push' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
       - uses: actions/checkout@v4.4.0
 
       # vercel build runs the project's install, which needs pnpm on the PATH
@@ -65,6 +86,21 @@ jobs:
         id: deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      # Before the PR comment, so a failed comment cannot mark a good deploy
+      # failed. A run cancelled by a newer push is superseded, not failed
+      - name: Close the GitHub deployment
+        if: always() && steps.record.outputs.id
+        run: |
+          gh api "repos/$GH_REPO/deployments/$ID/statuses" -f state="$STATE" -f log_url="$RUN_URL" \
+            ${URL:+-f environment_url="$URL"} > /dev/null
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ID: ${{ steps.record.outputs.id }}
+          STATE: ${{ job.status == 'success' && 'success' || job.status == 'cancelled' && 'inactive' || 'failure' }}
+          URL: ${{ steps.deploy.outputs.url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       # Every deploy gets a new URL, so the PR's comment is rewritten each
       # time rather than a new one added
